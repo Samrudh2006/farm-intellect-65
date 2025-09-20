@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Mail, Phone, Eye, EyeOff, Shield, User } from "lucide-react";
+import { Mail, Phone, Eye, EyeOff, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { PasswordValidation } from "./PasswordValidation";
 import { OTPVerification } from "./OTPVerification";
@@ -25,16 +25,10 @@ export const EnhancedLogin = ({ onLogin }: EnhancedLoginProps) => {
   const [formData, setFormData] = useState({
     email: "",
     phone: "",
-    username: "",
     password: "",
     confirmPassword: "",
     role: "",
     otp: ""
-  });
-  
-  const [errors, setErrors] = useState({
-    password: "",
-    general: ""
   });
 
   const handleInputChange = (field: string, value: string) => {
@@ -47,33 +41,6 @@ export const EnhancedLogin = ({ onLogin }: EnhancedLoginProps) => {
 
   const validatePhone = (phone: string) => {
     return /^[6-9]\d{9}$/.test(phone);
-  };
-
-  const validatePassword = (password: string) => {
-    const requirements = {
-      length: password.length >= 8,
-      uppercase: /[A-Z]/.test(password),
-      lowercase: /[a-z]/.test(password),
-      number: /\d/.test(password),
-      special: /[!@#$%^&*(),.?":{}|<>]/.test(password),
-      noSpaces: !/\s/.test(password)
-    };
-    
-    const isValid = Object.values(requirements).every(Boolean);
-    
-    if (!isValid && password.length > 0) {
-      setErrors(prev => ({
-        ...prev,
-        password: "Password must be at least 8 characters with uppercase, lowercase, number, and special character"
-      }));
-    } else {
-      setErrors(prev => ({
-        ...prev,
-        password: ""
-      }));
-    }
-    
-    return isValid;
   };
 
   const sendOTP = async () => {
@@ -108,73 +75,46 @@ export const EnhancedLogin = ({ onLogin }: EnhancedLoginProps) => {
     setShowOTP(true);
   };
 
-  const handlePasswordChange = (value: string) => {
-    handleInputChange('password', value);
-    validatePassword(value);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrors({ password: "", general: "" });
-    
-    // Validate password for both login and signup
-    if (!validatePassword(formData.password)) {
-      return;
-    }
     
     if (!isLogin && !isValidPassword) {
-      setErrors(prev => ({
-        ...prev,
-        general: "Please ensure your password meets all requirements"
-      }));
+      toast({
+        title: "Invalid Password",
+        description: "Please ensure your password meets all requirements",
+        variant: "destructive"
+      });
       return;
     }
 
     if (!isLogin && formData.password !== formData.confirmPassword) {
-      setErrors(prev => ({
-        ...prev,
-        general: "Passwords don't match"
-      }));
+      toast({
+        title: "Passwords Don't Match",
+        description: "Please ensure both passwords match",
+        variant: "destructive"
+      });
       return;
     }
 
     if (!isLogin && !formData.role) {
-      setErrors(prev => ({
-        ...prev,
-        general: "Please select your role"
-      }));
+      toast({
+        title: "Role Required",
+        description: "Please select your role",
+        variant: "destructive"
+      });
       return;
     }
 
-    if (!isLogin && !formData.username.trim()) {
-      setErrors(prev => ({
-        ...prev,
-        general: "Username is required"
-      }));
-      return;
-    }
-
-    // Mock authentication
-    if (isLogin) {
-      // Mock login validation - in production, check against backend
-      if (formData.password.length < 8) {
-        setErrors(prev => ({
-          ...prev,
-          general: "Invalid credentials"
-        }));
-        return;
-      }
-    }
-
+    // Mock login/signup (in production, call backend API)
     const userData = {
       id: Date.now().toString(),
       email: formData.email,
       phone: formData.phone,
-      username: formData.username || `user_${Date.now()}`,
       role: formData.role || 'farmer',
       isFirstLogin: !isLogin
     };
 
+    // Save to localStorage (temporary solution)
     localStorage.setItem('currentUser', JSON.stringify(userData));
     
     toast({
@@ -186,34 +126,11 @@ export const EnhancedLogin = ({ onLogin }: EnhancedLoginProps) => {
   };
 
   const handleGoogleLogin = () => {
-    // Mock Google OAuth - in production, integrate with actual Google OAuth
-    const userData = {
-      id: Date.now().toString(),
-      email: "user@gmail.com",
-      username: "Google User",
-      role: 'farmer',
-      isFirstLogin: true
-    };
-
-    localStorage.setItem('currentUser', JSON.stringify(userData));
-    
+    // Mock Google OAuth (in production, integrate with Google OAuth)
     toast({
-      title: "Google Login Successful",
-      description: "Welcome! You've been signed in with Google",
+      title: "Google Login",
+      description: "Google OAuth integration would be implemented here",
     });
-
-    onLogin(userData);
-  };
-
-  const handleOTPLogin = (userData: any) => {
-    localStorage.setItem('currentUser', JSON.stringify(userData));
-    
-    toast({
-      title: "OTP Verification Successful",
-      description: "Welcome! You've been signed in",
-    });
-
-    onLogin(userData);
   };
 
   return (
@@ -227,24 +144,12 @@ export const EnhancedLogin = ({ onLogin }: EnhancedLoginProps) => {
         
         <CardContent>
           {showOTP ? (
-            <OTPVerification
-              type={activeTab === "email" ? "email" : "sms"}
-              contact={activeTab === "email" ? formData.email : formData.phone}
-              purpose="login"
-              userId="temp"
-              onVerified={() => {
-                const userData = {
-                  id: Date.now().toString(),
-                  email: formData.email,
-                  phone: formData.phone,
-                  username: formData.username || `user_${Date.now()}`,
-                  role: formData.role || 'farmer',
-                  isFirstLogin: true
-                };
-                handleOTPLogin(userData);
-              }}
-              onCancel={() => setShowOTP(false)}
-            />
+            <div className="text-center">
+              <p>OTP sent to {activeTab === "email" ? formData.email : formData.phone}</p>
+              <Button onClick={() => setShowOTP(false)} className="mt-4">
+                Back to Login
+              </Button>
+            </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -289,37 +194,19 @@ export const EnhancedLogin = ({ onLogin }: EnhancedLoginProps) => {
               </Tabs>
 
               {!isLogin && (
-                <>
-                  <div className="space-y-2">
-                    <Label htmlFor="username">Username</Label>
-                    <div className="relative">
-                      <Input
-                        id="username"
-                        type="text"
-                        value={formData.username}
-                        onChange={(e) => handleInputChange('username', e.target.value)}
-                        placeholder="Enter your username"
-                        className="pl-10"
-                        required
-                      />
-                      <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="role">Role</Label>
-                    <Select value={formData.role} onValueChange={(value) => handleInputChange('role', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select your role" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="farmer">Farmer</SelectItem>
-                        <SelectItem value="merchant">Merchant</SelectItem>
-                        <SelectItem value="expert">Expert</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </>
+                <div className="space-y-2">
+                  <Label htmlFor="role">Role</Label>
+                  <Select value={formData.role} onValueChange={(value) => handleInputChange('role', value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select your role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="farmer">Farmer</SelectItem>
+                      <SelectItem value="merchant">Merchant</SelectItem>
+                      <SelectItem value="expert">Expert</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               )}
 
               <div className="space-y-2">
@@ -329,7 +216,7 @@ export const EnhancedLogin = ({ onLogin }: EnhancedLoginProps) => {
                     id="password"
                     type={showPassword ? "text" : "password"}
                     value={formData.password}
-                    onChange={(e) => handlePasswordChange(e.target.value)}
+                    onChange={(e) => handleInputChange('password', e.target.value)}
                     placeholder="Enter your password"
                     required
                   />
@@ -343,9 +230,6 @@ export const EnhancedLogin = ({ onLogin }: EnhancedLoginProps) => {
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </Button>
                 </div>
-                {errors.password && (
-                  <p className="text-sm text-destructive mt-1">{errors.password}</p>
-                )}
               </div>
 
               {!isLogin && (
@@ -367,12 +251,6 @@ export const EnhancedLogin = ({ onLogin }: EnhancedLoginProps) => {
                     />
                   </div>
                 </>
-              )}
-
-              {errors.general && (
-                <div className="bg-destructive/10 border border-destructive/20 rounded-md p-3">
-                  <p className="text-sm text-destructive">{errors.general}</p>
-                </div>
               )}
 
               <div className="space-y-3">
