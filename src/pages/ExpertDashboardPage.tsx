@@ -2,14 +2,11 @@ import { useState } from "react";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { RoleDashboard } from "@/components/dashboard/RoleDashboard";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 const ExpertDashboardPage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  
-  const user = {
-    name: "Dr. Expert",
-    role: "expert",
-  };
+  const user = useCurrentUser();
 
   return (
     <div className="min-h-screen bg-background">

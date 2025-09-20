@@ -48,11 +48,11 @@ export const OTPVerification = ({
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // Mock verification logic
-      if (otp === "123456") {
+      // Mock verification logic - accept any 6-digit OTP for demo
+      if (otp.length === 6 && /^\d+$/.test(otp)) {
         onVerified();
       } else {
-        setError("Invalid OTP. Please try again.");
+        setError("Invalid OTP. Please enter a valid 6-digit code.");
       }
     } catch (err) {
       setError("Verification failed. Please try again.");
