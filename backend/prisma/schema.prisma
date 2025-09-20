@@ -1,0 +1,247 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  password      String
+  name          String
+  phone         String?
+  location      String?
+  role          UserRole
+  isVerified    Boolean   @default(false)
+  emailVerified Boolean   @default(false)
+  phoneVerified Boolean   @default(false)
+  profileImage  String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  documents       Document[]
+  otpCodes        OtpCode[]
+  notifications   Notification[]
+  posts           Post[]
+  comments        Comment[]
+  chatMessages    ChatMessage[]
+  activities      Activity[]
+  farmerProfile   FarmerProfile?
+  merchantProfile MerchantProfile?
+  expertProfile   ExpertProfile?
+
+  @@map("users")
+}
+
+model FarmerProfile {
+  id          String @id @default(uuid())
+  userId      String @unique
+  farmSize    Float?
+  cropTypes   String? // JSON array of crop types
+  experience  Int? // years of experience
+  latitude    Float?
+  longitude   Float?
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("farmer_profiles")
+}
+
+model MerchantProfile {
+  id           String @id @default(uuid())
+  userId       String @unique
+  businessName String?
+  businessType String?
+  yearsInBusiness Int?
+  rating       Float? @default(0)
+  latitude     Float?
+  longitude    Float?
+  user         User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("merchant_profiles")
+}
+
+model ExpertProfile {
+  id             String @id @default(uuid())
+  userId         String @unique
+  specialization String?
+  experience     Int? // years of experience
+  rating         Float? @default(0)
+  consultations  Int? @default(0)
+  user           User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("expert_profiles")
+}
+
+model Document {
+  id           String       @id @default(uuid())
+  userId       String
+  type         DocumentType
+  fileName     String
+  filePath     String
+  originalName String
+  mimeType     String
+  size         Int
+  isVerified   Boolean      @default(false)
+  verifiedAt   DateTime?
+  createdAt    DateTime     @default(now())
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("documents")
+}
+
+model OtpCode {
+  id        String    @id @default(uuid())
+  userId    String
+  code      String
+  type      OtpType
+  purpose   String // signup, login, reset-password, critical-action
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("otp_codes")
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  title     String
+  message   String
+  type      NotificationType
+  isRead    Boolean          @default(false)
+  data      String? // JSON data for additional context
+  createdAt DateTime         @default(now())
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model Post {
+  id          String    @id @default(uuid())
+  authorId    String
+  title       String
+  content     String
+  category    String
+  tags        String? // JSON array
+  likes       Int       @default(0)
+  views       Int       @default(0)
+  isApproved  Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  author      User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments    Comment[]
+
+  @@map("posts")
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  postId    String
+  authorId  String
+  content   String
+  likes     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@map("comments")
+}
+
+model ChatMessage {
+  id        String      @id @default(uuid())
+  userId    String
+  message   String
+  type      MessageType @default(USER)
+  context   String? // JSON context for AI responses
+  createdAt DateTime    @default(now())
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("chat_messages")
+}
+
+model Activity {
+  id          String       @id @default(uuid())
+  userId      String
+  action      String
+  description String
+  entityType  String? // crop, order, consultation, etc.
+  entityId    String?
+  metadata    String? // JSON metadata
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime     @default(now())
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("activities")
+}
+
+model CropCalendar {
+  id          String   @id @default(uuid())
+  userId      String
+  cropType    String
+  plantingDate DateTime
+  harvestDate DateTime?
+  stage       String
+  reminders   String? // JSON array of reminders
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("crop_calendar")
+}
+
+model AIRecommendation {
+  id          String   @id @default(uuid())
+  userId      String
+  type        String // crop, fertilizer, pest-control, etc.
+  title       String
+  description String
+  confidence  Float
+  data        String? // JSON data
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  @@map("ai_recommendations")
+}
+
+enum UserRole {
+  FARMER
+  MERCHANT
+  EXPERT
+  ADMIN
+}
+
+enum DocumentType {
+  ID_PROOF
+  ADDRESS_PROOF
+  LAND_RECORDS
+  BUSINESS_LICENSE
+  OTHER
+}
+
+enum OtpType {
+  EMAIL
+  SMS
+}
+
+enum NotificationType {
+  INFO
+  WARNING
+  ERROR
+  SUCCESS
+  REMINDER
+}
+
+enum MessageType {
+  USER
+  AI_ASSISTANT
+}
