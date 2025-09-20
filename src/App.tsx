@@ -35,6 +35,22 @@ import Notifications from "./pages/Notifications";
 import Documents from "./pages/Documents";
 import Chat from "./pages/Chat";
 
+// Role-specific imports
+import MerchantFarmers from "./pages/merchant/MerchantFarmers";
+import MerchantMarketPrices from "./pages/merchant/MerchantMarketPrices";
+import MerchantDocuments from "./pages/merchant/MerchantDocuments";
+import MerchantNotifications from "./pages/merchant/MerchantNotifications";
+
+import ExpertAICropScanner from "./pages/expert/ExpertAICropScanner";
+import ExpertAIAdvisory from "./pages/expert/ExpertAIAdvisory";
+import ExpertChat from "./pages/expert/ExpertChat";
+import ExpertNotifications from "./pages/expert/ExpertNotifications";
+
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminAnalytics from "./pages/admin/AdminAnalytics";
+import AdminSettings from "./pages/admin/AdminSettings";
+import AdminNotifications from "./pages/admin/AdminNotifications";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -67,24 +83,24 @@ const App = () => (
             
             {/* Merchant Routes */}
             <Route path="/merchant/dashboard" element={<MerchantDashboardPage />} />
-            <Route path="/merchant/farmers" element={<Farmers />} />
-            <Route path="/merchant/market-prices" element={<Merchants />} />
-            <Route path="/merchant/documents" element={<Documents />} />
-            <Route path="/merchant/notifications" element={<Notifications />} />
+            <Route path="/merchant/farmers" element={<MerchantFarmers />} />
+            <Route path="/merchant/market-prices" element={<MerchantMarketPrices />} />
+            <Route path="/merchant/documents" element={<MerchantDocuments />} />
+            <Route path="/merchant/notifications" element={<MerchantNotifications />} />
             
             {/* Expert Routes */}
             <Route path="/expert/dashboard" element={<ExpertDashboardPage />} />
-            <Route path="/expert/ai-crop-scanner" element={<AICropScanner />} />
-            <Route path="/expert/ai-advisory" element={<AIAdvisory />} />
-            <Route path="/expert/chat" element={<Chat />} />
-            <Route path="/expert/notifications" element={<Notifications />} />
+            <Route path="/expert/ai-crop-scanner" element={<ExpertAICropScanner />} />
+            <Route path="/expert/ai-advisory" element={<ExpertAIAdvisory />} />
+            <Route path="/expert/chat" element={<ExpertChat />} />
+            <Route path="/expert/notifications" element={<ExpertNotifications />} />
             
             {/* Admin Routes */}
             <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
-            <Route path="/admin/users" element={<Users />} />
-            <Route path="/admin/analytics" element={<Analytics />} />
-            <Route path="/admin/settings" element={<Settings />} />
-            <Route path="/admin/notifications" element={<Notifications />} />
+            <Route path="/admin/users" element={<AdminUsers />} />
+            <Route path="/admin/analytics" element={<AdminAnalytics />} />
+            <Route path="/admin/settings" element={<AdminSettings />} />
+            <Route path="/admin/notifications" element={<AdminNotifications />} />
             
             {/* Legacy Routes - Redirect to role-specific routes */}
             <Route path="/dashboard" element={<Dashboard />} />
