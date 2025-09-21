@@ -34,6 +34,7 @@ import Calendar from "./pages/Calendar";
 import Notifications from "./pages/Notifications";
 import Documents from "./pages/Documents";
 import Chat from "./pages/Chat";
+import FarmFeatures from "./pages/FarmFeatures";
 
 // Role-specific imports
 import MerchantFarmers from "./pages/merchant/MerchantFarmers";
@@ -80,6 +81,7 @@ const App = () => (
             <Route path="/farmer/calendar" element={<Calendar />} />
             <Route path="/farmer/documents" element={<Documents />} />
             <Route path="/farmer/notifications" element={<Notifications />} />
+            <Route path="/farmer/features" element={<FarmFeatures />} />
             
             {/* Merchant Routes */}
             <Route path="/merchant/dashboard" element={<MerchantDashboardPage />} />

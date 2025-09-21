@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Mail, Phone, Eye, EyeOff, Shield } from "lucide-react";
+import { CreditCard, Phone, Eye, EyeOff, Shield, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { PasswordValidation } from "./PasswordValidation";
 import { OTPVerification } from "./OTPVerification";
@@ -16,15 +16,17 @@ interface EnhancedLoginProps {
 
 export const EnhancedLogin = ({ onLogin }: EnhancedLoginProps) => {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState("email");
+  const [activeTab, setActiveTab] = useState("aadhaar");
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [showOTP, setShowOTP] = useState(false);
   const [isValidPassword, setIsValidPassword] = useState(false);
   
   const [formData, setFormData] = useState({
-    email: "",
+    aadhaar: "",
+    farmerId: "",
     phone: "",
+    username: "",
     password: "",
     confirmPassword: "",
     role: "",
@@ -35,8 +37,16 @@ export const EnhancedLogin = ({ onLogin }: EnhancedLoginProps) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const validateEmail = (email: string) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const validateAadhaar = (aadhaar: string) => {
+    return /^\d{12}$/.test(aadhaar);
+  };
+
+  const validatePassword = (password: string) => {
+    const minLength = password.length >= 6;
+    const hasUpper = /[A-Z]/.test(password);
+    const hasLower = /[a-z]/.test(password);
+    const hasNumber = /\d/.test(password);
+    return minLength && hasUpper && hasLower && hasNumber;
   };
 
   const validatePhone = (phone: string) => {
@@ -44,12 +54,12 @@ export const EnhancedLogin = ({ onLogin }: EnhancedLoginProps) => {
   };
 
   const sendOTP = async () => {
-    const identifier = activeTab === "email" ? formData.email : formData.phone;
+    const identifier = activeTab === "aadhaar" ? formData.aadhaar : formData.phone;
     
-    if (activeTab === "email" && !validateEmail(identifier)) {
+    if (activeTab === "aadhaar" && !validateAadhaar(identifier)) {
       toast({
-        title: "Invalid Email",
-        description: "Please enter a valid email address",
+        title: "Invalid Aadhaar",
+        description: "Please enter a valid 12-digit Aadhaar number",
         variant: "destructive"
       });
       return;
@@ -69,7 +79,7 @@ export const EnhancedLogin = ({ onLogin }: EnhancedLoginProps) => {
     
     toast({
       title: "OTP Sent",
-      description: `OTP sent to your ${activeTab === "email" ? "email" : "phone number"}`,
+      description: `OTP sent to your ${activeTab === "aadhaar" ? "registered mobile" : "phone number"}`,
     });
     
     setShowOTP(true);
@@ -78,10 +88,11 @@ export const EnhancedLogin = ({ onLogin }: EnhancedLoginProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!isLogin && !isValidPassword) {
+    // Password validation for signup
+    if (!isLogin && !validatePassword(formData.password)) {
       toast({
         title: "Invalid Password",
-        description: "Please ensure your password meets all requirements",
+        description: "Password must be at least 6 characters with 1 uppercase, 1 lowercase, and 1 number",
         variant: "destructive"
       });
       return;
@@ -105,10 +116,32 @@ export const EnhancedLogin = ({ onLogin }: EnhancedLoginProps) => {
       return;
     }
 
+    if (!isLogin && !formData.username.trim()) {
+      toast({
+        title: "Username Required",
+        description: "Please enter your name",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validate identification
+    const identifier = activeTab === "aadhaar" ? formData.aadhaar : formData.farmerId;
+    if (!identifier) {
+      toast({
+        title: "ID Required",
+        description: `Please enter your ${activeTab === "aadhaar" ? "Aadhaar number" : "Farmer ID"}`,
+        variant: "destructive"
+      });
+      return;
+    }
+
     // Mock login/signup (in production, call backend API)
     const userData = {
       id: Date.now().toString(),
-      email: formData.email,
+      username: formData.username || "Farmer",
+      aadhaar: formData.aadhaar,
+      farmerId: formData.farmerId,
       phone: formData.phone,
       role: formData.role || 'farmer',
       isFirstLogin: !isLogin
@@ -127,10 +160,22 @@ export const EnhancedLogin = ({ onLogin }: EnhancedLoginProps) => {
 
   const handleGoogleLogin = () => {
     // Mock Google OAuth (in production, integrate with Google OAuth)
+    const userData = {
+      id: Date.now().toString(),
+      username: "Google User",
+      role: 'farmer',
+      loginMethod: 'google',
+      isFirstLogin: false
+    };
+
+    localStorage.setItem('currentUser', JSON.stringify(userData));
+    
     toast({
-      title: "Google Login",
-      description: "Google OAuth integration would be implemented here",
+      title: "Google Login Successful",
+      description: "Welcome! You're logged in with Google",
     });
+
+    onLogin(userData);
   };
 
   return (
@@ -144,54 +189,88 @@ export const EnhancedLogin = ({ onLogin }: EnhancedLoginProps) => {
         
         <CardContent>
           {showOTP ? (
-            <div className="text-center">
-              <p>OTP sent to {activeTab === "email" ? formData.email : formData.phone}</p>
-              <Button onClick={() => setShowOTP(false)} className="mt-4">
-                Back to Login
-              </Button>
+            <div className="text-center space-y-4">
+              <p>OTP sent to {activeTab === "aadhaar" ? "registered mobile" : formData.phone}</p>
+              <Input
+                placeholder="Enter 6-digit OTP"
+                value={formData.otp}
+                onChange={(e) => handleInputChange('otp', e.target.value)}
+                maxLength={6}
+              />
+              <div className="flex gap-2">
+                <Button onClick={() => {
+                  if (formData.otp === "123456") {
+                    const userData = { username: formData.username || "Farmer", role: formData.role || "farmer" };
+                    localStorage.setItem('currentUser', JSON.stringify(userData));
+                    onLogin(userData);
+                  }
+                }} className="flex-1">Verify OTP</Button>
+                <Button variant="outline" onClick={() => setShowOTP(false)}>Back</Button>
+              </div>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="email" className="flex items-center gap-2">
-                    <Mail className="h-4 w-4" />
-                    Email
+                  <TabsTrigger value="aadhaar" className="flex items-center gap-2">
+                    <CreditCard className="h-4 w-4" />
+                    Aadhaar
                   </TabsTrigger>
-                  <TabsTrigger value="phone" className="flex items-center gap-2">
-                    <Phone className="h-4 w-4" />
-                    Phone
+                  <TabsTrigger value="farmerId" className="flex items-center gap-2">
+                    <User className="h-4 w-4" />
+                    Farmer ID
                   </TabsTrigger>
                 </TabsList>
                 
-                <TabsContent value="email" className="space-y-4">
+                <TabsContent value="aadhaar" className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email Address</Label>
+                    <Label htmlFor="aadhaar">Aadhaar Number</Label>
                     <Input
-                      id="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => handleInputChange('email', e.target.value)}
-                      placeholder="Enter your email"
+                      id="aadhaar"
+                      type="text"
+                      value={formData.aadhaar}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, '').slice(0, 12);
+                        handleInputChange('aadhaar', value);
+                      }}
+                      placeholder="Enter 12-digit Aadhaar number"
+                      maxLength={12}
                       required
                     />
+                    {formData.aadhaar && !validateAadhaar(formData.aadhaar) && (
+                      <p className="text-sm text-red-500">Please enter a valid 12-digit Aadhaar number</p>
+                    )}
                   </div>
                 </TabsContent>
                 
-                <TabsContent value="phone" className="space-y-4">
+                <TabsContent value="farmerId" className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="phone">Phone Number</Label>
+                    <Label htmlFor="farmerId">Farmer ID</Label>
                     <Input
-                      id="phone"
-                      type="tel"
-                      value={formData.phone}
-                      onChange={(e) => handleInputChange('phone', e.target.value)}
-                      placeholder="Enter 10-digit phone number"
+                      id="farmerId"
+                      type="text"
+                      value={formData.farmerId}
+                      onChange={(e) => handleInputChange('farmerId', e.target.value)}
+                      placeholder="Enter your Farmer ID"
                       required
                     />
                   </div>
                 </TabsContent>
               </Tabs>
+
+              {!isLogin && (
+                <div className="space-y-2">
+                  <Label htmlFor="username">Your Name</Label>
+                  <Input
+                    id="username"
+                    type="text"
+                    value={formData.username}
+                    onChange={(e) => handleInputChange('username', e.target.value)}
+                    placeholder="Enter your full name"
+                    required
+                  />
+                </div>
+              )}
 
               {!isLogin && (
                 <div className="space-y-2">
@@ -217,7 +296,7 @@ export const EnhancedLogin = ({ onLogin }: EnhancedLoginProps) => {
                     type={showPassword ? "text" : "password"}
                     value={formData.password}
                     onChange={(e) => handleInputChange('password', e.target.value)}
-                    placeholder="Enter your password"
+                    placeholder="Min 6 chars, 1 upper, 1 lower, 1 number"
                     required
                   />
                   <Button
@@ -230,27 +309,28 @@ export const EnhancedLogin = ({ onLogin }: EnhancedLoginProps) => {
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </Button>
                 </div>
+                {formData.password && !validatePassword(formData.password) && (
+                  <p className="text-sm text-red-500">
+                    Password must have 6+ characters, 1 uppercase, 1 lowercase, 1 number
+                  </p>
+                )}
               </div>
 
               {!isLogin && (
-                <>
-                  <PasswordValidation 
-                    password={formData.password} 
-                    onValidationChange={setIsValidPassword}
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">Confirm Password</Label>
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    value={formData.confirmPassword}
+                    onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                    placeholder="Confirm your password"
+                    required
                   />
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Confirm Password</Label>
-                    <Input
-                      id="confirmPassword"
-                      type="password"
-                      value={formData.confirmPassword}
-                      onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                      placeholder="Confirm your password"
-                      required
-                    />
-                  </div>
-                </>
+                  {formData.confirmPassword && formData.password !== formData.confirmPassword && (
+                    <p className="text-sm text-red-500">Passwords do not match</p>
+                  )}
+                </div>
               )}
 
               <div className="space-y-3">
