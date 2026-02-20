@@ -2,115 +2,133 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
+/* 🇮🇳 India Tricolor Design System
+   Saffron (top) • White (middle) • India Green (bottom) • Navy Blue (Ashoka Chakra)
+   All colors MUST be HSL.
 */
 
 @layer base {
   :root {
-    /* 🇮🇳 India Flag Theme - Saffron, White, Green */
+    /* White background */
     --background: 0 0% 100%;
-    --foreground: 150 30% 12%;
+    --foreground: 160 25% 10%;
 
     --card: 0 0% 100%;
-    --card-foreground: 150 30% 12%;
+    --card-foreground: 160 25% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 150 30% 12%;
+    --popover-foreground: 160 25% 10%;
 
-    /* Saffron - primary action color */
-    --primary: 24 90% 50%;
+    /* India Green - primary color for buttons/actions */
+    --primary: 145 63% 32%;
     --primary-foreground: 0 0% 100%;
 
-    /* Light saffron tint */
-    --secondary: 24 60% 96%;
-    --secondary-foreground: 150 30% 12%;
+    /* Light saffron tinted secondary */
+    --secondary: 25 50% 96%;
+    --secondary-foreground: 160 25% 10%;
 
-    /* Light green tint */
-    --muted: 145 20% 95%;
-    --muted-foreground: 150 10% 40%;
+    /* Light green muted */
+    --muted: 145 15% 95%;
+    --muted-foreground: 160 8% 42%;
 
-    /* India Green - accent */
-    --accent: 145 63% 32%;
+    /* Saffron accent — for highlights, badges, CTAs */
+    --accent: 24 90% 50%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 24 20% 90%;
-    --input: 24 20% 90%;
-    --ring: 24 90% 50%;
+    /* Subtle green border */
+    --border: 145 12% 89%;
+    --input: 145 12% 89%;
+    --ring: 145 63% 32%;
 
-    /* Custom tricolor palette */
+    /* Tricolor palette tokens */
+    --saffron: 24 90% 50%;
+    --saffron-foreground: 0 0% 100%;
+
+    --india-green: 145 63% 32%;
+    --india-green-foreground: 0 0% 100%;
+
+    --navy: 220 70% 28%;
+    --navy-foreground: 0 0% 100%;
+
+    /* Keep legacy tokens mapped */
     --earth: 24 80% 55%;
     --earth-foreground: 0 0% 100%;
-    
     --harvest: 40 95% 55%;
-    --harvest-foreground: 150 30% 12%;
-    
-    --water: 220 80% 50%;
+    --harvest-foreground: 160 25% 10%;
+    --water: 220 70% 28%;
     --water-foreground: 0 0% 100%;
-    
     --soil: 145 50% 25%;
     --soil-foreground: 0 0% 100%;
 
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(24 90% 50%), hsl(145 63% 32%));
     --gradient-earth: linear-gradient(135deg, hsl(24 80% 55%), hsl(40 95% 55%));
-    --gradient-sky: linear-gradient(135deg, hsl(220 80% 50%), hsl(145 63% 42%));
-    
+    --gradient-sky: linear-gradient(135deg, hsl(220 70% 28%), hsl(145 63% 42%));
+
     /* Shadows */
-    --shadow-soft: 0 2px 10px hsl(24 90% 50% / 0.12);
-    --shadow-glow: 0 0 20px hsl(145 63% 32% / 0.25);
+    --shadow-soft: 0 2px 10px hsl(145 63% 32% / 0.1);
+    --shadow-glow: 0 0 20px hsl(24 90% 50% / 0.2);
 
     --radius: 0.5rem;
 
-    --sidebar-background: 145 20% 97%;
-    --sidebar-foreground: 150 30% 12%;
-    --sidebar-primary: 24 90% 50%;
+    /* Sidebar — soft green tint */
+    --sidebar-background: 145 18% 97%;
+    --sidebar-foreground: 160 25% 10%;
+    --sidebar-primary: 145 63% 32%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 145 30% 93%;
-    --sidebar-accent-foreground: 150 30% 12%;
-    --sidebar-border: 145 15% 90%;
-    --sidebar-ring: 24 90% 50%;
+    --sidebar-accent: 24 80% 94%;
+    --sidebar-accent-foreground: 160 25% 10%;
+    --sidebar-border: 145 12% 90%;
+    --sidebar-ring: 145 63% 32%;
   }
 
   .dark {
-    --background: 150 20% 6%;
+    --background: 160 20% 5%;
     --foreground: 0 0% 95%;
 
-    --card: 150 20% 8%;
+    --card: 160 18% 8%;
     --card-foreground: 0 0% 95%;
 
-    --popover: 150 20% 8%;
+    --popover: 160 18% 8%;
     --popover-foreground: 0 0% 95%;
 
-    --primary: 24 85% 55%;
+    --primary: 145 55% 40%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 150 15% 15%;
+    --secondary: 160 12% 14%;
     --secondary-foreground: 0 0% 95%;
 
-    --muted: 150 15% 15%;
-    --muted-foreground: 150 10% 60%;
+    --muted: 160 12% 14%;
+    --muted-foreground: 160 8% 58%;
 
-    --accent: 145 50% 38%;
+    --accent: 24 85% 55%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 62% 35%;
     --destructive-foreground: 0 0% 95%;
 
-    --border: 150 15% 18%;
-    --input: 150 15% 18%;
-    --ring: 24 85% 55%;
-    --sidebar-background: 150 20% 8%;
+    --border: 160 12% 16%;
+    --input: 160 12% 16%;
+    --ring: 145 55% 40%;
+
+    --saffron: 24 85% 55%;
+    --saffron-foreground: 0 0% 100%;
+    --india-green: 145 55% 40%;
+    --india-green-foreground: 0 0% 100%;
+    --navy: 220 60% 50%;
+    --navy-foreground: 0 0% 100%;
+
+    --sidebar-background: 160 18% 7%;
     --sidebar-foreground: 0 0% 92%;
-    --sidebar-primary: 24 85% 55%;
+    --sidebar-primary: 145 55% 40%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 150 15% 14%;
+    --sidebar-accent: 160 12% 13%;
     --sidebar-accent-foreground: 0 0% 92%;
-    --sidebar-border: 150 15% 16%;
-    --sidebar-ring: 24 85% 55%;
+    --sidebar-border: 160 12% 15%;
+    --sidebar-ring: 145 55% 40%;
   }
 }
 
@@ -121,5 +139,31 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* 🇮🇳 Tricolor utility classes */
+@layer utilities {
+  .tricolor-bar {
+    background: linear-gradient(90deg, hsl(24 90% 50%) 33.33%, hsl(0 0% 100%) 33.33%, hsl(0 0% 100%) 66.66%, hsl(145 63% 32%) 66.66%);
+  }
+  .tricolor-bar-top {
+    border-top: 3px solid transparent;
+    border-image: linear-gradient(90deg, hsl(24 90% 50%) 33.33%, hsl(0 0% 100%) 33.33%, hsl(0 0% 100%) 66.66%, hsl(145 63% 32%) 66.66%) 1;
+  }
+  .gradient-tricolor {
+    background: linear-gradient(135deg, hsl(24 90% 50%), hsl(220 70% 28%), hsl(145 63% 32%));
+  }
+  .text-gradient-tricolor {
+    background: linear-gradient(135deg, hsl(24 90% 50%), hsl(145 63% 32%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .text-gradient-saffron-navy {
+    background: linear-gradient(135deg, hsl(24 90% 50%), hsl(220 70% 28%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 }

@@ -73,6 +73,18 @@ export default {
           DEFAULT: "hsl(var(--soil))",
           foreground: "hsl(var(--soil-foreground))",
         },
+        saffron: {
+          DEFAULT: "hsl(var(--saffron))",
+          foreground: "hsl(var(--saffron-foreground))",
+        },
+        "india-green": {
+          DEFAULT: "hsl(var(--india-green))",
+          foreground: "hsl(var(--india-green-foreground))",
+        },
+        navy: {
+          DEFAULT: "hsl(var(--navy))",
+          foreground: "hsl(var(--navy-foreground))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
