@@ -88,7 +88,7 @@ const AdminUsers = () => {
       <main className="md:ml-64 p-6">
         <div className="space-y-6">
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-bold text-gradient-saffron-navy">
               👥 User Management Center
             </h1>
             <p className="text-muted-foreground text-lg mt-2">

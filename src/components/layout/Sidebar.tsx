@@ -79,7 +79,7 @@ export const Sidebar = ({ isOpen, onClose, userRole = "farmer" }: SidebarProps) 
       {/* Mobile overlay */}
       {isOpen && (
         <div 
-          className="fixed inset-0 z-40 bg-black/20 md:hidden" 
+          className="fixed inset-0 z-40 bg-foreground/20 md:hidden" 
           onClick={onClose}
         />
       )}
@@ -91,9 +91,12 @@ export const Sidebar = ({ isOpen, onClose, userRole = "farmer" }: SidebarProps) 
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
+        {/* Green left edge accent */}
+        <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary" />
+        
         <div className="p-4">
           {/* Role-specific welcome message */}
-          <div className="mb-6 p-3 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-lg border border-primary/20">
+          <div className="mb-6 p-3 rounded-lg border border-primary/20" style={{background: 'linear-gradient(135deg, hsl(24 90% 50% / 0.08), hsl(145 63% 32% / 0.08))'}}>
             <h3 className="font-semibold text-sm text-primary mb-1">
               {userRole === 'farmer' && '🚜 Farmer Portal'}
               {userRole === 'merchant' && '🤝 Business Hub'}
@@ -119,7 +122,7 @@ export const Sidebar = ({ isOpen, onClose, userRole = "farmer" }: SidebarProps) 
                     "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 hover:scale-105",
                     isActive
                       ? "bg-primary text-primary-foreground shadow-md"
-                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground hover:shadow-sm"
+                      : "text-muted-foreground hover:bg-primary/5 hover:text-foreground hover:shadow-sm"
                   )
                 }
               >
