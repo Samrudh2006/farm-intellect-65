@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { AshokaChakra } from "@/components/ui/ashoka-chakra";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -87,22 +88,25 @@ export const Sidebar = ({ isOpen, onClose, userRole = "farmer" }: SidebarProps) 
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed left-0 top-16 z-50 h-[calc(100vh-4rem)] w-64 transform border-r border-border bg-card transition-transform duration-200 ease-in-out md:translate-x-0",
+          "fixed left-0 top-[calc(1.5rem+4rem)] z-50 h-[calc(100vh-5.5rem)] w-64 transform border-r border-border bg-card transition-transform duration-200 ease-in-out md:translate-x-0",
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        {/* Green left edge accent */}
-        <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary" />
+        {/* Tricolor left edge */}
+        <div className="absolute left-0 top-0 bottom-0 w-1 tricolor-bar-vertical" />
         
-        <div className="p-4">
-          {/* Role-specific welcome message */}
-          <div className="mb-6 p-3 rounded-lg border border-primary/20" style={{background: 'linear-gradient(135deg, hsl(24 90% 50% / 0.08), hsl(145 63% 32% / 0.08))'}}>
-            <h3 className="font-semibold text-sm text-primary mb-1">
-              {userRole === 'farmer' && '🚜 Farmer Portal'}
-              {userRole === 'merchant' && '🤝 Business Hub'}
-              {userRole === 'expert' && '🎓 Expert Center'}
-              {userRole === 'admin' && '🛡 Admin Control'}
-            </h3>
+        <div className="p-4 overflow-y-auto h-full">
+          {/* Role-specific welcome with Chakra */}
+          <div className="mb-6 p-3 rounded-lg border border-primary/20 bg-gradient-to-r from-accent/5 via-background to-primary/5">
+            <div className="flex items-center gap-2 mb-1">
+              <AshokaChakra size={20} />
+              <h3 className="font-semibold text-sm text-foreground">
+                {userRole === 'farmer' && '🚜 Farmer Portal'}
+                {userRole === 'merchant' && '🤝 Business Hub'}
+                {userRole === 'expert' && '🎓 Expert Center'}
+                {userRole === 'admin' && '🛡 Admin Control'}
+              </h3>
+            </div>
             <p className="text-xs text-muted-foreground">
               {userRole === 'farmer' && 'Your farm management toolkit'}
               {userRole === 'merchant' && 'Partner farmer connections'}
@@ -119,10 +123,10 @@ export const Sidebar = ({ isOpen, onClose, userRole = "farmer" }: SidebarProps) 
                 onClick={onClose}
                 className={({ isActive }) =>
                   cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 hover:scale-105",
+                    "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200",
                     isActive
                       ? "bg-primary text-primary-foreground shadow-md"
-                      : "text-muted-foreground hover:bg-primary/5 hover:text-foreground hover:shadow-sm"
+                      : "text-muted-foreground hover:bg-accent/10 hover:text-foreground hover:shadow-sm hover:translate-x-1"
                   )
                 }
               >
@@ -132,6 +136,9 @@ export const Sidebar = ({ isOpen, onClose, userRole = "farmer" }: SidebarProps) 
             ))}
           </nav>
         </div>
+
+        {/* Tricolor bottom bar */}
+        <div className="absolute bottom-0 left-0 right-0 tricolor-bar h-1" />
       </aside>
     </>
   );

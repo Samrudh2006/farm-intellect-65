@@ -4,33 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
-  User, 
-  Calendar, 
-  TrendingUp, 
-  Wallet, 
-  Users, 
-  Wheat,
-  ShoppingCart,
-  CheckCircle,
-  Clock,
-  Package,
-  Truck,
-  BookOpen,
-  Star,
-  MessageSquare,
-  Eye,
-  Edit3,
-  Settings,
-  AlertTriangle,
-  Activity,
-  Building,
-  Award,
-  BarChart3,
-  Plus,
-  Brain,
-  Target,
-  Zap
+  User, Calendar, TrendingUp, Wallet, Users, Wheat,
+  ShoppingCart, CheckCircle, Clock, Package, Truck, BookOpen,
+  Star, MessageSquare, Eye, Edit3, Settings, AlertTriangle,
+  Activity, Building, Award, BarChart3, Plus, Brain, Target, Zap
 } from "lucide-react";
+import { AshokaChakra } from "@/components/ui/ashoka-chakra";
 
 interface RoleDashboardProps {
   userRole: string;
@@ -46,10 +25,10 @@ export const RoleDashboard = ({ userRole }: RoleDashboardProps) => {
         return {
           title: "Merchant Dashboard",
           overview: [
-            { icon: Users, label: "Partner Farmers", value: "156", trend: "+23%" },
-            { icon: Package, label: "Available Crops", value: "2.8K tons", trend: "+15%" },
-            { icon: TrendingUp, label: "Monthly Revenue", value: "₹2.4L", trend: "+8%" },
-            { icon: CheckCircle, label: "Verified Documents", value: "142", trend: "+18%" }
+            { icon: Users, label: "Partner Farmers", value: "156", trend: "+23%", color: "primary" },
+            { icon: Package, label: "Available Crops", value: "2.8K tons", trend: "+15%", color: "accent" },
+            { icon: TrendingUp, label: "Monthly Revenue", value: "₹2.4L", trend: "+8%", color: "navy" },
+            { icon: CheckCircle, label: "Verified Documents", value: "142", trend: "+18%", color: "primary" }
           ],
           recentActivity: [
             { action: "New farmer partnership: Rajesh Sharma", time: "2 hours ago", type: "partnership" },
@@ -64,15 +43,14 @@ export const RoleDashboard = ({ userRole }: RoleDashboardProps) => {
             { icon: MessageSquare, label: "💬 Contact Farmers", color: "outline", description: "Build stronger partnerships", route: "/merchant/farmers" }
           ]
         };
-
       case "expert":
         return {
           title: "AI Expert Dashboard",
           overview: [
-            { icon: Activity, label: "AI Scans Completed", value: "1,247", trend: "+32%" },
-            { icon: AlertTriangle, label: "Diseases Detected", value: "89", trend: "+18%" },
-            { icon: Target, label: "AI Accuracy Rate", value: "94.2%", trend: "+1.2%" },
-            { icon: Zap, label: "Prevention Tips", value: "156", trend: "+25%" }
+            { icon: Activity, label: "AI Scans Completed", value: "1,247", trend: "+32%", color: "primary" },
+            { icon: AlertTriangle, label: "Diseases Detected", value: "89", trend: "+18%", color: "accent" },
+            { icon: Target, label: "AI Accuracy Rate", value: "94.2%", trend: "+1.2%", color: "navy" },
+            { icon: Zap, label: "Prevention Tips", value: "156", trend: "+25%", color: "primary" }
           ],
           recentActivity: [
             { action: "AI scan: Late blight detected in wheat crop", time: "1 hour ago", type: "ai-scan" },
@@ -87,15 +65,14 @@ export const RoleDashboard = ({ userRole }: RoleDashboardProps) => {
             { icon: BarChart3, label: "📊 AI Analytics", color: "outline", description: "Track AI performance metrics", route: "/expert/dashboard" }
           ]
         };
-
       case "admin":
         return {
-          title: "Admin Dashboard", 
+          title: "Admin Dashboard",
           overview: [
-            { icon: Users, label: "Total Users", value: "1,247", trend: "+15%" },
-            { icon: Building, label: "Active Organizations", value: "89", trend: "+7%" },
-            { icon: Activity, label: "System Health", value: "99.2%", trend: "+0.3%" },
-            { icon: AlertTriangle, label: "Open Issues", value: "3", trend: "-50%" }
+            { icon: Users, label: "Total Users", value: "1,247", trend: "+15%", color: "primary" },
+            { icon: Building, label: "Active Organizations", value: "89", trend: "+7%", color: "accent" },
+            { icon: Activity, label: "System Health", value: "99.2%", trend: "+0.3%", color: "navy" },
+            { icon: AlertTriangle, label: "Open Issues", value: "3", trend: "-50%", color: "accent" }
           ],
           recentActivity: [
             { action: "New merchant verification completed", time: "30 minutes ago", type: "verification" },
@@ -110,15 +87,14 @@ export const RoleDashboard = ({ userRole }: RoleDashboardProps) => {
             { icon: BarChart3, label: "📊 Generate Reports", color: "outline", description: "Create comprehensive analytics", route: "/admin/analytics" }
           ]
         };
-
-      default: // farmer
+      default:
         return {
           title: "Farmer Dashboard",
           overview: [
-            { icon: Wheat, label: "Active Crops", value: "5", trend: "+1" },
-            { icon: Calendar, label: "Upcoming Tasks", value: "8", trend: "+3" },
-            { icon: TrendingUp, label: "Expected Yield", value: "42 tons", trend: "+12%" },
-            { icon: Wallet, label: "Est. Revenue", value: "₹3.2L", trend: "+8%" }
+            { icon: Wheat, label: "Active Crops", value: "5", trend: "+1", color: "primary" },
+            { icon: Calendar, label: "Upcoming Tasks", value: "8", trend: "+3", color: "accent" },
+            { icon: TrendingUp, label: "Expected Yield", value: "42 tons", trend: "+12%", color: "navy" },
+            { icon: Wallet, label: "Est. Revenue", value: "₹3.2L", trend: "+8%", color: "primary" }
           ],
           recentActivity: [
             { action: "Irrigation scheduled for wheat field", time: "2 hours ago", type: "irrigation" },
@@ -164,22 +140,12 @@ export const RoleDashboard = ({ userRole }: RoleDashboardProps) => {
     }
   };
 
-  const getTypeColor = (type: string) => {
-    switch (type) {
-      case "order": case "payment": return "text-green-600";
-      case "price": case "consultation": return "text-blue-600";
-      case "quality": case "verification": return "text-purple-600";
-      case "system": case "security": return "text-orange-600";
-      case "irrigation": case "fertilizer": return "text-green-600";
-      case "weather": return "text-blue-600";
-      case "soil": return "text-brown-600";
-      case "partnership": return "text-green-600";
-      case "market": return "text-blue-600";
-      case "ai-scan": return "text-purple-600";
-      case "medicine": return "text-green-600";
-      case "prevention": return "text-blue-600";
-      case "ai-improvement": return "text-orange-600";
-      default: return "text-gray-600";
+  const getColorClasses = (color: string) => {
+    switch (color) {
+      case "primary": return { bg: "bg-primary/10", text: "text-primary", border: "border-l-primary" };
+      case "accent": return { bg: "bg-accent/10", text: "text-accent", border: "border-l-accent" };
+      case "navy": return { bg: "bg-navy/10", text: "text-navy", border: "border-l-navy" };
+      default: return { bg: "bg-primary/10", text: "text-primary", border: "border-l-primary" };
     }
   };
 
@@ -189,53 +155,57 @@ export const RoleDashboard = ({ userRole }: RoleDashboardProps) => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">{dashboardData.title}</h1>
-        <Badge variant="outline" className="text-sm">
+        <div className="flex items-center gap-3">
+          <AshokaChakra size={28} animate={false} />
+          <h1 className="text-3xl font-bold text-gradient-tricolor">{dashboardData.title}</h1>
+        </div>
+        <Badge variant="outline" className="text-sm border-primary/30 text-primary">
           {userRole.charAt(0).toUpperCase() + userRole.slice(1)}
         </Badge>
       </div>
 
       {/* Overview Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {dashboardData.overview.map((item, index) => (
-          <Card key={index} className="hover:shadow-lg transition-all duration-200 hover:scale-105 border-l-4 border-l-primary/20">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{item.label}</CardTitle>
-              <div className="p-2 rounded-full bg-primary/10">
-                <item.icon className="h-4 w-4 text-primary" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                {item.value}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                <span className={item.trend.startsWith('+') ? 'text-green-600 font-medium' : item.trend.startsWith('-') ? 'text-red-600 font-medium' : 'text-gray-600'}>
-                  {item.trend}
-                </span>
-                {" from last month"}
-              </p>
-            </CardContent>
-          </Card>
-        ))}
+        {dashboardData.overview.map((item, index) => {
+          const colors = getColorClasses(item.color);
+          return (
+            <Card key={index} className={`tricolor-card border-l-4 ${colors.border}`}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">{item.label}</CardTitle>
+                <div className={`p-2 rounded-full ${colors.bg}`}>
+                  <item.icon className={`h-4 w-4 ${colors.text}`} />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-foreground">{item.value}</div>
+                <p className="text-xs text-muted-foreground">
+                  <span className={item.trend.startsWith('+') ? 'text-primary font-medium' : item.trend.startsWith('-') ? 'text-destructive font-medium' : 'text-muted-foreground'}>
+                    {item.trend}
+                  </span>
+                  {" from last month"}
+                </p>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
         {/* Recent Activity */}
-        <Card>
+        <Card className="tricolor-card">
           <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
+            <CardTitle className="text-gradient-tricolor">Recent Activity</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {dashboardData.recentActivity.map((activity, index) => {
               const ActivityIcon = getActivityIcon(activity.type);
               return (
                 <div key={index} className="flex items-start gap-3">
-                  <div className={`p-2 rounded-full ${getTypeColor(activity.type)} bg-muted`}>
+                  <div className="p-2 rounded-full bg-primary/10 text-primary">
                     <ActivityIcon className="h-4 w-4" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium">{activity.action}</p>
+                    <p className="text-sm font-medium text-foreground">{activity.action}</p>
                     <p className="text-xs text-muted-foreground">{activity.time}</p>
                   </div>
                 </div>
@@ -245,16 +215,16 @@ export const RoleDashboard = ({ userRole }: RoleDashboardProps) => {
         </Card>
 
         {/* Quick Actions */}
-        <Card>
+        <Card className="tricolor-card">
           <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
+            <CardTitle className="text-gradient-tricolor">Quick Actions</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {dashboardData.quickActions.map((action, index) => (
               <Button
                 key={index}
                 variant={action.color as any}
-                className="w-full justify-start h-auto p-4 hover:scale-105 transition-transform duration-200"
+                className="w-full justify-start h-auto p-4 transition-all duration-200 hover:translate-x-1"
                 size="lg"
                 onClick={() => navigate((action as any).route)}
               >

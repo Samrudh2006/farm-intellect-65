@@ -8,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
+import { AshokaChakra } from "@/components/ui/ashoka-chakra";
 
 interface HeaderProps {
   user?: {
@@ -23,7 +24,7 @@ export const Header = ({ user, onMenuClick, notificationCount = 0 }: HeaderProps
   return (
     <>
       {/* 🇮🇳 Tricolor bar at the very top */}
-      <div className="tricolor-bar h-1" />
+      <div className="tricolor-bar h-1.5" />
       <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-4">
@@ -35,10 +36,8 @@ export const Header = ({ user, onMenuClick, notificationCount = 0 }: HeaderProps
             >
               <Menu className="h-5 w-5" />
             </Button>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">SC</span>
-              </div>
+            <div className="flex items-center gap-3">
+              <AshokaChakra size={32} />
               <h1 className="text-xl font-bold text-foreground">Smart Crop Advisory</h1>
             </div>
           </div>
