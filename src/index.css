@@ -11,25 +11,25 @@
   :root {
     /* White background */
     --background: 0 0% 100%;
-    --foreground: 160 25% 10%;
+    --foreground: 220 25% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 160 25% 10%;
+    --card-foreground: 220 25% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 160 25% 10%;
+    --popover-foreground: 220 25% 12%;
 
     /* India Green - primary color for buttons/actions */
     --primary: 145 63% 32%;
     --primary-foreground: 0 0% 100%;
 
     /* Light saffron tinted secondary */
-    --secondary: 25 50% 96%;
-    --secondary-foreground: 160 25% 10%;
+    --secondary: 25 60% 96%;
+    --secondary-foreground: 220 25% 12%;
 
     /* Light green muted */
     --muted: 145 15% 95%;
-    --muted-foreground: 160 8% 42%;
+    --muted-foreground: 220 10% 42%;
 
     /* Saffron accent — for highlights, badges, CTAs */
     --accent: 24 90% 50%;
@@ -57,7 +57,7 @@
     --earth: 24 80% 55%;
     --earth-foreground: 0 0% 100%;
     --harvest: 40 95% 55%;
-    --harvest-foreground: 160 25% 10%;
+    --harvest-foreground: 220 25% 12%;
     --water: 220 70% 28%;
     --water-foreground: 0 0% 100%;
     --soil: 145 50% 25%;
@@ -71,38 +71,39 @@
     /* Shadows */
     --shadow-soft: 0 2px 10px hsl(145 63% 32% / 0.1);
     --shadow-glow: 0 0 20px hsl(24 90% 50% / 0.2);
+    --shadow-tricolor: 0 4px 20px hsl(145 63% 32% / 0.12), 0 0 40px hsl(24 90% 50% / 0.06);
 
     --radius: 0.5rem;
 
     /* Sidebar — soft green tint */
     --sidebar-background: 145 18% 97%;
-    --sidebar-foreground: 160 25% 10%;
+    --sidebar-foreground: 220 25% 12%;
     --sidebar-primary: 145 63% 32%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 24 80% 94%;
-    --sidebar-accent-foreground: 160 25% 10%;
+    --sidebar-accent-foreground: 220 25% 12%;
     --sidebar-border: 145 12% 90%;
     --sidebar-ring: 145 63% 32%;
   }
 
   .dark {
-    --background: 160 20% 5%;
+    --background: 220 20% 5%;
     --foreground: 0 0% 95%;
 
-    --card: 160 18% 8%;
+    --card: 220 18% 8%;
     --card-foreground: 0 0% 95%;
 
-    --popover: 160 18% 8%;
+    --popover: 220 18% 8%;
     --popover-foreground: 0 0% 95%;
 
     --primary: 145 55% 40%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 160 12% 14%;
+    --secondary: 220 12% 14%;
     --secondary-foreground: 0 0% 95%;
 
-    --muted: 160 12% 14%;
-    --muted-foreground: 160 8% 58%;
+    --muted: 220 12% 14%;
+    --muted-foreground: 220 8% 58%;
 
     --accent: 24 85% 55%;
     --accent-foreground: 0 0% 100%;
@@ -110,8 +111,8 @@
     --destructive: 0 62% 35%;
     --destructive-foreground: 0 0% 95%;
 
-    --border: 160 12% 16%;
-    --input: 160 12% 16%;
+    --border: 220 12% 16%;
+    --input: 220 12% 16%;
     --ring: 145 55% 40%;
 
     --saffron: 24 85% 55%;
@@ -121,13 +122,13 @@
     --navy: 220 60% 50%;
     --navy-foreground: 0 0% 100%;
 
-    --sidebar-background: 160 18% 7%;
+    --sidebar-background: 220 18% 7%;
     --sidebar-foreground: 0 0% 92%;
     --sidebar-primary: 145 55% 40%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 160 12% 13%;
+    --sidebar-accent: 220 12% 13%;
     --sidebar-accent-foreground: 0 0% 92%;
-    --sidebar-border: 160 12% 15%;
+    --sidebar-border: 220 12% 15%;
     --sidebar-ring: 145 55% 40%;
   }
 }
@@ -142,10 +143,41 @@
   }
 }
 
+/* 🇮🇳 Ashoka Chakra spin animation */
+@keyframes chakra-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Tricolor shimmer for hover */
+@keyframes tricolor-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Saffron pulse glow */
+@keyframes saffron-glow {
+  0%, 100% { box-shadow: 0 0 5px hsl(24 90% 50% / 0.2); }
+  50% { box-shadow: 0 0 20px hsl(24 90% 50% / 0.4), 0 0 40px hsl(24 90% 50% / 0.1); }
+}
+
+/* Green pulse glow */
+@keyframes green-glow {
+  0%, 100% { box-shadow: 0 0 5px hsl(145 63% 32% / 0.2); }
+  50% { box-shadow: 0 0 20px hsl(145 63% 32% / 0.4), 0 0 40px hsl(145 63% 32% / 0.1); }
+}
+
 /* 🇮🇳 Tricolor utility classes */
 @layer utilities {
+  .animate-chakra-spin {
+    animation: chakra-spin 12s linear infinite;
+  }
+
   .tricolor-bar {
     background: linear-gradient(90deg, hsl(24 90% 50%) 33.33%, hsl(0 0% 100%) 33.33%, hsl(0 0% 100%) 66.66%, hsl(145 63% 32%) 66.66%);
+  }
+  .tricolor-bar-vertical {
+    background: linear-gradient(180deg, hsl(24 90% 50%) 33.33%, hsl(0 0% 100%) 33.33%, hsl(0 0% 100%) 66.66%, hsl(145 63% 32%) 66.66%);
   }
   .tricolor-bar-top {
     border-top: 3px solid transparent;
@@ -165,5 +197,46 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+  }
+
+  /* Tricolor card hover — saffron top-border + green bottom glow */
+  .tricolor-card {
+    @apply relative overflow-hidden rounded-lg border border-border bg-card transition-all duration-300;
+    border-top: 3px solid transparent;
+  }
+  .tricolor-card:hover {
+    border-top-color: hsl(24 90% 50%);
+    border-bottom-color: hsl(145 63% 32%);
+    box-shadow: 0 4px 20px hsl(145 63% 32% / 0.12), 0 -2px 10px hsl(24 90% 50% / 0.08), inset 0 -2px 0 hsl(145 63% 32%);
+    transform: translateY(-2px);
+  }
+
+  /* Tricolor shimmer hover on buttons / badges */
+  .tricolor-shimmer {
+    background: linear-gradient(90deg, hsl(24 90% 50%), hsl(0 0% 100%), hsl(145 63% 32%), hsl(24 90% 50%));
+    background-size: 300% 100%;
+  }
+  .tricolor-shimmer:hover {
+    animation: tricolor-shimmer 2s linear infinite;
+  }
+
+  /* Saffron glow pulse */
+  .glow-saffron {
+    animation: saffron-glow 3s ease-in-out infinite;
+  }
+  .glow-green {
+    animation: green-glow 3s ease-in-out infinite;
+  }
+
+  /* Tricolor left border accent */
+  .tricolor-left-border {
+    border-left: 4px solid transparent;
+    border-image: linear-gradient(180deg, hsl(24 90% 50%), hsl(0 0% 100%), hsl(145 63% 32%)) 1;
+  }
+
+  /* Tricolor bottom border */
+  .tricolor-bottom {
+    border-bottom: 3px solid transparent;
+    border-image: linear-gradient(90deg, hsl(24 90% 50%) 33%, hsl(0 0% 100%) 33%, hsl(0 0% 100%) 66%, hsl(145 63% 32%) 66%) 1;
   }
 }

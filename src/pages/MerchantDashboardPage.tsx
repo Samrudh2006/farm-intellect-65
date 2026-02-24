@@ -28,12 +28,13 @@ const MerchantDashboardPage = () => {
       <main className="md:ml-64 p-6">
         <div className="space-y-6">
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-gradient-saffron-navy">
+            <h1 className="text-4xl font-bold text-gradient-tricolor">
               Welcome back, Business Partner! 🤝
             </h1>
             <p className="text-muted-foreground text-lg mt-2">
               Your marketplace awaits - let's grow together!
             </p>
+            <div className="tricolor-bar h-0.5 max-w-xs mx-auto mt-4 rounded-full" />
           </div>
           
           <RoleDashboard userRole="merchant" />
