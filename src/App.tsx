@@ -2,8 +2,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { PageTransition } from "@/components/layout/PageTransition";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import FarmerDashboard from "./pages/FarmerDashboard";
@@ -54,6 +56,82 @@ import AdminNotifications from "./pages/admin/AdminNotifications";
 
 const queryClient = new QueryClient();
 
+const AnimatedRoutes = () => {
+  const location = useLocation();
+
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<PageTransition><Index /></PageTransition>} />
+        <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
+        
+        {/* Farmer Routes */}
+        <Route path="/farmer/dashboard" element={<PageTransition><FarmerDashboard /></PageTransition>} />
+        <Route path="/farmer/crops" element={<PageTransition><Crops /></PageTransition>} />
+        <Route path="/farmer/advisory" element={<PageTransition><Advisory /></PageTransition>} />
+        <Route path="/farmer/weather" element={<PageTransition><Weather /></PageTransition>} />
+        <Route path="/farmer/sensors" element={<PageTransition><Sensors /></PageTransition>} />
+        <Route path="/farmer/field-map" element={<PageTransition><FieldMap /></PageTransition>} />
+        <Route path="/farmer/merchants" element={<PageTransition><Merchants /></PageTransition>} />
+        <Route path="/farmer/polls" element={<PageTransition><Polls /></PageTransition>} />
+        <Route path="/farmer/schemes" element={<PageTransition><Schemes /></PageTransition>} />
+        <Route path="/farmer/ai-advisory" element={<PageTransition><AIAdvisory /></PageTransition>} />
+        <Route path="/farmer/chat" element={<PageTransition><Chat /></PageTransition>} />
+        <Route path="/farmer/forum" element={<PageTransition><Forum /></PageTransition>} />
+        <Route path="/farmer/calendar" element={<PageTransition><Calendar /></PageTransition>} />
+        <Route path="/farmer/documents" element={<PageTransition><Documents /></PageTransition>} />
+        <Route path="/farmer/notifications" element={<PageTransition><Notifications /></PageTransition>} />
+        <Route path="/farmer/features" element={<PageTransition><FarmFeatures /></PageTransition>} />
+        
+        {/* Merchant Routes */}
+        <Route path="/merchant/dashboard" element={<PageTransition><MerchantDashboardPage /></PageTransition>} />
+        <Route path="/merchant/farmers" element={<PageTransition><MerchantFarmers /></PageTransition>} />
+        <Route path="/merchant/market-prices" element={<PageTransition><MerchantMarketPrices /></PageTransition>} />
+        <Route path="/merchant/documents" element={<PageTransition><MerchantDocuments /></PageTransition>} />
+        <Route path="/merchant/notifications" element={<PageTransition><MerchantNotifications /></PageTransition>} />
+        
+        {/* Expert Routes */}
+        <Route path="/expert/dashboard" element={<PageTransition><ExpertDashboardPage /></PageTransition>} />
+        <Route path="/expert/ai-crop-scanner" element={<PageTransition><ExpertAICropScanner /></PageTransition>} />
+        <Route path="/expert/ai-advisory" element={<PageTransition><ExpertAIAdvisory /></PageTransition>} />
+        <Route path="/expert/chat" element={<PageTransition><ExpertChat /></PageTransition>} />
+        <Route path="/expert/notifications" element={<PageTransition><ExpertNotifications /></PageTransition>} />
+        
+        {/* Admin Routes */}
+        <Route path="/admin/dashboard" element={<PageTransition><AdminDashboardPage /></PageTransition>} />
+        <Route path="/admin/users" element={<PageTransition><AdminUsers /></PageTransition>} />
+        <Route path="/admin/analytics" element={<PageTransition><AdminAnalytics /></PageTransition>} />
+        <Route path="/admin/settings" element={<PageTransition><AdminSettings /></PageTransition>} />
+        <Route path="/admin/notifications" element={<PageTransition><AdminNotifications /></PageTransition>} />
+        
+        {/* Legacy Routes */}
+        <Route path="/dashboard" element={<PageTransition><Dashboard /></PageTransition>} />
+        <Route path="/crops" element={<PageTransition><Crops /></PageTransition>} />
+        <Route path="/advisory" element={<PageTransition><Advisory /></PageTransition>} />
+        <Route path="/weather" element={<PageTransition><Weather /></PageTransition>} />
+        <Route path="/sensors" element={<PageTransition><Sensors /></PageTransition>} />
+        <Route path="/field-map" element={<PageTransition><FieldMap /></PageTransition>} />
+        <Route path="/merchants" element={<PageTransition><Merchants /></PageTransition>} />
+        <Route path="/polls" element={<PageTransition><Polls /></PageTransition>} />
+        <Route path="/schemes" element={<PageTransition><Schemes /></PageTransition>} />
+        <Route path="/ai-advisory" element={<PageTransition><AIAdvisory /></PageTransition>} />
+        <Route path="/ai-crop-scanner" element={<PageTransition><AICropScanner /></PageTransition>} />
+        <Route path="/farmers" element={<PageTransition><Farmers /></PageTransition>} />
+        <Route path="/analytics" element={<PageTransition><Analytics /></PageTransition>} />
+        <Route path="/users" element={<PageTransition><Users /></PageTransition>} />
+        <Route path="/settings" element={<PageTransition><Settings /></PageTransition>} />
+        <Route path="/forum" element={<PageTransition><Forum /></PageTransition>} />
+        <Route path="/calendar" element={<PageTransition><Calendar /></PageTransition>} />
+        <Route path="/notifications" element={<PageTransition><Notifications /></PageTransition>} />
+        <Route path="/documents" element={<PageTransition><Documents /></PageTransition>} />
+        <Route path="/chat" element={<PageTransition><Chat /></PageTransition>} />
+        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+        <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
+      </Routes>
+    </AnimatePresence>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <LanguageProvider>
@@ -61,73 +139,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            
-            {/* Farmer Routes */}
-            <Route path="/farmer/dashboard" element={<FarmerDashboard />} />
-            <Route path="/farmer/crops" element={<Crops />} />
-            <Route path="/farmer/advisory" element={<Advisory />} />
-            <Route path="/farmer/weather" element={<Weather />} />
-            <Route path="/farmer/sensors" element={<Sensors />} />
-            <Route path="/farmer/field-map" element={<FieldMap />} />
-            <Route path="/farmer/merchants" element={<Merchants />} />
-            <Route path="/farmer/polls" element={<Polls />} />
-            <Route path="/farmer/schemes" element={<Schemes />} />
-            <Route path="/farmer/ai-advisory" element={<AIAdvisory />} />
-            <Route path="/farmer/chat" element={<Chat />} />
-            <Route path="/farmer/forum" element={<Forum />} />
-            <Route path="/farmer/calendar" element={<Calendar />} />
-            <Route path="/farmer/documents" element={<Documents />} />
-            <Route path="/farmer/notifications" element={<Notifications />} />
-            <Route path="/farmer/features" element={<FarmFeatures />} />
-            
-            {/* Merchant Routes */}
-            <Route path="/merchant/dashboard" element={<MerchantDashboardPage />} />
-            <Route path="/merchant/farmers" element={<MerchantFarmers />} />
-            <Route path="/merchant/market-prices" element={<MerchantMarketPrices />} />
-            <Route path="/merchant/documents" element={<MerchantDocuments />} />
-            <Route path="/merchant/notifications" element={<MerchantNotifications />} />
-            
-            {/* Expert Routes */}
-            <Route path="/expert/dashboard" element={<ExpertDashboardPage />} />
-            <Route path="/expert/ai-crop-scanner" element={<ExpertAICropScanner />} />
-            <Route path="/expert/ai-advisory" element={<ExpertAIAdvisory />} />
-            <Route path="/expert/chat" element={<ExpertChat />} />
-            <Route path="/expert/notifications" element={<ExpertNotifications />} />
-            
-            {/* Admin Routes */}
-            <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
-            <Route path="/admin/users" element={<AdminUsers />} />
-            <Route path="/admin/analytics" element={<AdminAnalytics />} />
-            <Route path="/admin/settings" element={<AdminSettings />} />
-            <Route path="/admin/notifications" element={<AdminNotifications />} />
-            
-            {/* Legacy Routes - Redirect to role-specific routes */}
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/crops" element={<Crops />} />
-            <Route path="/advisory" element={<Advisory />} />
-            <Route path="/weather" element={<Weather />} />
-            <Route path="/sensors" element={<Sensors />} />
-            <Route path="/field-map" element={<FieldMap />} />
-            <Route path="/merchants" element={<Merchants />} />
-            <Route path="/polls" element={<Polls />} />
-            <Route path="/schemes" element={<Schemes />} />
-            <Route path="/ai-advisory" element={<AIAdvisory />} />
-            <Route path="/ai-crop-scanner" element={<AICropScanner />} />
-            <Route path="/farmers" element={<Farmers />} />
-            <Route path="/analytics" element={<Analytics />} />
-            <Route path="/users" element={<Users />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/forum" element={<Forum />} />
-            <Route path="/calendar" element={<Calendar />} />
-            <Route path="/notifications" element={<Notifications />} />
-            <Route path="/documents" element={<Documents />} />
-            <Route path="/chat" element={<Chat />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AnimatedRoutes />
         </BrowserRouter>
       </TooltipProvider>
     </LanguageProvider>

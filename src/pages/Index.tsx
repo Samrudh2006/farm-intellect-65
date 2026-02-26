@@ -1,65 +1,91 @@
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AshokaChakra } from "@/components/ui/ashoka-chakra";
+import { AnimatedHero } from "@/components/home/AnimatedHero";
+import { FloatingAIAssistant } from "@/components/home/FloatingAIAssistant";
+import { LanguageSelector } from "@/components/ui/language-selector";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { 
-  Wheat, 
-  Brain, 
-  CloudSun, 
-  TrendingUp, 
-  Shield, 
-  Users,
-  ArrowRight,
-  CheckCircle
+  Wheat, Brain, CloudSun, TrendingUp, Shield, Users,
+  ArrowRight, CheckCircle, Sparkles, Zap, BarChart3, Leaf
 } from "lucide-react";
-import heroImage from "@/assets/hero-farming.jpg";
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: (i: number) => ({
+    opacity: 1, y: 0,
+    transition: { delay: i * 0.1, duration: 0.5, ease: "easeOut" },
+  }),
+};
+
+const scaleIn = {
+  hidden: { opacity: 0, scale: 0.85 },
+  visible: (i: number) => ({
+    opacity: 1, scale: 1,
+    transition: { delay: i * 0.12, duration: 0.4, type: "spring", stiffness: 200 },
+  }),
+};
+
+const Counter = ({ value, suffix = "" }: { value: number; suffix?: string }) => {
+  return (
+    <motion.span
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      viewport={{ once: true }}
+    >
+      <motion.span
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+      >
+        {value.toLocaleString()}{suffix}
+      </motion.span>
+    </motion.span>
+  );
+};
 
 const Index = () => {
+  const { t } = useLanguage();
+
   const features = [
-    {
-      icon: Brain,
-      title: "AI-Powered Recommendations",
-      description: "Get personalized crop advice powered by machine learning algorithms",
-      iconBg: "bg-accent/10",
-      iconColor: "text-accent",
-    },
-    {
-      icon: CloudSun,
-      title: "Weather Integration",
-      description: "Real-time weather data and forecasts for optimal farming decisions",
-      iconBg: "bg-navy/10",
-      iconColor: "text-navy",
-    },
-    {
-      icon: TrendingUp,
-      title: "Yield Optimization",
-      description: "Maximize your crop yields with data-driven insights",
-      iconBg: "bg-primary/10",
-      iconColor: "text-primary",
-    },
-    {
-      icon: Shield,
-      title: "Pest & Disease Control",
-      description: "Early detection and prevention of crop threats",
-      iconBg: "bg-accent/10",
-      iconColor: "text-accent",
-    }
+    { icon: Brain, title: "AI-Powered Recommendations", description: "Get personalized crop advice powered by machine learning algorithms", iconBg: "bg-accent/10", iconColor: "text-accent" },
+    { icon: CloudSun, title: "Weather Integration", description: "Real-time weather data and forecasts for optimal farming decisions", iconBg: "bg-navy/10", iconColor: "text-navy" },
+    { icon: TrendingUp, title: "Yield Optimization", description: "Maximize your crop yields with data-driven insights", iconBg: "bg-primary/10", iconColor: "text-primary" },
+    { icon: Shield, title: "Pest & Disease Control", description: "Early detection and prevention of crop threats", iconBg: "bg-accent/10", iconColor: "text-accent" },
+    { icon: Zap, title: "Smart Irrigation", description: "Optimize water usage with IoT sensor data and AI predictions", iconBg: "bg-navy/10", iconColor: "text-navy" },
+    { icon: BarChart3, title: "Market Analytics", description: "Live mandi prices and profit predictions for better selling decisions", iconBg: "bg-primary/10", iconColor: "text-primary" },
+    { icon: Leaf, title: "Organic Farming Guide", description: "Comprehensive organic farming techniques and certification help", iconBg: "bg-accent/10", iconColor: "text-accent" },
+    { icon: Sparkles, title: "AI Crop Scanner", description: "Snap a photo to identify diseases, pests, and nutrient deficiencies", iconBg: "bg-navy/10", iconColor: "text-navy" },
+  ];
+
+  const stats = [
+    { icon: Users, value: "10,000+", label: "Active Farmers", color: "text-primary", bg: "bg-primary/10" },
+    { icon: TrendingUp, value: "35%", label: "Average Yield Increase", color: "text-accent", bg: "bg-accent/10" },
+    { icon: Shield, value: "98%", label: "Problem Detection Rate", color: "text-navy", bg: "bg-navy/10" },
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-x-hidden">
       {/* Tricolor top bar */}
       <div className="tricolor-bar h-1.5" />
 
       {/* Header */}
-      <header className="border-b border-border bg-card/80 backdrop-blur sticky top-0 z-50">
+      <motion.header
+        initial={{ y: -60, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="border-b border-border bg-card/80 backdrop-blur sticky top-0 z-50"
+      >
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <AshokaChakra size={36} />
             <h1 className="text-xl font-bold text-foreground">Smart Crop Advisory</h1>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            <LanguageSelector />
             <Link to="/login">
               <Button variant="ghost" className="text-foreground hover:text-primary">Sign In</Button>
             </Link>
@@ -70,164 +96,234 @@ const Index = () => {
             </Link>
           </div>
         </div>
-      </header>
+      </motion.header>
 
-      {/* Hero Section */}
-      <section className="relative py-20 lg:py-32 overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <img src={heroImage} alt="Smart farming technology" className="w-full h-full object-cover opacity-8" />
-          <div className="absolute inset-0 bg-gradient-to-br from-accent/8 via-background/92 to-primary/8" />
-        </div>
+      {/* Hero Section with Animated Canvas Background */}
+      <section className="relative py-20 lg:py-32 overflow-hidden min-h-[80vh] flex items-center">
+        <AnimatedHero />
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center space-y-6">
             {/* Animated Ashoka Chakra hero */}
-            <div className="flex justify-center mb-6">
+            <motion.div
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ duration: 1, type: "spring", stiffness: 100 }}
+              className="flex justify-center mb-6"
+            >
               <div className="relative">
                 <AshokaChakra size={80} className="drop-shadow-lg" />
                 <div className="absolute -inset-4 rounded-full border-2 border-dashed border-navy/20 animate-[chakra-spin_20s_linear_infinite_reverse]" />
+                <div className="absolute -inset-8 rounded-full border border-accent/10 animate-[chakra-spin_30s_linear_infinite]" />
               </div>
-            </div>
-            <Badge className="mb-4 bg-accent/10 text-accent border-accent/30 text-sm px-4 py-1" variant="outline">
-              🇮🇳 Proudly Indian — Next-Generation Farm Management
-            </Badge>
-            <h1 className="text-4xl lg:text-6xl font-bold text-foreground leading-tight">
-              Smart Crop Advisory
-              <span className="block text-gradient-tricolor mt-2">System</span>
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Revolutionize your farming with AI-powered recommendations, 
-              real-time monitoring, and expert guidance for optimal crop yields.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+              <Badge className="mb-4 bg-accent/10 text-accent border-accent/30 text-sm px-4 py-1" variant="outline">
+                🇮🇳 Proudly Indian — Next-Generation Farm Management
+              </Badge>
+            </motion.div>
+
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.6 }}
+              className="text-4xl lg:text-7xl font-bold text-foreground leading-tight"
+            >
+              {t('hero.title')}
+              <motion.span
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.8, duration: 0.5 }}
+                className="block text-gradient-tricolor mt-2"
+              >
+                {t('hero.subtitle')}
+              </motion.span>
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1 }}
+              className="text-xl text-muted-foreground max-w-2xl mx-auto"
+            >
+              {t('hero.description')}
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.2 }}
+              className="flex flex-col sm:flex-row gap-4 justify-center pt-6"
+            >
               <Link to="/login">
-                <Button size="lg" className="w-full sm:w-auto bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg glow-saffron text-base px-8">
-                  Start Free Trial
-                  <ArrowRight className="ml-2 h-5 w-5" />
+                <Button size="lg" className="w-full sm:w-auto bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg glow-saffron text-base px-8 group">
+                  {t('hero.cta')}
+                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
               <Link to="/login">
                 <Button size="lg" variant="outline" className="w-full sm:w-auto border-primary text-primary hover:bg-primary hover:text-primary-foreground text-base px-8">
-                  View Demo
+                  {t('hero.demo')}
                 </Button>
               </Link>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-muted/40">
+      <section className="py-20 bg-muted/40 relative">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <div className="flex justify-center mb-4">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            className="text-center mb-16"
+          >
+            <motion.div variants={fadeUp} custom={0} className="flex justify-center mb-4">
               <AshokaChakra size={32} animate={false} />
-            </div>
-            <h2 className="text-3xl lg:text-4xl font-bold mb-4 text-foreground">
-              Everything You Need for <span className="text-gradient-tricolor">Smart Farming</span>
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Comprehensive tools and insights to help you make data-driven decisions
-            </p>
-          </div>
+            </motion.div>
+            <motion.h2 variants={fadeUp} custom={1} className="text-3xl lg:text-4xl font-bold mb-4 text-foreground">
+              {t('features.title')} <span className="text-gradient-tricolor">{t('features.highlight')}</span>
+            </motion.h2>
+            <motion.p variants={fadeUp} custom={2} className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              {t('features.description')}
+            </motion.p>
+          </motion.div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((feature, index) => (
-              <Card key={index} className="tricolor-card text-center p-6 cursor-pointer">
-                <CardContent className="space-y-4 pt-6">
-                  <div className={`inline-flex p-3 rounded-xl ${feature.iconBg}`}>
-                    <feature.icon className={`h-10 w-10 ${feature.iconColor}`} />
-                  </div>
-                  <h3 className="text-xl font-semibold text-foreground">{feature.title}</h3>
-                  <p className="text-muted-foreground">{feature.description}</p>
-                </CardContent>
-              </Card>
+              <motion.div
+                key={index}
+                custom={index}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-50px" }}
+                variants={scaleIn}
+              >
+                <Card className="tricolor-card text-center p-6 cursor-pointer h-full group">
+                  <CardContent className="space-y-4 pt-6">
+                    <motion.div
+                      whileHover={{ rotate: [0, -10, 10, 0], scale: 1.1 }}
+                      transition={{ duration: 0.4 }}
+                      className={`inline-flex p-3 rounded-xl ${feature.iconBg} group-hover:shadow-md transition-shadow`}
+                    >
+                      <feature.icon className={`h-10 w-10 ${feature.iconColor}`} />
+                    </motion.div>
+                    <h3 className="text-xl font-semibold text-foreground">{feature.title}</h3>
+                    <p className="text-muted-foreground">{feature.description}</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Benefits Section */}
+      {/* Stats + Benefits Section */}
       <section className="py-20">
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6">
-              <h2 className="text-3xl lg:text-4xl font-bold text-foreground">
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              className="space-y-6"
+            >
+              <motion.h2 variants={fadeUp} custom={0} className="text-3xl lg:text-4xl font-bold text-foreground">
                 Join Thousands of <span className="text-gradient-tricolor">Smart Farmers</span>
-              </h2>
-              <p className="text-xl text-muted-foreground">
-                Our platform has helped farmers increase yields by up to 35% 
-                while reducing costs and environmental impact.
-              </p>
+              </motion.h2>
+              <motion.p variants={fadeUp} custom={1} className="text-xl text-muted-foreground">
+                Our platform has helped farmers increase yields by up to 35% while reducing costs and environmental impact.
+              </motion.p>
               <div className="space-y-4">
                 {[
                   "AI-powered crop recommendations",
                   "Real-time weather monitoring",
                   "Pest and disease alerts",
-                  "Expert consultation network"
+                  "Expert consultation network",
+                  "Government scheme notifications",
+                  "Multi-language support"
                 ].map((benefit, index) => (
-                  <div key={index} className="flex items-center gap-3">
+                  <motion.div
+                    key={index}
+                    variants={fadeUp}
+                    custom={index + 2}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                    className="flex items-center gap-3"
+                  >
                     <CheckCircle className="h-5 w-5 text-primary flex-shrink-0" />
                     <span className="text-lg text-foreground">{benefit}</span>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
-              <Link to="/login">
-                <Button size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg glow-saffron mt-4">
-                  Get Started Today
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
-            <div className="relative">
+              <motion.div variants={fadeUp} custom={8}>
+                <Link to="/login">
+                  <Button size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg glow-saffron mt-4 group">
+                    Get Started Today
+                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
+              </motion.div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 40 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
               <Card className="p-8 border-border shadow-lg tricolor-card">
                 <div className="space-y-6">
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 rounded-lg bg-primary/10">
-                      <Users className="h-8 w-8 text-primary" />
-                    </div>
-                    <div>
-                      <div className="text-3xl font-bold text-foreground">10,000+</div>
-                      <div className="text-muted-foreground">Active Farmers</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 rounded-lg bg-accent/10">
-                      <TrendingUp className="h-8 w-8 text-accent" />
-                    </div>
-                    <div>
-                      <div className="text-3xl font-bold text-foreground">35%</div>
-                      <div className="text-muted-foreground">Average Yield Increase</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 rounded-lg bg-navy/10">
-                      <Shield className="h-8 w-8 text-navy" />
-                    </div>
-                    <div>
-                      <div className="text-3xl font-bold text-foreground">98%</div>
-                      <div className="text-muted-foreground">Problem Detection Rate</div>
-                    </div>
-                  </div>
+                  {stats.map((stat, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, x: 20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: index * 0.15, duration: 0.4 }}
+                      className="flex items-center gap-4"
+                    >
+                      <div className={`p-3 rounded-lg ${stat.bg}`}>
+                        <stat.icon className={`h-8 w-8 ${stat.color}`} />
+                      </div>
+                      <div>
+                        <div className="text-3xl font-bold text-foreground">{stat.value}</div>
+                        <div className="text-muted-foreground">{stat.label}</div>
+                      </div>
+                    </motion.div>
+                  ))}
                 </div>
               </Card>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Footer with tricolor */}
+      {/* Footer */}
       <footer className="bg-card border-t border-border py-12">
         <div className="container mx-auto px-4 text-center">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <AshokaChakra size={28} animate={false} />
-            <span className="text-xl font-bold text-foreground">Smart Crop Advisory</span>
-          </div>
-          <p className="text-muted-foreground">
-            Empowering farmers with intelligent technology for sustainable agriculture 🇮🇳
-          </p>
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+          >
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <AshokaChakra size={28} animate={false} />
+              <span className="text-xl font-bold text-foreground">Smart Crop Advisory</span>
+            </div>
+            <p className="text-muted-foreground">
+              Empowering farmers with intelligent technology for sustainable agriculture 🇮🇳
+            </p>
+          </motion.div>
         </div>
         <div className="tricolor-bar h-1.5 mt-8" />
       </footer>
+
+      {/* Floating AI Assistant */}
+      <FloatingAIAssistant />
     </div>
   );
 };

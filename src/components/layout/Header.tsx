@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { AshokaChakra } from "@/components/ui/ashoka-chakra";
+import { LanguageSelector } from "@/components/ui/language-selector";
 
 interface HeaderProps {
   user?: {
@@ -42,7 +43,12 @@ export const Header = ({ user, onMenuClick, notificationCount = 0 }: HeaderProps
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            {/* Language Selector */}
+            <div className="hidden sm:block">
+              <LanguageSelector />
+            </div>
+
             {/* Notifications */}
             <Button variant="ghost" size="icon" className="relative">
               <Bell className="h-5 w-5" />
