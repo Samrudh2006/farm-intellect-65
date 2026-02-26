@@ -31,7 +31,9 @@ const Login = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Login attempt:", { ...formData, role: selectedRole });
+    // Save user with current language preference
+    const userData = { ...formData, role: selectedRole, name: formData.name || formData.email.split('@')[0] };
+    localStorage.setItem('currentUser', JSON.stringify(userData));
     const dashboardRoutes = {
       farmer: "/farmer/dashboard",
       merchant: "/merchant/dashboard", 
