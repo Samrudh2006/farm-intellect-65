@@ -53,6 +53,7 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminNotifications from "./pages/admin/AdminNotifications";
+import Profile from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
@@ -82,6 +83,7 @@ const AnimatedRoutes = () => {
         <Route path="/farmer/documents" element={<PageTransition><Documents /></PageTransition>} />
         <Route path="/farmer/notifications" element={<PageTransition><Notifications /></PageTransition>} />
         <Route path="/farmer/features" element={<PageTransition><FarmFeatures /></PageTransition>} />
+        <Route path="/farmer/profile" element={<PageTransition><Profile /></PageTransition>} />
         
         {/* Merchant Routes */}
         <Route path="/merchant/dashboard" element={<PageTransition><MerchantDashboardPage /></PageTransition>} />
@@ -89,6 +91,7 @@ const AnimatedRoutes = () => {
         <Route path="/merchant/market-prices" element={<PageTransition><MerchantMarketPrices /></PageTransition>} />
         <Route path="/merchant/documents" element={<PageTransition><MerchantDocuments /></PageTransition>} />
         <Route path="/merchant/notifications" element={<PageTransition><MerchantNotifications /></PageTransition>} />
+        <Route path="/merchant/profile" element={<PageTransition><Profile /></PageTransition>} />
         
         {/* Expert Routes */}
         <Route path="/expert/dashboard" element={<PageTransition><ExpertDashboardPage /></PageTransition>} />
@@ -96,6 +99,7 @@ const AnimatedRoutes = () => {
         <Route path="/expert/ai-advisory" element={<PageTransition><ExpertAIAdvisory /></PageTransition>} />
         <Route path="/expert/chat" element={<PageTransition><ExpertChat /></PageTransition>} />
         <Route path="/expert/notifications" element={<PageTransition><ExpertNotifications /></PageTransition>} />
+        <Route path="/expert/profile" element={<PageTransition><Profile /></PageTransition>} />
         
         {/* Admin Routes */}
         <Route path="/admin/dashboard" element={<PageTransition><AdminDashboardPage /></PageTransition>} />
@@ -103,6 +107,7 @@ const AnimatedRoutes = () => {
         <Route path="/admin/analytics" element={<PageTransition><AdminAnalytics /></PageTransition>} />
         <Route path="/admin/settings" element={<PageTransition><AdminSettings /></PageTransition>} />
         <Route path="/admin/notifications" element={<PageTransition><AdminNotifications /></PageTransition>} />
+        <Route path="/admin/profile" element={<PageTransition><Profile /></PageTransition>} />
         
         {/* Legacy Routes */}
         <Route path="/dashboard" element={<PageTransition><Dashboard /></PageTransition>} />

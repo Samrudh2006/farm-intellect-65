@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { Bell, User, LogOut, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,6 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { AshokaChakra } from "@/components/ui/ashoka-chakra";
 import { LanguageSelector } from "@/components/ui/language-selector";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface HeaderProps {
   user?: {
@@ -22,9 +24,21 @@ interface HeaderProps {
 }
 
 export const Header = ({ user, onMenuClick, notificationCount = 0 }: HeaderProps) => {
+  const navigate = useNavigate();
+  const { t } = useLanguage();
+
+  const handleSignOut = () => {
+    localStorage.removeItem("currentUser");
+    navigate("/login");
+  };
+
+  const handleProfile = () => {
+    const role = user?.role || "farmer";
+    navigate(`/${role}/profile`);
+  };
+
   return (
     <>
-      {/* 🇮🇳 Tricolor bar at the very top */}
       <div className="tricolor-bar h-1.5" />
       <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between">
@@ -44,16 +58,14 @@ export const Header = ({ user, onMenuClick, notificationCount = 0 }: HeaderProps
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Language Selector */}
             <div className="hidden sm:block">
               <LanguageSelector />
             </div>
 
-            {/* Notifications */}
             <Button variant="ghost" size="icon" className="relative">
               <Bell className="h-5 w-5" />
               {notificationCount > 0 && (
-                <Badge 
+                <Badge
                   className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-accent text-accent-foreground"
                 >
                   {notificationCount}
@@ -61,7 +73,6 @@ export const Header = ({ user, onMenuClick, notificationCount = 0 }: HeaderProps
               )}
             </Button>
 
-            {/* User Menu */}
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -74,19 +85,24 @@ export const Header = ({ user, onMenuClick, notificationCount = 0 }: HeaderProps
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleProfile}>
                     <User className="mr-2 h-4 w-4" />
                     Profile
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-destructive">
+                  <DropdownMenuItem className="text-destructive" onClick={handleSignOut}>
                     <LogOut className="mr-2 h-4 w-4" />
-                    Sign out
+                    {t("auth.signin") === "Sign In" ? "Sign Out" : "साइन आउट"}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button className="bg-accent text-accent-foreground hover:bg-accent/90">Sign In</Button>
+              <Button
+                className="bg-accent text-accent-foreground hover:bg-accent/90"
+                onClick={() => navigate("/login")}
+              >
+                {t("auth.signin")}
+              </Button>
             )}
           </div>
         </div>
