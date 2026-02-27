@@ -2,24 +2,33 @@ import { useState } from "react";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { RoleDashboard } from "@/components/dashboard/RoleDashboard";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useLanguage } from "@/contexts/LanguageContext";
+import heroImage from "@/assets/hero-farming.jpg";
 
 const FarmerDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const user = { name: "Rajesh Kumar", role: "farmer" };
+  const { user } = useCurrentUser();
+  const { t } = useLanguage();
 
   return (
     <div className="min-h-screen bg-background">
-      <Header user={user} onMenuClick={() => setSidebarOpen(!sidebarOpen)} notificationCount={5} />
-      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} userRole={user.role} />
+      <Header user={{ name: user.name, role: "farmer" }} onMenuClick={() => setSidebarOpen(!sidebarOpen)} notificationCount={5} />
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} userRole="farmer" />
       <main className="md:ml-64 p-6">
-        <div className="space-y-6">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-gradient-tricolor">Welcome back, Farmer! 🚜</h1>
-            <p className="text-muted-foreground text-lg mt-2">Let's make today a great day for your farm!</p>
-            <div className="tricolor-bar h-0.5 max-w-xs mx-auto mt-4 rounded-full" />
+        {/* Hero background */}
+        <div className="relative rounded-2xl overflow-hidden mb-6 h-48">
+          <img src={heroImage} alt="Farm landscape" className="absolute inset-0 w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-r from-foreground/70 to-foreground/30" />
+          <div className="relative z-10 flex items-center h-full px-8">
+            <div>
+              <h1 className="text-3xl font-bold text-white">{t('dashboard.welcome')}, {user.name}! 🚜</h1>
+              <p className="text-white/80 text-lg mt-1">Let's make today a great day for your farm!</p>
+              <div className="tricolor-bar h-0.5 max-w-xs mt-3 rounded-full" />
+            </div>
           </div>
-          <RoleDashboard userRole="farmer" />
         </div>
+        <RoleDashboard userRole="farmer" />
       </main>
     </div>
   );

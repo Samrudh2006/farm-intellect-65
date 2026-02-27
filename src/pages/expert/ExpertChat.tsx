@@ -2,19 +2,18 @@ import { useState } from "react";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { AIChatbot } from "@/components/chat/AIChatbot";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const ExpertChat = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  const user = {
-    name: "Expert User",
-    role: "expert",
-  };
+  const { user } = useCurrentUser();
+  const { t } = useLanguage();
 
   return (
     <div className="min-h-screen bg-background">
       <Header 
-        user={user}
+        user={{ name: user.name, role: "expert" }}
         onMenuClick={() => setSidebarOpen(!sidebarOpen)}
         notificationCount={3}
       />
@@ -22,14 +21,14 @@ const ExpertChat = () => {
       <Sidebar 
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
-        userRole={user.role}
+        userRole="expert"
       />
 
       <main className="md:ml-64 p-6">
         <div className="space-y-6">
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-gradient-tricolor">
-              🤖 Expert AI Assistant
+              🤖 {t('ai.title')}
             </h1>
             <p className="text-muted-foreground text-lg mt-2">
               Advanced AI consultation for agricultural expertise
