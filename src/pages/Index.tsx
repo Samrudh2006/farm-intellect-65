@@ -4,10 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AshokaChakra } from "@/components/ui/ashoka-chakra";
-import { AnimatedHero } from "@/components/home/AnimatedHero";
 import { FloatingAIAssistant } from "@/components/home/FloatingAIAssistant";
 import { LanguageSelector } from "@/components/ui/language-selector";
 import { useLanguage } from "@/contexts/LanguageContext";
+import heroImage from "@/assets/hero-farming.jpg";
 import { 
   Wheat, Brain, CloudSun, TrendingUp, Shield, Users,
   ArrowRight, CheckCircle, Sparkles, Zap, BarChart3, Leaf
@@ -29,33 +29,15 @@ const scaleIn = {
   }),
 };
 
-const Counter = ({ value, suffix = "" }: { value: number; suffix?: string }) => {
-  return (
-    <motion.span
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={{ once: true }}
-    >
-      <motion.span
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true }}
-      >
-        {value.toLocaleString()}{suffix}
-      </motion.span>
-    </motion.span>
-  );
-};
-
 const Index = () => {
   const { t } = useLanguage();
 
   const features = [
-    { icon: Brain, title: "AI-Powered Recommendations", description: "Get personalized crop advice powered by machine learning algorithms", iconBg: "bg-accent/10", iconColor: "text-accent" },
+    { icon: Brain, title: "AI-Powered Recommendations", description: "Get personalised crop advice powered by machine learning algorithms", iconBg: "bg-accent/10", iconColor: "text-accent" },
     { icon: CloudSun, title: "Weather Integration", description: "Real-time weather data and forecasts for optimal farming decisions", iconBg: "bg-navy/10", iconColor: "text-navy" },
-    { icon: TrendingUp, title: "Yield Optimization", description: "Maximize your crop yields with data-driven insights", iconBg: "bg-primary/10", iconColor: "text-primary" },
+    { icon: TrendingUp, title: "Yield Optimisation", description: "Maximise your crop yields with data-driven insights", iconBg: "bg-primary/10", iconColor: "text-primary" },
     { icon: Shield, title: "Pest & Disease Control", description: "Early detection and prevention of crop threats", iconBg: "bg-accent/10", iconColor: "text-accent" },
-    { icon: Zap, title: "Smart Irrigation", description: "Optimize water usage with IoT sensor data and AI predictions", iconBg: "bg-navy/10", iconColor: "text-navy" },
+    { icon: Zap, title: "Smart Irrigation", description: "Optimise water usage with IoT sensor data and AI predictions", iconBg: "bg-navy/10", iconColor: "text-navy" },
     { icon: BarChart3, title: "Market Analytics", description: "Live mandi prices and profit predictions for better selling decisions", iconBg: "bg-primary/10", iconColor: "text-primary" },
     { icon: Leaf, title: "Organic Farming Guide", description: "Comprehensive organic farming techniques and certification help", iconBg: "bg-accent/10", iconColor: "text-accent" },
     { icon: Sparkles, title: "AI Crop Scanner", description: "Snap a photo to identify diseases, pests, and nutrient deficiencies", iconBg: "bg-navy/10", iconColor: "text-navy" },
@@ -68,7 +50,7 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background overflow-x-hidden">
+    <div className="min-h-screen bg-background overflow-x-hidden font-sans">
       {/* Tricolor top bar */}
       <div className="tricolor-bar h-1.5" />
 
@@ -82,7 +64,7 @@ const Index = () => {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <AshokaChakra size={36} />
-            <h1 className="text-xl font-bold text-foreground">Smart Crop Advisory</h1>
+            <h1 className="text-xl font-bold text-foreground font-heading">Smart Crop Advisory</h1>
           </div>
           <div className="flex items-center gap-3">
             <LanguageSelector />
@@ -98,12 +80,23 @@ const Index = () => {
         </div>
       </motion.header>
 
-      {/* Hero Section with Animated Canvas Background */}
-      <section className="relative py-20 lg:py-32 overflow-hidden min-h-[80vh] flex items-center">
-        <AnimatedHero />
+      {/* Hero Section with Background Image */}
+      <section className="relative py-20 lg:py-32 overflow-hidden min-h-[85vh] flex items-center">
+        {/* Background Image */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src={heroImage}
+            alt="Indian farming landscape with golden wheat fields"
+            className="w-full h-full object-cover"
+            loading="eager"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background/90" />
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-accent/10" />
+        </div>
+
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center space-y-6">
-            {/* Animated Ashoka Chakra hero */}
+            {/* Animated Ashoka Chakra */}
             <motion.div
               initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
@@ -112,13 +105,13 @@ const Index = () => {
             >
               <div className="relative">
                 <AshokaChakra size={80} className="drop-shadow-lg" />
-                <div className="absolute -inset-4 rounded-full border-2 border-dashed border-navy/20 animate-[chakra-spin_20s_linear_infinite_reverse]" />
-                <div className="absolute -inset-8 rounded-full border border-accent/10 animate-[chakra-spin_30s_linear_infinite]" />
+                <div className="absolute -inset-4 rounded-full border-2 border-dashed border-navy/30 animate-[chakra-spin_20s_linear_infinite_reverse]" />
+                <div className="absolute -inset-8 rounded-full border border-accent/20 animate-[chakra-spin_30s_linear_infinite]" />
               </div>
             </motion.div>
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-              <Badge className="mb-4 bg-accent/10 text-accent border-accent/30 text-sm px-4 py-1" variant="outline">
+              <Badge className="mb-4 bg-accent/15 text-accent border-accent/30 text-sm px-4 py-1.5 backdrop-blur-sm" variant="outline">
                 🇮🇳 Proudly Indian — Next-Generation Farm Management
               </Badge>
             </motion.div>
@@ -127,7 +120,7 @@ const Index = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5, duration: 0.6 }}
-              className="text-4xl lg:text-7xl font-bold text-foreground leading-tight"
+              className="text-4xl lg:text-7xl font-extrabold text-foreground leading-tight font-heading drop-shadow-sm"
             >
               {t('hero.title')}
               <motion.span
@@ -144,7 +137,7 @@ const Index = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 1 }}
-              className="text-xl text-muted-foreground max-w-2xl mx-auto"
+              className="text-xl text-muted-foreground max-w-2xl mx-auto backdrop-blur-sm bg-background/30 rounded-xl px-4 py-2"
             >
               {t('hero.description')}
             </motion.p>
@@ -156,13 +149,13 @@ const Index = () => {
               className="flex flex-col sm:flex-row gap-4 justify-center pt-6"
             >
               <Link to="/login">
-                <Button size="lg" className="w-full sm:w-auto bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg glow-saffron text-base px-8 group">
+                <Button size="lg" className="w-full sm:w-auto bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg glow-saffron text-base px-8 group font-semibold">
                   {t('hero.cta')}
                   <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
               <Link to="/login">
-                <Button size="lg" variant="outline" className="w-full sm:w-auto border-primary text-primary hover:bg-primary hover:text-primary-foreground text-base px-8">
+                <Button size="lg" variant="outline" className="w-full sm:w-auto border-primary text-primary hover:bg-primary hover:text-primary-foreground text-base px-8 backdrop-blur-sm bg-background/50 font-semibold">
                   {t('hero.demo')}
                 </Button>
               </Link>
@@ -183,7 +176,7 @@ const Index = () => {
             <motion.div variants={fadeUp} custom={0} className="flex justify-center mb-4">
               <AshokaChakra size={32} animate={false} />
             </motion.div>
-            <motion.h2 variants={fadeUp} custom={1} className="text-3xl lg:text-4xl font-bold mb-4 text-foreground">
+            <motion.h2 variants={fadeUp} custom={1} className="text-3xl lg:text-4xl font-bold mb-4 text-foreground font-heading">
               {t('features.title')} <span className="text-gradient-tricolor">{t('features.highlight')}</span>
             </motion.h2>
             <motion.p variants={fadeUp} custom={2} className="text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -230,7 +223,7 @@ const Index = () => {
               viewport={{ once: true }}
               className="space-y-6"
             >
-              <motion.h2 variants={fadeUp} custom={0} className="text-3xl lg:text-4xl font-bold text-foreground">
+              <motion.h2 variants={fadeUp} custom={0} className="text-3xl lg:text-4xl font-bold text-foreground font-heading">
                 Join Thousands of <span className="text-gradient-tricolor">Smart Farmers</span>
               </motion.h2>
               <motion.p variants={fadeUp} custom={1} className="text-xl text-muted-foreground">
@@ -261,7 +254,7 @@ const Index = () => {
               </div>
               <motion.div variants={fadeUp} custom={8}>
                 <Link to="/login">
-                  <Button size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg glow-saffron mt-4 group">
+                  <Button size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg glow-saffron mt-4 group font-semibold">
                     Get Started Today
                     <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </Button>
@@ -312,7 +305,7 @@ const Index = () => {
           >
             <div className="flex items-center justify-center gap-3 mb-4">
               <AshokaChakra size={28} animate={false} />
-              <span className="text-xl font-bold text-foreground">Smart Crop Advisory</span>
+              <span className="text-xl font-bold text-foreground font-heading">Smart Crop Advisory</span>
             </div>
             <p className="text-muted-foreground">
               Empowering farmers with intelligent technology for sustainable agriculture 🇮🇳
