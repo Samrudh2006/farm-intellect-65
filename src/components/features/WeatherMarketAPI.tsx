@@ -2,39 +2,90 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Cloud, Sun, CloudRain, TrendingUp, TrendingDown, RefreshCw, MapPin } from "lucide-react";
+import { Cloud, Sun, CloudRain, CloudSnow, CloudLightning, Wind, Droplets, TrendingUp, TrendingDown, RefreshCw, MapPin, Thermometer, Eye } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+
+const OWM_API_KEY = "78051f5076fcad307688c63cca247dce";
+
+const mapCondition = (main: string) => {
+  switch (main.toLowerCase()) {
+    case "clear": return "sunny";
+    case "rain": case "drizzle": return "rain";
+    case "snow": return "snow";
+    case "thunderstorm": return "thunderstorm";
+    case "clouds": return "cloud";
+    default: return "cloud";
+  }
+};
+
+const dayName = (dt: number, idx: number) => {
+  if (idx === 0) return "Today";
+  const d = new Date(dt * 1000);
+  return d.toLocaleDateString("en-IN", { weekday: "short" });
+};
 
 export const WeatherMarketAPI = () => {
   const { toast } = useToast();
   const [weather, setWeather] = useState<any>(null);
   const [marketPrices, setMarketPrices] = useState<any[]>([]);
-  const [location, setLocation] = useState("Chandigarh, Punjab");
+  const [location, setLocation] = useState("Chandigarh");
   const [loading, setLoading] = useState(false);
 
-  // Mock weather data (replace with actual API call)
   const fetchWeather = async () => {
     setLoading(true);
-    
-    // Mock API response
-    setTimeout(() => {
-      const mockWeather = {
-        location: location,
-        temperature: 28,
-        condition: "Partly Cloudy",
-        humidity: 65,
-        windSpeed: 12,
-        forecast: [
-          { day: "Today", temp: "28°C", condition: "Cloudy", icon: "cloud" },
-          { day: "Tomorrow", temp: "30°C", condition: "Sunny", icon: "sun" },
-          { day: "Day 3", temp: "26°C", condition: "Rain", icon: "rain" },
-          { day: "Day 4", temp: "29°C", condition: "Sunny", icon: "sun" },
-          { day: "Day 5", temp: "27°C", condition: "Cloudy", icon: "cloud" }
-        ]
-      };
-      setWeather(mockWeather);
-      setLoading(false);
-    }, 1500);
+    try {
+      // Current weather
+      const curRes = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(location)}&units=metric&appid=${OWM_API_KEY}`
+      );
+      if (!curRes.ok) throw new Error("Location not found");
+      const cur = await curRes.json();
+
+      // 5-day forecast
+      const foreRes = await fetch(
+        `https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(location)}&units=metric&appid=${OWM_API_KEY}`
+      );
+      const fore = await foreRes.json();
+
+      // Pick one forecast entry per day (around noon)
+      const dailyMap = new Map<string, any>();
+      for (const item of fore.list) {
+        const date = item.dt_txt.split(" ")[0];
+        const hour = parseInt(item.dt_txt.split(" ")[1].split(":")[0]);
+        if (!dailyMap.has(date) || Math.abs(hour - 12) < Math.abs(parseInt(dailyMap.get(date).dt_txt.split(" ")[1].split(":")[0]) - 12)) {
+          dailyMap.set(date, item);
+        }
+      }
+      const dailyForecasts = Array.from(dailyMap.values()).slice(0, 5);
+
+      setWeather({
+        location: `${cur.name}, ${cur.sys.country}`,
+        temperature: Math.round(cur.main.temp),
+        feelsLike: Math.round(cur.main.feels_like),
+        condition: cur.weather[0].main,
+        description: cur.weather[0].description,
+        humidity: cur.main.humidity,
+        windSpeed: Math.round(cur.wind.speed * 3.6), // m/s to km/h
+        pressure: cur.main.pressure,
+        visibility: cur.visibility ? (cur.visibility / 1000).toFixed(1) : "N/A",
+        icon: cur.weather[0].icon,
+        forecast: dailyForecasts.map((item: any, idx: number) => ({
+          day: dayName(item.dt, idx),
+          temp: `${Math.round(item.main.temp)}°C`,
+          condition: item.weather[0].main,
+          description: item.weather[0].description,
+          icon: mapCondition(item.weather[0].main),
+          humidity: item.main.humidity,
+        })),
+      });
+    } catch (err: any) {
+      toast({
+        title: "Weather Error",
+        description: err.message || "Could not fetch weather data",
+        variant: "destructive",
+      });
+    }
+    setLoading(false);
   };
 
   // Mock market prices data (replace with actual Agmarknet API)
@@ -88,10 +139,16 @@ export const WeatherMarketAPI = () => {
     switch (condition.toLowerCase()) {
       case 'sun':
       case 'sunny':
+      case 'clear':
         return <Sun className="h-8 w-8 text-yellow-500" />;
       case 'rain':
       case 'rainy':
+      case 'drizzle':
         return <CloudRain className="h-8 w-8 text-blue-500" />;
+      case 'snow':
+        return <CloudSnow className="h-8 w-8 text-cyan-400" />;
+      case 'thunderstorm':
+        return <CloudLightning className="h-8 w-8 text-purple-500" />;
       default:
         return <Cloud className="h-8 w-8 text-gray-500" />;
     }
@@ -147,22 +204,26 @@ export const WeatherMarketAPI = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               <div className="text-center p-4 bg-blue-50 rounded-lg">
                 <div className="text-3xl font-bold text-blue-600">{weather.temperature}°C</div>
-                <div className="text-sm text-muted-foreground">{weather.condition}</div>
+                <div className="text-xs text-muted-foreground capitalize">{weather.description}</div>
+                <div className="text-xs text-muted-foreground mt-1">Feels like {weather.feelsLike}°C</div>
               </div>
               <div className="text-center p-4 bg-green-50 rounded-lg">
+                <Droplets className="h-5 w-5 text-green-600 mx-auto mb-1" />
                 <div className="text-2xl font-bold text-green-600">{weather.humidity}%</div>
                 <div className="text-sm text-muted-foreground">Humidity</div>
               </div>
               <div className="text-center p-4 bg-purple-50 rounded-lg">
+                <Wind className="h-5 w-5 text-purple-600 mx-auto mb-1" />
                 <div className="text-2xl font-bold text-purple-600">{weather.windSpeed} km/h</div>
                 <div className="text-sm text-muted-foreground">Wind Speed</div>
               </div>
               <div className="text-center p-4 bg-orange-50 rounded-lg">
-                <div className="text-2xl font-bold text-orange-600">Good</div>
-                <div className="text-sm text-muted-foreground">Farm Conditions</div>
+                <Eye className="h-5 w-5 text-orange-600 mx-auto mb-1" />
+                <div className="text-2xl font-bold text-orange-600">{weather.visibility} km</div>
+                <div className="text-sm text-muted-foreground">Visibility</div>
               </div>
             </div>
 
