@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 export interface CurrentUser {
   name: string;
@@ -9,45 +9,29 @@ export interface CurrentUser {
   avatar?: string;
 }
 
-const defaultUser: CurrentUser = {
-  name: "User",
-  role: "farmer",
-  email: "",
-};
-
 export const useCurrentUser = (): {
   user: CurrentUser;
   updateUser: (updates: Partial<CurrentUser>) => void;
   logout: () => void;
 } => {
-  const [user, setUser] = useState<CurrentUser>(() => {
-    try {
-      const saved = localStorage.getItem("currentUser");
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        return {
-          name: parsed.name || parsed.email?.split("@")[0] || "User",
-          role: parsed.role || "farmer",
-          email: parsed.email || "",
-          phone: parsed.phone || "",
-          location: parsed.location || "",
-        };
-      }
-    } catch {}
-    return defaultUser;
-  });
+  const { profile, signOut } = useAuth();
+
+  const user: CurrentUser = {
+    name: profile?.display_name || "User",
+    role: profile?.role || "farmer",
+    email: profile?.email || "",
+    phone: profile?.phone || "",
+    location: profile?.location || "",
+    avatar: profile?.avatar_url || "",
+  };
 
   const updateUser = (updates: Partial<CurrentUser>) => {
-    setUser((prev) => {
-      const updated = { ...prev, ...updates };
-      localStorage.setItem("currentUser", JSON.stringify(updated));
-      return updated;
-    });
+    // Profile updates should go through Supabase - handled by profile page
+    console.log("Profile update requested:", updates);
   };
 
   const logout = () => {
-    localStorage.removeItem("currentUser");
-    window.location.href = "/login";
+    signOut();
   };
 
   return { user, updateUser, logout };
