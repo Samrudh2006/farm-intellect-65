@@ -18,9 +18,12 @@ import {
   CheckCircle,
   Edit,
   Trash2,
-  Calendar as CalendarIcon
+  Calendar as CalendarIcon,
+  BookOpen,
+  CloudRain
 } from "lucide-react";
 import { format } from "date-fns";
+import { getCalendarByCrop, getCalendarBySeason, cropCalendarData } from "@/data/cropCalendar";
 
 interface CropEntry {
   id: string;
@@ -45,6 +48,11 @@ export const CropCalendar = () => {
   const [showCreateEntry, setShowCreateEntry] = useState(false);
   const [selectedEntry, setSelectedEntry] = useState<CropEntry | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedAdvisoryCrop, setSelectedAdvisoryCrop] = useState<string>("");
+  
+  // AICRPAM calendar lookup
+  const advisoryCalendar = selectedAdvisoryCrop ? getCalendarByCrop(selectedAdvisoryCrop) : [];
+  const availableCrops = [...new Set(cropCalendarData.map(c => c.crop))];
   
   const [newEntry, setNewEntry] = useState({
     cropType: "",
@@ -450,6 +458,104 @@ export const CropCalendar = () => {
           </CardContent>
         </Card>
       )}
+
+      {/* AICRPAM Crop Advisory Calendar Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <BookOpen className="h-5 w-5 text-green-600" />
+            ICAR-CRIDA Crop Advisory Calendar
+          </CardTitle>
+          <CardDescription>
+            District-level weather-based crop schedules from AICRPAM bulletin
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label>Select Crop for Advisory</Label>
+            <Select value={selectedAdvisoryCrop} onValueChange={setSelectedAdvisoryCrop}>
+              <SelectTrigger>
+                <SelectValue placeholder="Choose a crop..." />
+              </SelectTrigger>
+              <SelectContent>
+                {availableCrops.map(crop => (
+                  <SelectItem key={crop} value={crop}>{crop}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {advisoryCalendar.map(cal => (
+            <div key={cal.id} className="space-y-4 border rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold text-lg">{cal.crop} <span className="text-muted-foreground text-sm">({cal.cropHindi})</span></h3>
+                  <p className="text-sm text-muted-foreground">{cal.zone}</p>
+                  <p className="text-xs text-muted-foreground">States: {cal.states.join(", ")}</p>
+                </div>
+                <div className="text-right space-y-1">
+                  <Badge variant="outline">{cal.season}</Badge>
+                  <p className="text-xs text-muted-foreground">{cal.duration}</p>
+                  <p className="text-xs font-medium text-green-700">Yield: {cal.yieldPotential}</p>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-2 text-sm">
+                <div className="p-2 bg-green-50 rounded">
+                  <p className="font-medium">Sowing Window</p>
+                  <p className="text-muted-foreground">{cal.sowingWindow.start} – {cal.sowingWindow.end}</p>
+                  <p className="text-xs text-green-700">Optimal: {cal.sowingWindow.optimal}</p>
+                </div>
+                <div className="p-2 bg-amber-50 rounded">
+                  <p className="font-medium">Harvest Window</p>
+                  <p className="text-muted-foreground">{cal.harvestWindow.start} – {cal.harvestWindow.end}</p>
+                  <p className="text-xs text-amber-700">Varieties: {cal.varietyClass.substring(0, 60)}...</p>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-medium mb-2 flex items-center gap-2"><Clock className="h-4 w-4" /> Key Activities</h4>
+                <div className="space-y-2 max-h-64 overflow-y-auto">
+                  {cal.keyActivities.map((act, i) => (
+                    <div key={i} className="flex items-start gap-3 p-2 border rounded text-sm">
+                      <Badge variant="outline" className="shrink-0 text-xs">{act.month}</Badge>
+                      <div className="flex-1">
+                        <p className="font-medium">{act.activity}</p>
+                        <p className="text-muted-foreground text-xs">{act.details.substring(0, 120)}</p>
+                        {act.weather_alert && (
+                          <p className="text-orange-600 text-xs mt-1">⚠ {act.weather_alert}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {cal.criticalWeatherStages.length > 0 && (
+                <div>
+                  <h4 className="font-medium mb-2 flex items-center gap-2"><CloudRain className="h-4 w-4 text-blue-500" /> Critical Weather Stages</h4>
+                  <div className="space-y-2">
+                    {cal.criticalWeatherStages.map((stage, i) => (
+                      <div key={i} className="p-2 bg-red-50 border border-red-100 rounded text-sm">
+                        <p className="font-medium">{stage.stage} <span className="text-muted-foreground text-xs">(DAS: {stage.das})</span></p>
+                        <p className="text-red-700 text-xs">Risk: {stage.criticalWeather}</p>
+                        <p className="text-muted-foreground text-xs">Impact: {stage.impact}</p>
+                        <p className="text-green-700 text-xs">Advisory: {stage.advisory}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+
+          {selectedAdvisoryCrop && advisoryCalendar.length === 0 && (
+            <p className="text-muted-foreground text-sm text-center py-4">
+              No AICRPAM calendar data available for {selectedAdvisoryCrop}. Try Wheat, Rice, Maize, or Cotton.
+            </p>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };

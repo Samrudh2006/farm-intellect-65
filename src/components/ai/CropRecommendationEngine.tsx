@@ -21,6 +21,7 @@ import {
   CheckCircle,
   Loader2
 } from "lucide-react";
+import { getRecommendationBySoil, getHighProfitCrops } from "@/data/cropRecommendations";
 
 interface CropRecommendation {
   crop: string;
@@ -67,144 +68,65 @@ const CropRecommendationEngine = () => {
   });
 
   const [recommendations, setRecommendations] = useState<CropRecommendation[]>([]);
-  const [apiKey, setApiKey] = useState('');
-  const [showApiInput, setShowApiInput] = useState(false);
+  const [showApiInput] = useState(false);
   const { toast } = useToast();
 
-  // Mock AI recommendations for demo (replace with actual API call)
-  const mockRecommendations: CropRecommendation[] = [
-    {
-      crop: 'Wheat',
-      variety: 'PBW 725 (Punjab Wheat)',
-      confidence: 92,
-      expectedYield: '45-50 quintals/hectare',
-      profitEstimate: '₹35,000-40,000/hectare',
-      plantingWindow: 'Nov 15 - Dec 10',
-      waterRequirement: '400-450mm',
-      fertilizers: ['Urea 130kg/ha', 'DAP 125kg/ha', 'MOP 60kg/ha'],
-      riskFactors: ['Yellow rust susceptible', 'Late sowing risk'],
-      marketDemand: 'high',
-      suitabilityScore: 85
-    },
-    {
-      crop: 'Barley',
-      variety: 'PL 426',
-      confidence: 87,
-      expectedYield: '40-45 quintals/hectare',
-      profitEstimate: '₹28,000-32,000/hectare',
-      plantingWindow: 'Nov 20 - Dec 15',
-      waterRequirement: '300-350mm',
-      fertilizers: ['Urea 100kg/ha', 'DAP 100kg/ha', 'MOP 40kg/ha'],
-      riskFactors: ['Market price volatility'],
-      marketDemand: 'medium',
-      suitabilityScore: 78
-    },
-    {
-      crop: 'Mustard',
-      variety: 'RH 30',
-      confidence: 82,
-      expectedYield: '18-22 quintals/hectare',
-      profitEstimate: '₹45,000-55,000/hectare',
-      plantingWindow: 'Oct 15 - Nov 15',
-      waterRequirement: '250-300mm',
-      fertilizers: ['Urea 60kg/ha', 'DAP 80kg/ha', 'MOP 40kg/ha'],
-      riskFactors: ['Aphid infestation', 'Weather dependency'],
-      marketDemand: 'high',
-      suitabilityScore: 75
-    }
-  ];
-
   const generateRecommendations = async () => {
-    if (!apiKey && recommendations.length === 0) {
-      setShowApiInput(true);
-      toast({
-        title: "API Key Required",
-        description: "Please enter your Perplexity API key to get AI recommendations, or view demo recommendations.",
-        variant: "default",
-      });
-      return;
-    }
-
     setLoading(true);
-    
-    try {
-      if (apiKey) {
-        // Real API call to Perplexity
-        const response = await fetch('https://api.perplexity.ai/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${apiKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            model: 'llama-3.1-sonar-small-128k-online',
-            messages: [
-              {
-                role: 'system',
-                content: 'You are an agricultural expert specializing in Punjab agriculture. Provide detailed crop recommendations based on farm data, soil conditions, and current market trends. Focus on crops suitable for Punjab climate and soil conditions.'
-              },
-              {
-                role: 'user',
-                content: `Based on the following farm data, recommend the top 3 crops for ${farmData.season} season in Punjab:
-                
-                Location: ${farmData.location}
-                Farm Size: ${farmData.farmSize} acres
-                Soil Type: ${farmData.soilType}
-                Irrigation: ${farmData.irrigationMethod}
-                Previous Crop: ${farmData.previousCrop}
-                Budget: ₹${farmData.budget}
-                
-                Soil Analysis:
-                pH: ${soilData.ph}
-                Nitrogen: ${soilData.nitrogen} kg/ha
-                Phosphorus: ${soilData.phosphorus} kg/ha
-                Potassium: ${soilData.potassium} kg/ha
-                Organic Carbon: ${soilData.organicCarbon}%
-                Moisture: ${soilData.moisture}%
-                
-                Please provide specific Punjab varieties, expected yields, profit estimates, and detailed recommendations.`
-              }
-            ],
-            temperature: 0.2,
-            top_p: 0.9,
-            max_tokens: 1000,
-            return_images: false,
-            return_related_questions: false,
-            search_domain_filter: ['punjab.gov.in', 'pau.edu'],
-            search_recency_filter: 'month',
-            frequency_penalty: 1,
-            presence_penalty: 0
-          }),
-        });
 
-        if (response.ok) {
-          const data = await response.json();
-          // Process AI response and convert to recommendations format
-          console.log('AI Response:', data.choices[0].message.content);
-          toast({
-            title: "AI Recommendations Generated",
-            description: "Successfully generated personalized crop recommendations using AI.",
-          });
-        } else {
-          throw new Error('API request failed');
-        }
-      }
-      
-      // For demo, show mock recommendations
-      setRecommendations(mockRecommendations);
-      
-    } catch (error) {
-      console.error('Error:', error);
-      // Fallback to mock data
-      setRecommendations(mockRecommendations);
-      toast({
-        title: "Demo Mode",
-        description: "Showing sample recommendations. Connect API key for personalized results.",
-        variant: "default",
+    // Use real dataset: score crops by soil parameters
+    await new Promise(r => setTimeout(r, 800));
+    
+    const results = getRecommendationBySoil(
+      soilData.nitrogen,
+      soilData.phosphorus,
+      soilData.potassium,
+      soilData.ph,
+      25,      // default temp — could add to form
+      60,      // default humidity
+      farmData.season === 'kharif' ? 1200 : 400  // rainfall estimate by season
+    );
+
+    if (results.length > 0) {
+      const mapped: CropRecommendation[] = results.slice(0, 4).map(r => {
+        const c = r.crop;
+        const variety = c.bestVarieties[0];
+        return {
+          crop: c.crop,
+          variety: variety?.name || c.crop,
+          confidence: r.score,
+          expectedYield: `${c.avgYield.value} ${c.avgYield.unit}`,
+          profitEstimate: `₹${c.profitPerHectare.min.toLocaleString()}–${c.profitPerHectare.max.toLocaleString()}/hectare`,
+          plantingWindow: `${c.sowingWindow?.start || "Season start"}`,
+          waterRequirement: `${c.waterRequirement.value} ${c.waterRequirement.unit}`,
+          fertilizers: [...c.fertilizers.basal.slice(0, 2), ...c.fertilizers.topDressing.slice(0, 1)],
+          riskFactors: c.rotationCrops.length > 0 ? [`Rotate with: ${c.rotationCrops.slice(0, 2).join(", ")}`] : ["Monitor for common pests"],
+          marketDemand: c.profitPerHectare.max > 80000 ? 'high' : c.profitPerHectare.max > 40000 ? 'medium' : 'low',
+          suitabilityScore: r.score
+        };
       });
-    } finally {
-      setLoading(false);
+      setRecommendations(mapped);
+      toast({ title: "Recommendations Ready", description: `${mapped.length} crops matched your soil parameters from ICAR dataset.` });
+    } else {
+      // Fallback: high-profit crops
+      const high = getHighProfitCrops().slice(0, 3);
+      const mapped: CropRecommendation[] = high.map(c => ({
+        crop: c.crop,
+        variety: c.bestVarieties[0]?.name || c.crop,
+        confidence: 60,
+        expectedYield: `${c.avgYield.value} ${c.avgYield.unit}`,
+        profitEstimate: `₹${c.profitPerHectare.min.toLocaleString()}–${c.profitPerHectare.max.toLocaleString()}/hectare`,
+        plantingWindow: `${c.season} season`,
+        waterRequirement: `${c.waterRequirement.value} ${c.waterRequirement.unit}`,
+        fertilizers: c.fertilizers.basal.slice(0, 2),
+        riskFactors: ["Adjust soil parameters for better match"],
+        marketDemand: 'high',
+        suitabilityScore: 60
+      }));
+      setRecommendations(mapped);
+      toast({ title: "General Recommendation", description: "Showing high-profit crops. Adjust soil data for precise results.", variant: "default" });
     }
+    setLoading(false);
   };
 
   const demandColors = {

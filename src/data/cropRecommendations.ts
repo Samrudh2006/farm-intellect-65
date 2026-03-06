@@ -678,7 +678,7 @@ export const getRecommendationBySoil = (
     .map(crop => {
       const sp = crop.soilParameters;
       let score = 0;
-      let maxScore = 7;
+      const maxScore = 7;
 
       if (nitrogen >= sp.nitrogen.min && nitrogen <= sp.nitrogen.max) score++;
       if (phosphorus >= sp.phosphorus.min && phosphorus <= sp.phosphorus.max) score++;
