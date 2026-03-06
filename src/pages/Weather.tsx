@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { WeatherWidget } from "@/components/dashboard/WeatherWidget";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { 
   CloudSun, 
   MapPin, 
@@ -55,12 +56,8 @@ const conditionIcons = {
 
 const Weather = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [selectedLocation, setSelectedLocation] = useState("Main Farm");
-
-  const user = {
-    name: "John Farmer",
-    role: "farmer",
-  };
+  const { user } = useCurrentUser();
+  const [selectedLocation, setSelectedLocation] = useState(user?.location || "Chandigarh");
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {

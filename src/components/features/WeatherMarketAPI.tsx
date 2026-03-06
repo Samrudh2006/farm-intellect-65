@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Cloud, Sun, CloudRain, CloudSnow, CloudLightning, Wind, Droplets, TrendingUp, TrendingDown, RefreshCw, MapPin, Thermometer, Eye } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 const OWM_API_KEY = "78051f5076fcad307688c63cca247dce";
 
@@ -26,10 +27,12 @@ const dayName = (dt: number, idx: number) => {
 
 export const WeatherMarketAPI = () => {
   const { toast } = useToast();
+  const { user } = useCurrentUser();
   const [weather, setWeather] = useState<any>(null);
   const [marketPrices, setMarketPrices] = useState<any[]>([]);
-  const [location, setLocation] = useState("Chandigarh");
+  const [location, setLocation] = useState("");
   const [loading, setLoading] = useState(false);
+  const [initialized, setInitialized] = useState(false);
 
   const fetchWeather = async () => {
     setLoading(true);
@@ -130,10 +133,24 @@ export const WeatherMarketAPI = () => {
     setMarketPrices(mockPrices);
   };
 
+  // Auto-set location from user profile
   useEffect(() => {
-    fetchWeather();
-    fetchMarketPrices();
-  }, []);
+    if (user?.location && !initialized) {
+      setLocation(user.location);
+      setInitialized(true);
+    } else if (!initialized && !user?.location) {
+      setLocation("Chandigarh");
+      setInitialized(true);
+    }
+  }, [user?.location, initialized]);
+
+  // Fetch weather when location is set
+  useEffect(() => {
+    if (location) {
+      fetchWeather();
+      fetchMarketPrices();
+    }
+  }, [location, initialized]);
 
   const getWeatherIcon = (condition: string) => {
     switch (condition.toLowerCase()) {
