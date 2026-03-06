@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable";
 import heroImage from "@/assets/hero-farming.jpg";
 import farmerImg from "@/assets/roles/farmer-role.jpg";
 import merchantImg from "@/assets/roles/merchant-role.jpg";
