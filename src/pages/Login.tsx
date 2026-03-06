@@ -67,7 +67,6 @@ const Login = () => {
       toast({ title: "Error", description: String(result.error), variant: "destructive" });
     }
   };
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -224,12 +223,13 @@ const Login = () => {
             <AshokaChakra size={32} />
             <h1 className="text-xl font-bold text-gradient-tricolor">Smart Crop Advisory</h1>
           </div>
-          <Card className="tricolor-card">
-            <CardHeader className="text-center pb-4">
-              <div className="flex items-center justify-center gap-3 mb-2">
-                <img src={currentRole?.image} alt={currentRole?.title} className="w-10 h-10 rounded-full object-cover border-2 border-primary/30" />
-                <span className="font-semibold text-foreground">{currentRole?.title}</span>
-              </div>
+          <Card className="tricolor-card overflow-hidden">
+            <div className="relative h-40 overflow-hidden">
+              <img src={currentRole?.image} alt={currentRole?.title} className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+              <h3 className="absolute bottom-3 left-4 text-white font-bold text-xl drop-shadow-lg">{currentRole?.title}</h3>
+            </div>
+            <CardHeader className="text-center pb-4 pt-4">
               <CardTitle className="text-xl">{isLogin ? t("auth.signin") : t("auth.signup")}</CardTitle>
               <CardDescription>{isLogin ? t("auth.signin_desc") : t("auth.signup_desc")}</CardDescription>
             </CardHeader>
@@ -328,14 +328,14 @@ const Login = () => {
       </div>
 
       <div className="hidden lg:block relative">
-        <img src={heroImage} alt="Smart farming technology" className="absolute inset-0 w-full h-full object-cover" />
+        <img src={currentRole?.image} alt={currentRole?.title} className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 to-transparent" />
         <div className="absolute bottom-8 left-8 right-8">
           <div className="flex items-center gap-3 mb-3">
             <AshokaChakra size={32} animate={false} className="drop-shadow-lg [&_circle]:fill-white [&_line]:stroke-white" />
-            <h2 className="text-3xl font-bold text-white">Smart Farming Solutions</h2>
+            <h2 className="text-3xl font-bold text-white">{currentRole?.title}</h2>
           </div>
-          <p className="text-lg text-white/90">Harness the power of AI and IoT to optimize your crop yields 🇮🇳</p>
+          <p className="text-lg text-white/90">{currentRole?.description}</p>
           <div className="tricolor-bar h-1 mt-4 rounded-full" />
         </div>
       </div>
