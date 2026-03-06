@@ -12,7 +12,6 @@ import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
 import heroImage from "@/assets/hero-farming.jpg";
 import farmerImg from "@/assets/roles/farmer-role.jpg";
 import merchantImg from "@/assets/roles/merchant-role.jpg";
@@ -59,13 +58,8 @@ const Login = () => {
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin + "/farmer/dashboard",
-    });
-    if (result && 'error' in result && result.error) {
-      toast({ title: "Error", description: String(result.error), variant: "destructive" });
-    }
+  const handleGoogleSignIn = () => {
+    toast({ title: "Google Sign-In", description: "Google sign-in coming soon!" });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
