@@ -89,15 +89,18 @@ const Login = () => {
           admin: "/admin/dashboard",
         };
 
-        // If user selected a different role than their actual role, inform them
+        // If user selected a different role than their actual role, reject login
         if (selectedRole && selectedRole !== userRole) {
+          await supabase.auth.signOut();
           toast({ 
-            title: "Different Role Detected", 
-            description: `You are registered as ${userRole.charAt(0).toUpperCase() + userRole.slice(1)}. Redirecting to your ${userRole} dashboard.`,
+            title: "Wrong Role", 
+            description: `This account is registered as ${userRole.charAt(0).toUpperCase() + userRole.slice(1)}. Please select the correct role to sign in.`,
+            variant: "destructive",
           });
-        } else {
-          toast({ title: t("auth.login_success"), description: `Welcome back!` });
+          setLoading(false);
+          return;
         }
+        toast({ title: t("auth.login_success"), description: `Welcome back!` });
         navigate(routes[userRole] || "/farmer/dashboard");
       }
     } else {
