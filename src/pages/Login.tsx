@@ -81,15 +81,24 @@ const Login = () => {
           .select("role")
           .eq("user_id", user.id)
           .single();
-        const role = roleData?.role || "farmer";
+        const userRole = roleData?.role || "farmer";
         const routes: Record<string, string> = {
           farmer: "/farmer/dashboard",
           merchant: "/merchant/dashboard",
           expert: "/expert/dashboard",
           admin: "/admin/dashboard",
         };
-        toast({ title: t("auth.login_success"), description: `Welcome back!` });
-        navigate(routes[role] || "/farmer/dashboard");
+
+        // If user selected a different role than their actual role, inform them
+        if (selectedRole && selectedRole !== userRole) {
+          toast({ 
+            title: "Different Role Detected", 
+            description: `You are registered as ${userRole.charAt(0).toUpperCase() + userRole.slice(1)}. Redirecting to your ${userRole} dashboard.`,
+          });
+        } else {
+          toast({ title: t("auth.login_success"), description: `Welcome back!` });
+        }
+        navigate(routes[userRole] || "/farmer/dashboard");
       }
     } else {
       if (formData.password.length < 6) {
@@ -104,7 +113,16 @@ const Login = () => {
         location: formData.location,
       });
       if (error) {
-        toast({ title: t("auth.user_exists"), description: error.message, variant: "destructive" });
+        const msg = error.message?.toLowerCase() || "";
+        if (msg.includes("already") || msg.includes("exists") || msg.includes("registered") || msg.includes("duplicate")) {
+          toast({ 
+            title: "Account Already Exists", 
+            description: "This email is already registered. Please use a different email or sign in instead.", 
+            variant: "destructive" 
+          });
+        } else {
+          toast({ title: t("auth.user_exists"), description: error.message, variant: "destructive" });
+        }
         setLoading(false);
         return;
       }
