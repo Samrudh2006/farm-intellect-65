@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { LocationSelector } from "@/components/ui/location-selector";
 import heroImage from "@/assets/hero-farming.jpg";
 import farmerImg from "@/assets/roles/farmer-role.jpg";
 import merchantImg from "@/assets/roles/merchant-role.jpg";
@@ -268,10 +269,11 @@ const Login = () => {
                     </div>
                     <div className="space-y-1.5">
                       <Label htmlFor="location">{t("auth.location")}</Label>
-                      <div className="relative">
-                        <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input id="location" placeholder={t("auth.enter_location")} className="pl-10" value={formData.location} onChange={(e) => setFormData({ ...formData, location: e.target.value })} />
-                      </div>
+                      <LocationSelector
+                        value={formData.location}
+                        onChange={(val) => setFormData({ ...formData, location: val })}
+                        placeholder="Search your city..."
+                      />
                     </div>
                   </>
                 )}

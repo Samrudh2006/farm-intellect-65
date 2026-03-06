@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Cloud, Sun, CloudRain, CloudSnow, CloudLightning, Wind, Droplets, TrendingUp, TrendingDown, RefreshCw, MapPin, Thermometer, Eye } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { LocationSelector } from "@/components/ui/location-selector";
 
 const OWM_API_KEY = "78051f5076fcad307688c63cca247dce";
 
@@ -198,12 +199,13 @@ export const WeatherMarketAPI = () => {
         </CardHeader>
         <CardContent>
           <div className="flex gap-2">
-            <Input
-              placeholder="Enter your location"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              className="flex-1"
-            />
+            <div className="flex-1">
+              <LocationSelector
+                value={location}
+                onChange={(val) => setLocation(val)}
+                placeholder="Search your city..."
+              />
+            </div>
             <Button onClick={fetchWeather} disabled={loading}>
               {loading ? "Loading..." : "Update"}
             </Button>
