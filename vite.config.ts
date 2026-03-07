@@ -3,6 +3,18 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 
+const vendorChunkGroups: Array<[string, string[]]> = [
+  ["react-vendor", ["react", "react-dom"]],
+  ["router-vendor", ["react-router-dom", "@tanstack/react-query"]],
+  ["supabase-vendor", ["@supabase"]],
+  ["ui-vendor", ["@radix-ui", "class-variance-authority", "clsx", "tailwind-merge", "lucide-react"]],
+  ["charts-vendor", ["recharts"]],
+  ["motion-vendor", ["framer-motion"]],
+  ["date-vendor", ["date-fns"]],
+  ["fabric-vendor", ["fabric"]],
+  ["markdown-vendor", ["react-markdown"]],
+];
+
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
@@ -20,6 +32,27 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+    },
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes("node_modules")) {
+            return undefined;
+          }
+
+          const matchedGroup = vendorChunkGroups.find(([, packages]) =>
+            packages.some((pkg) => id.includes(`/node_modules/${pkg}/`) || id.includes(`\\node_modules\\${pkg}\\`)),
+          );
+
+          if (matchedGroup) {
+            return matchedGroup[0];
+          }
+
+          return undefined;
+        },
+      },
     },
   },
 }));

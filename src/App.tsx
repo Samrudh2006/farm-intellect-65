@@ -1,3 +1,4 @@
+import { Suspense, lazy, type ComponentType, type LazyExoticComponent, type ReactNode } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,63 +9,79 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { AppErrorBoundary } from "@/components/system/AppErrorBoundary";
-import Index from "./pages/Index";
-import Dashboard from "./pages/Dashboard";
-import FarmerDashboard from "./pages/FarmerDashboard";
-import MerchantDashboard from "./pages/MerchantDashboard";
-import MerchantDashboardPage from "./pages/MerchantDashboardPage";
-import ExpertDashboard from "./pages/ExpertDashboard";
-import ExpertDashboardPage from "./pages/ExpertDashboardPage";
-import AdminDashboard from "./pages/AdminDashboard";
-import AdminDashboardPage from "./pages/AdminDashboardPage";
-import Login from "./pages/Login";
-import Crops from "./pages/Crops";
-import Advisory from "./pages/Advisory";
-import Weather from "./pages/Weather";
-import Sensors from "./pages/Sensors";
-import FieldMap from "./pages/FieldMap";
-import Merchants from "./pages/Merchants";
-import Polls from "./pages/Polls";
-import Schemes from "./pages/Schemes";
-import AIAdvisory from "./pages/AIAdvisory";
-import AICropScanner from "./pages/AICropScanner";
-import Farmers from "./pages/Farmers";
-import Analytics from "./pages/Analytics";
-import Users from "./pages/Users";
-import Settings from "./pages/Settings";
-import NotFound from "./pages/NotFound";
-import Forum from "./pages/Forum";
-import Calendar from "./pages/Calendar";
-import Notifications from "./pages/Notifications";
-import Documents from "./pages/Documents";
-import Chat from "./pages/Chat";
-import FarmFeatures from "./pages/FarmFeatures";
 
-import MerchantFarmers from "./pages/merchant/MerchantFarmers";
-import MerchantMarketPrices from "./pages/merchant/MerchantMarketPrices";
-import MerchantDocuments from "./pages/merchant/MerchantDocuments";
-import MerchantNotifications from "./pages/merchant/MerchantNotifications";
+const Index = lazy(() => import("./pages/Index"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const FarmerDashboard = lazy(() => import("./pages/FarmerDashboard"));
+const MerchantDashboardPage = lazy(() => import("./pages/MerchantDashboardPage"));
+const ExpertDashboardPage = lazy(() => import("./pages/ExpertDashboardPage"));
+const AdminDashboardPage = lazy(() => import("./pages/AdminDashboardPage"));
+const Login = lazy(() => import("./pages/Login"));
+const Crops = lazy(() => import("./pages/Crops"));
+const Advisory = lazy(() => import("./pages/Advisory"));
+const Weather = lazy(() => import("./pages/Weather"));
+const Sensors = lazy(() => import("./pages/Sensors"));
+const FieldMap = lazy(() => import("./pages/FieldMap"));
+const Merchants = lazy(() => import("./pages/Merchants"));
+const Polls = lazy(() => import("./pages/Polls"));
+const Schemes = lazy(() => import("./pages/Schemes"));
+const AIAdvisory = lazy(() => import("./pages/AIAdvisory"));
+const AICropScanner = lazy(() => import("./pages/AICropScanner"));
+const Farmers = lazy(() => import("./pages/Farmers"));
+const Analytics = lazy(() => import("./pages/Analytics"));
+const Users = lazy(() => import("./pages/Users"));
+const Settings = lazy(() => import("./pages/Settings"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const Forum = lazy(() => import("./pages/Forum"));
+const Calendar = lazy(() => import("./pages/Calendar"));
+const Notifications = lazy(() => import("./pages/Notifications"));
+const Documents = lazy(() => import("./pages/Documents"));
+const Chat = lazy(() => import("./pages/Chat"));
+const FarmFeatures = lazy(() => import("./pages/FarmFeatures"));
+const Profile = lazy(() => import("./pages/Profile"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 
-import ExpertAICropScanner from "./pages/expert/ExpertAICropScanner";
-import ExpertAIAdvisory from "./pages/expert/ExpertAIAdvisory";
-import ExpertChat from "./pages/expert/ExpertChat";
-import ExpertNotifications from "./pages/expert/ExpertNotifications";
+const MerchantFarmers = lazy(() => import("./pages/merchant/MerchantFarmers"));
+const MerchantMarketPrices = lazy(() => import("./pages/merchant/MerchantMarketPrices"));
+const MerchantDocuments = lazy(() => import("./pages/merchant/MerchantDocuments"));
+const MerchantNotifications = lazy(() => import("./pages/merchant/MerchantNotifications"));
 
-import AdminUsers from "./pages/admin/AdminUsers";
-import AdminAnalytics from "./pages/admin/AdminAnalytics";
-import AdminSettings from "./pages/admin/AdminSettings";
-import AdminNotifications from "./pages/admin/AdminNotifications";
-import Profile from "./pages/Profile";
-import ResetPassword from "./pages/ResetPassword";
+const ExpertAICropScanner = lazy(() => import("./pages/expert/ExpertAICropScanner"));
+const ExpertAIAdvisory = lazy(() => import("./pages/expert/ExpertAIAdvisory"));
+const ExpertChat = lazy(() => import("./pages/expert/ExpertChat"));
+const ExpertNotifications = lazy(() => import("./pages/expert/ExpertNotifications"));
+
+const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
+const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
+const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
+const AdminNotifications = lazy(() => import("./pages/admin/AdminNotifications"));
 
 const queryClient = new QueryClient();
 
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+const RouteLoader = () => (
+  <div className="min-h-screen flex items-center justify-center">
+    <span className="h-8 w-8 rounded-full border-4 border-primary/30 border-t-primary animate-spin" />
+  </div>
+);
+
+const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   const { user, loading } = useAuth();
   if (loading) return <div className="min-h-screen flex items-center justify-center"><span className="h-8 w-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" /></div>;
   if (!user) return <Navigate to="/login" replace />;
   return <>{children}</>;
 };
+
+const renderPage = (Component: LazyExoticComponent<ComponentType>) => (
+  <Suspense fallback={<RouteLoader />}>
+    <PageTransition>
+      <Component />
+    </PageTransition>
+  </Suspense>
+);
+
+const renderProtectedPage = (Component: LazyExoticComponent<ComponentType>) => (
+  <ProtectedRoute>{renderPage(Component)}</ProtectedRoute>
+);
 
 const AnimatedRoutes = () => {
   const location = useLocation();
@@ -72,75 +89,75 @@ const AnimatedRoutes = () => {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<PageTransition><Index /></PageTransition>} />
-        <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
-        <Route path="/reset-password" element={<PageTransition><ResetPassword /></PageTransition>} />
+        <Route path="/" element={renderPage(Index)} />
+        <Route path="/login" element={renderPage(Login)} />
+        <Route path="/reset-password" element={renderPage(ResetPassword)} />
         
         {/* Farmer Routes */}
-        <Route path="/farmer/dashboard" element={<ProtectedRoute><PageTransition><FarmerDashboard /></PageTransition></ProtectedRoute>} />
-        <Route path="/farmer/crops" element={<ProtectedRoute><PageTransition><Crops /></PageTransition></ProtectedRoute>} />
-        <Route path="/farmer/advisory" element={<ProtectedRoute><PageTransition><Advisory /></PageTransition></ProtectedRoute>} />
-        <Route path="/farmer/weather" element={<ProtectedRoute><PageTransition><Weather /></PageTransition></ProtectedRoute>} />
-        <Route path="/farmer/sensors" element={<ProtectedRoute><PageTransition><Sensors /></PageTransition></ProtectedRoute>} />
-        <Route path="/farmer/field-map" element={<ProtectedRoute><PageTransition><FieldMap /></PageTransition></ProtectedRoute>} />
-        <Route path="/farmer/merchants" element={<ProtectedRoute><PageTransition><Merchants /></PageTransition></ProtectedRoute>} />
-        <Route path="/farmer/polls" element={<ProtectedRoute><PageTransition><Polls /></PageTransition></ProtectedRoute>} />
-        <Route path="/farmer/schemes" element={<ProtectedRoute><PageTransition><Schemes /></PageTransition></ProtectedRoute>} />
-        <Route path="/farmer/ai-advisory" element={<ProtectedRoute><PageTransition><AIAdvisory /></PageTransition></ProtectedRoute>} />
-        <Route path="/farmer/chat" element={<ProtectedRoute><PageTransition><Chat /></PageTransition></ProtectedRoute>} />
-        <Route path="/farmer/forum" element={<ProtectedRoute><PageTransition><Forum /></PageTransition></ProtectedRoute>} />
-        <Route path="/farmer/calendar" element={<ProtectedRoute><PageTransition><Calendar /></PageTransition></ProtectedRoute>} />
-        <Route path="/farmer/documents" element={<ProtectedRoute><PageTransition><Documents /></PageTransition></ProtectedRoute>} />
-        <Route path="/farmer/notifications" element={<ProtectedRoute><PageTransition><Notifications /></PageTransition></ProtectedRoute>} />
-        <Route path="/farmer/features" element={<ProtectedRoute><PageTransition><FarmFeatures /></PageTransition></ProtectedRoute>} />
-        <Route path="/farmer/profile" element={<ProtectedRoute><PageTransition><Profile /></PageTransition></ProtectedRoute>} />
+        <Route path="/farmer/dashboard" element={renderProtectedPage(FarmerDashboard)} />
+        <Route path="/farmer/crops" element={renderProtectedPage(Crops)} />
+        <Route path="/farmer/advisory" element={renderProtectedPage(Advisory)} />
+        <Route path="/farmer/weather" element={renderProtectedPage(Weather)} />
+        <Route path="/farmer/sensors" element={renderProtectedPage(Sensors)} />
+        <Route path="/farmer/field-map" element={renderProtectedPage(FieldMap)} />
+        <Route path="/farmer/merchants" element={renderProtectedPage(Merchants)} />
+        <Route path="/farmer/polls" element={renderProtectedPage(Polls)} />
+        <Route path="/farmer/schemes" element={renderProtectedPage(Schemes)} />
+        <Route path="/farmer/ai-advisory" element={renderProtectedPage(AIAdvisory)} />
+        <Route path="/farmer/chat" element={renderProtectedPage(Chat)} />
+        <Route path="/farmer/forum" element={renderProtectedPage(Forum)} />
+        <Route path="/farmer/calendar" element={renderProtectedPage(Calendar)} />
+        <Route path="/farmer/documents" element={renderProtectedPage(Documents)} />
+        <Route path="/farmer/notifications" element={renderProtectedPage(Notifications)} />
+        <Route path="/farmer/features" element={renderProtectedPage(FarmFeatures)} />
+        <Route path="/farmer/profile" element={renderProtectedPage(Profile)} />
         
         {/* Merchant Routes */}
-        <Route path="/merchant/dashboard" element={<ProtectedRoute><PageTransition><MerchantDashboardPage /></PageTransition></ProtectedRoute>} />
-        <Route path="/merchant/farmers" element={<ProtectedRoute><PageTransition><MerchantFarmers /></PageTransition></ProtectedRoute>} />
-        <Route path="/merchant/market-prices" element={<ProtectedRoute><PageTransition><MerchantMarketPrices /></PageTransition></ProtectedRoute>} />
-        <Route path="/merchant/documents" element={<ProtectedRoute><PageTransition><MerchantDocuments /></PageTransition></ProtectedRoute>} />
-        <Route path="/merchant/notifications" element={<ProtectedRoute><PageTransition><MerchantNotifications /></PageTransition></ProtectedRoute>} />
-        <Route path="/merchant/profile" element={<ProtectedRoute><PageTransition><Profile /></PageTransition></ProtectedRoute>} />
+        <Route path="/merchant/dashboard" element={renderProtectedPage(MerchantDashboardPage)} />
+        <Route path="/merchant/farmers" element={renderProtectedPage(MerchantFarmers)} />
+        <Route path="/merchant/market-prices" element={renderProtectedPage(MerchantMarketPrices)} />
+        <Route path="/merchant/documents" element={renderProtectedPage(MerchantDocuments)} />
+        <Route path="/merchant/notifications" element={renderProtectedPage(MerchantNotifications)} />
+        <Route path="/merchant/profile" element={renderProtectedPage(Profile)} />
         
         {/* Expert Routes */}
-        <Route path="/expert/dashboard" element={<ProtectedRoute><PageTransition><ExpertDashboardPage /></PageTransition></ProtectedRoute>} />
-        <Route path="/expert/ai-crop-scanner" element={<ProtectedRoute><PageTransition><ExpertAICropScanner /></PageTransition></ProtectedRoute>} />
-        <Route path="/expert/ai-advisory" element={<ProtectedRoute><PageTransition><ExpertAIAdvisory /></PageTransition></ProtectedRoute>} />
-        <Route path="/expert/chat" element={<ProtectedRoute><PageTransition><ExpertChat /></PageTransition></ProtectedRoute>} />
-        <Route path="/expert/notifications" element={<ProtectedRoute><PageTransition><ExpertNotifications /></PageTransition></ProtectedRoute>} />
-        <Route path="/expert/profile" element={<ProtectedRoute><PageTransition><Profile /></PageTransition></ProtectedRoute>} />
+        <Route path="/expert/dashboard" element={renderProtectedPage(ExpertDashboardPage)} />
+        <Route path="/expert/ai-crop-scanner" element={renderProtectedPage(ExpertAICropScanner)} />
+        <Route path="/expert/ai-advisory" element={renderProtectedPage(ExpertAIAdvisory)} />
+        <Route path="/expert/chat" element={renderProtectedPage(ExpertChat)} />
+        <Route path="/expert/notifications" element={renderProtectedPage(ExpertNotifications)} />
+        <Route path="/expert/profile" element={renderProtectedPage(Profile)} />
         
         {/* Admin Routes */}
-        <Route path="/admin/dashboard" element={<ProtectedRoute><PageTransition><AdminDashboardPage /></PageTransition></ProtectedRoute>} />
-        <Route path="/admin/users" element={<ProtectedRoute><PageTransition><AdminUsers /></PageTransition></ProtectedRoute>} />
-        <Route path="/admin/analytics" element={<ProtectedRoute><PageTransition><AdminAnalytics /></PageTransition></ProtectedRoute>} />
-        <Route path="/admin/settings" element={<ProtectedRoute><PageTransition><AdminSettings /></PageTransition></ProtectedRoute>} />
-        <Route path="/admin/notifications" element={<ProtectedRoute><PageTransition><AdminNotifications /></PageTransition></ProtectedRoute>} />
-        <Route path="/admin/profile" element={<ProtectedRoute><PageTransition><Profile /></PageTransition></ProtectedRoute>} />
+        <Route path="/admin/dashboard" element={renderProtectedPage(AdminDashboardPage)} />
+        <Route path="/admin/users" element={renderProtectedPage(AdminUsers)} />
+        <Route path="/admin/analytics" element={renderProtectedPage(AdminAnalytics)} />
+        <Route path="/admin/settings" element={renderProtectedPage(AdminSettings)} />
+        <Route path="/admin/notifications" element={renderProtectedPage(AdminNotifications)} />
+        <Route path="/admin/profile" element={renderProtectedPage(Profile)} />
         
         {/* Legacy Routes */}
-        <Route path="/dashboard" element={<ProtectedRoute><PageTransition><Dashboard /></PageTransition></ProtectedRoute>} />
-        <Route path="/crops" element={<ProtectedRoute><PageTransition><Crops /></PageTransition></ProtectedRoute>} />
-        <Route path="/advisory" element={<ProtectedRoute><PageTransition><Advisory /></PageTransition></ProtectedRoute>} />
-        <Route path="/weather" element={<ProtectedRoute><PageTransition><Weather /></PageTransition></ProtectedRoute>} />
-        <Route path="/sensors" element={<ProtectedRoute><PageTransition><Sensors /></PageTransition></ProtectedRoute>} />
-        <Route path="/field-map" element={<ProtectedRoute><PageTransition><FieldMap /></PageTransition></ProtectedRoute>} />
-        <Route path="/merchants" element={<ProtectedRoute><PageTransition><Merchants /></PageTransition></ProtectedRoute>} />
-        <Route path="/polls" element={<ProtectedRoute><PageTransition><Polls /></PageTransition></ProtectedRoute>} />
-        <Route path="/schemes" element={<ProtectedRoute><PageTransition><Schemes /></PageTransition></ProtectedRoute>} />
-        <Route path="/ai-advisory" element={<ProtectedRoute><PageTransition><AIAdvisory /></PageTransition></ProtectedRoute>} />
-        <Route path="/ai-crop-scanner" element={<ProtectedRoute><PageTransition><AICropScanner /></PageTransition></ProtectedRoute>} />
-        <Route path="/farmers" element={<ProtectedRoute><PageTransition><Farmers /></PageTransition></ProtectedRoute>} />
-        <Route path="/analytics" element={<ProtectedRoute><PageTransition><Analytics /></PageTransition></ProtectedRoute>} />
-        <Route path="/users" element={<ProtectedRoute><PageTransition><Users /></PageTransition></ProtectedRoute>} />
-        <Route path="/settings" element={<ProtectedRoute><PageTransition><Settings /></PageTransition></ProtectedRoute>} />
-        <Route path="/forum" element={<ProtectedRoute><PageTransition><Forum /></PageTransition></ProtectedRoute>} />
-        <Route path="/calendar" element={<ProtectedRoute><PageTransition><Calendar /></PageTransition></ProtectedRoute>} />
-        <Route path="/notifications" element={<ProtectedRoute><PageTransition><Notifications /></PageTransition></ProtectedRoute>} />
-        <Route path="/documents" element={<ProtectedRoute><PageTransition><Documents /></PageTransition></ProtectedRoute>} />
-        <Route path="/chat" element={<ProtectedRoute><PageTransition><Chat /></PageTransition></ProtectedRoute>} />
-        <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
+        <Route path="/dashboard" element={renderProtectedPage(Dashboard)} />
+        <Route path="/crops" element={renderProtectedPage(Crops)} />
+        <Route path="/advisory" element={renderProtectedPage(Advisory)} />
+        <Route path="/weather" element={renderProtectedPage(Weather)} />
+        <Route path="/sensors" element={renderProtectedPage(Sensors)} />
+        <Route path="/field-map" element={renderProtectedPage(FieldMap)} />
+        <Route path="/merchants" element={renderProtectedPage(Merchants)} />
+        <Route path="/polls" element={renderProtectedPage(Polls)} />
+        <Route path="/schemes" element={renderProtectedPage(Schemes)} />
+        <Route path="/ai-advisory" element={renderProtectedPage(AIAdvisory)} />
+        <Route path="/ai-crop-scanner" element={renderProtectedPage(AICropScanner)} />
+        <Route path="/farmers" element={renderProtectedPage(Farmers)} />
+        <Route path="/analytics" element={renderProtectedPage(Analytics)} />
+        <Route path="/users" element={renderProtectedPage(Users)} />
+        <Route path="/settings" element={renderProtectedPage(Settings)} />
+        <Route path="/forum" element={renderProtectedPage(Forum)} />
+        <Route path="/calendar" element={renderProtectedPage(Calendar)} />
+        <Route path="/notifications" element={renderProtectedPage(Notifications)} />
+        <Route path="/documents" element={renderProtectedPage(Documents)} />
+        <Route path="/chat" element={renderProtectedPage(Chat)} />
+        <Route path="*" element={renderPage(NotFound)} />
       </Routes>
     </AnimatePresence>
   );

@@ -4,6 +4,8 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { FieldHistoryTimeline } from "@/components/features/FieldHistoryTimeline";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { 
   Map,
   Layers,
@@ -95,15 +97,26 @@ const statusColors = {
   high: "destructive",
 };
 
+const vegetationColorClasses: Record<string, string> = {
+  "#1565C0": "bg-[#1565C0]",
+  "#8D6E63": "bg-[#8D6E63]",
+  "#F9A825": "bg-[#F9A825]",
+  "#FDD835": "bg-[#FDD835]",
+  "#8BC34A": "bg-[#8BC34A]",
+  "#4CAF50": "bg-[#4CAF50]",
+  "#2E7D32": "bg-[#2E7D32]",
+  "#1B5E20": "bg-[#1B5E20]",
+  "#BF360C": "bg-[#BF360C]",
+  "#F57F17": "bg-[#F57F17]",
+  "#66BB6A": "bg-[#66BB6A]",
+  "#26A69A": "bg-[#26A69A]",
+};
+
 const FieldMap = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedField, setSelectedField] = useState<number | null>(null);
   const [mapView, setMapView] = useState<"satellite" | "terrain">("satellite");
-
-  const user = {
-    name: "John Farmer",
-    role: "farmer",
-  };
+  const { user } = useCurrentUser();
 
   const getHealthColor = (health: number) => {
     if (health >= 80) return "text-primary";
@@ -122,7 +135,7 @@ const FieldMap = () => {
       <Sidebar 
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
-        userRole={user.role}
+        userRole="farmer"
       />
 
       <main className="md:ml-64 p-6">
@@ -343,8 +356,7 @@ const FieldMap = () => {
                 {ndviClassification.map((range, i) => (
                   <div key={i} className="flex items-center gap-3 py-1">
                     <div
-                      className="w-3 h-3 rounded-sm flex-shrink-0"
-                      style={{ backgroundColor: range.color }}
+                      className={`h-3 w-3 flex-shrink-0 rounded-sm ${vegetationColorClasses[range.color] ?? "bg-muted"}`}
                     />
                     <span className="text-xs font-mono w-24 shrink-0">
                       {range.min.toFixed(2)} – {range.max.toFixed(2)}
@@ -358,8 +370,7 @@ const FieldMap = () => {
                   {ndwiClassification.map((range, i) => (
                     <div key={i} className="flex items-center gap-3 py-0.5">
                       <div
-                        className="w-3 h-3 rounded-sm flex-shrink-0"
-                        style={{ backgroundColor: range.color }}
+                        className={`h-3 w-3 flex-shrink-0 rounded-sm ${vegetationColorClasses[range.color] ?? "bg-muted"}`}
                       />
                       <span className="text-xs font-mono w-24 shrink-0">
                         {range.min.toFixed(2)} – {range.max.toFixed(2)}
@@ -437,6 +448,17 @@ const FieldMap = () => {
               </CardContent>
             </Card>
           </div>
+
+          <FieldHistoryTimeline
+            fields={mockFields.map((field) => ({
+              id: field.id,
+              name: field.name,
+              crop: field.crop,
+              area: field.area,
+              health: field.health,
+            }))}
+            selectedField={selectedField}
+          />
         </div>
       </main>
     </div>
