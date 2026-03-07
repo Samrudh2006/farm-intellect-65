@@ -157,13 +157,11 @@ const Polls = () => {
     upcoming: "outline",
   };
 
-  const handleVote = (pollId: string, optionId: string) => {
-    console.log(`Voting for poll ${pollId}, option ${optionId}`);
+  const handleVote = (_pollId: string, _optionId: string) => {
     // In real app, this would update the vote in backend
   };
 
   const handleCreatePoll = () => {
-    console.log('Creating poll:', newPoll);
     setShowCreatePoll(false);
     // Reset form
     setNewPoll({

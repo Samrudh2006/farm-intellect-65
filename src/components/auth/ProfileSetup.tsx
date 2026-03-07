@@ -103,13 +103,7 @@ export const ProfileSetup = ({ userRole, onComplete }: ProfileSetupProps) => {
   };
 
   const handleComplete = () => {
-    // Save to localStorage (temporary solution)
-    localStorage.setItem('userProfile', JSON.stringify({
-      ...profileData,
-      role: userRole,
-      createdAt: new Date().toISOString()
-    }));
-    
+    // Profile data is persisted via Supabase — do not store in localStorage
     toast({
       title: "Profile Setup Complete",
       description: "Your profile has been created successfully!"

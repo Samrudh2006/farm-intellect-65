@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# Environment variables — never commit secrets
+.env
+.env.*
+!.env.example
+
 # Backend specific
 backend/node_modules/
 backend/dist/

@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { 
   Mail, 
@@ -39,22 +40,23 @@ export const OTPVerification = ({
   const [error, setError] = useState("");
   const [timeLeft, setTimeLeft] = useState(300); // 5 minutes
 
-  // Mock verification function (replace with actual API call)
   const verifyOTP = async () => {
     setIsVerifying(true);
     setError("");
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Mock verification logic
-      if (otp === "123456") {
-        onVerified();
+      const verifyParams = type === 'email'
+        ? { email: contact, token: otp, type: 'email' as const }
+        : { phone: contact, token: otp, type: 'sms' as const };
+
+      const { error } = await supabase.auth.verifyOtp(verifyParams);
+
+      if (error) {
+        setError("Invalid or expired code. Please try again.");
       } else {
-        setError("Invalid OTP. Please try again.");
+        onVerified();
       }
-    } catch (err) {
+    } catch {
       setError("Verification failed. Please try again.");
     } finally {
       setIsVerifying(false);
@@ -66,11 +68,17 @@ export const OTPVerification = ({
     setError("");
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setTimeLeft(300);
-      setOtp("");
-    } catch (err) {
+      const resendParams = type === 'email'
+        ? await supabase.auth.resend({ type: 'signup', email: contact })
+        : await supabase.auth.signInWithOtp({ phone: contact });
+
+      if (resendParams.error) {
+        setError("Failed to resend code. Please try again.");
+      } else {
+        setTimeLeft(300);
+        setOtp("");
+      }
+    } catch {
       setError("Failed to resend OTP. Please try again.");
     } finally {
       setIsResending(false);

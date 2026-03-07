@@ -25,9 +25,8 @@ export const useCurrentUser = (): {
     avatar: profile?.avatar_url || "",
   };
 
-  const updateUser = (updates: Partial<CurrentUser>) => {
+  const updateUser = (_updates: Partial<CurrentUser>) => {
     // Profile updates should go through Supabase - handled by profile page
-    console.log("Profile update requested:", updates);
   };
 
   const logout = () => {

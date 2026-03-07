@@ -22,7 +22,7 @@ import {
   Loader2
 } from "lucide-react";
 
-const OWM_API_KEY = "78051f5076fcad307688c63cca247dce";
+const OWM_API_KEY = import.meta.env.VITE_OWM_API_KEY as string;
 
 interface CurrentWeather {
   temp: number;

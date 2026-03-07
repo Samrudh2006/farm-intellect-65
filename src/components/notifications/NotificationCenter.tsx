@@ -118,19 +118,16 @@ export const NotificationCenter = () => {
     }
   };
 
-  const markAsRead = (id: string) => {
+  const markAsRead = (_id: string) => {
     // In real app, this would make an API call
-    console.log(`Marking notification ${id} as read`);
   };
 
-  const deleteNotification = (id: string) => {
+  const deleteNotification = (_id: string) => {
     // In real app, this would make an API call
-    console.log(`Deleting notification ${id}`);
   };
 
   const markAllAsRead = () => {
     // In real app, this would make an API call
-    console.log("Marking all notifications as read");
   };
 
   const filterNotifications = (notifications: Notification[], filter: string) => {

@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import rateLimit from 'express-rate-limit';
+import { verifyToken } from './utils/auth.js';
 
 import authRoutes from './routes/auth.js';
 import userRoutes from './routes/users.js';
@@ -39,9 +40,13 @@ const limiter = rateLimit({
   message: 'Too many requests from this IP, please try again later.'
 });
 
+const allowedOrigin = process.env.NODE_ENV === 'production'
+  ? process.env.FRONTEND_URL
+  : 'http://localhost:5173';
+
 // Middleware
 app.use(helmet());
-app.use(cors());
+app.use(cors({ origin: allowedOrigin, credentials: true }));
 app.use(limiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
@@ -65,17 +70,34 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
+// Socket.IO JWT authentication middleware
+io.use((socket, next) => {
+  const token = socket.handshake.auth?.token ||
+    socket.handshake.headers?.authorization?.replace('Bearer ', '');
+  if (!token) {
+    return next(new Error('Authentication required'));
+  }
+  try {
+    const decoded = verifyToken(token);
+    socket.userId = decoded.userId;
+    next();
+  } catch {
+    next(new Error('Invalid token'));
+  }
+});
+
 // Socket.IO for real-time features
 io.on('connection', (socket) => {
   logger.info(`User connected: ${socket.id}`);
 
-  socket.on('join-user-room', (userId) => {
-    socket.join(`user-${userId}`);
-    logger.info(`User ${userId} joined their room`);
+  // Only allow joining the room that matches the authenticated user
+  socket.on('join-user-room', () => {
+    socket.join(`user-${socket.userId}`);
   });
 
   socket.on('send-message', (data) => {
-    // Handle real-time chat messages
+    // Sender must be the authenticated user
+    if (String(data.senderId) !== String(socket.userId)) return;
     socket.to(`user-${data.recipientId}`).emit('new-message', data);
   });
 

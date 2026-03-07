@@ -7,7 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { LocationSelector } from "@/components/ui/location-selector";
 
-const OWM_API_KEY = "78051f5076fcad307688c63cca247dce";
+const OWM_API_KEY = import.meta.env.VITE_OWM_API_KEY as string;
 
 const mapCondition = (main: string) => {
   switch (main.toLowerCase()) {

@@ -75,7 +75,6 @@ export const EnhancedLogin = ({ onLogin }: EnhancedLoginProps) => {
     }
 
     // Mock OTP sending (in production, call backend API)
-    console.log(`Sending OTP to ${identifier}`);
     
     toast({
       title: "OTP Sent",
@@ -137,12 +136,11 @@ export const EnhancedLogin = ({ onLogin }: EnhancedLoginProps) => {
     }
 
     // Mock login/signup (in production, call backend API)
+    // Store only non-sensitive identifiers — never store Aadhaar or phone in localStorage
     const userData = {
       id: Date.now().toString(),
       username: formData.username || "Farmer",
-      aadhaar: formData.aadhaar,
       farmerId: formData.farmerId,
-      phone: formData.phone,
       role: formData.role || 'farmer',
       isFirstLogin: !isLogin
     };
