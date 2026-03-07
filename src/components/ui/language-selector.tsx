@@ -1,5 +1,4 @@
 import { Languages } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -7,15 +6,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useLanguage, Language } from "@/contexts/LanguageContext";
-
-const languages: { code: Language; name: string; nativeName: string }[] = [
-  { code: 'en', name: 'English', nativeName: 'English' },
-  { code: 'hi', name: 'Hindi', nativeName: 'हिंदी' },
-  { code: 'bn', name: 'Bengali', nativeName: 'বাংলা' },
-  { code: 'te', name: 'Telugu', nativeName: 'తెలుగు' },
-  { code: 'ta', name: 'Tamil', nativeName: 'தமிழ்' },
-];
+import { useLanguage, Language, languageOptions } from "@/contexts/LanguageContext";
 
 export const LanguageSelector = () => {
   const { language, setLanguage, t } = useLanguage();
@@ -29,7 +20,7 @@ export const LanguageSelector = () => {
         </div>
       </SelectTrigger>
       <SelectContent>
-        {languages.map((lang) => (
+        {languageOptions.map((lang) => (
           <SelectItem key={lang.code} value={lang.code}>
             <div className="flex items-center gap-2">
               <span className="font-medium">{lang.nativeName}</span>

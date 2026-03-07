@@ -40,6 +40,24 @@ const limiter = rateLimit({
   message: 'Too many requests from this IP, please try again later.'
 });
 
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  message: 'Too many authentication attempts. Please try again later.'
+});
+
+const aiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 40,
+  message: 'Too many AI requests. Please slow down and try again shortly.'
+});
+
+const chatLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000,
+  max: 60,
+  message: 'Too many chat requests. Please wait a bit before sending more messages.'
+});
+
 const allowedOrigin = process.env.NODE_ENV === 'production'
   ? process.env.FRONTEND_URL
   : 'http://localhost:5173';
@@ -55,15 +73,15 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static('uploads'));
 
 // Routes
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/forum', forumRoutes);
-app.use('/api/chat', chatRoutes);
+app.use('/api/chat', chatLimiter, chatRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/calendar', calendarRoutes);
-app.use('/api/ai', aiRoutes);
+app.use('/api/ai', aiLimiter, aiRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
@@ -114,8 +132,10 @@ app.use('*', (req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
 
-server.listen(PORT, () => {
-  logger.info(`Server running on port ${PORT}`);
-});
+if (process.env.NODE_ENV !== 'test') {
+  server.listen(PORT, () => {
+    logger.info(`Server running on port ${PORT}`);
+  });
+}
 
-export { io };
+export { app, server, io };

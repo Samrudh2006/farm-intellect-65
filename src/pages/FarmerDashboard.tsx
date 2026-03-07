@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
+import { FarmerPhaseOneOverview } from "@/components/dashboard/FarmerPhaseOneOverview";
 import { RoleDashboard } from "@/components/dashboard/RoleDashboard";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -23,11 +24,12 @@ const FarmerDashboard = () => {
           <div className="relative z-10 flex items-center h-full px-8">
             <div>
               <h1 className="text-3xl font-bold text-white">{t('dashboard.welcome')}, {user.name}! 🚜</h1>
-              <p className="text-white/80 text-lg mt-1">Let's make today a great day for your farm!</p>
+              <p className="text-white/80 text-lg mt-1">{t('phase1.description')}</p>
               <div className="tricolor-bar h-0.5 max-w-xs mt-3 rounded-full" />
             </div>
           </div>
         </div>
+        <FarmerPhaseOneOverview />
         <RoleDashboard userRole="farmer" />
       </main>
     </div>

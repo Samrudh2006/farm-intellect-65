@@ -1,5 +1,5 @@
 import express from 'express';
-import { authenticate } from '../middleware/auth.js';
+import { authenticate, authorize } from '../middleware/auth.js';
 import prisma from '../config/database.js';
 import { logger } from '../utils/logger.js';
 
@@ -44,12 +44,8 @@ router.patch('/profile', authenticate, async (req, res) => {
 });
 
 // Get farmers (for merchants and experts)
-router.get('/farmers', authenticate, async (req, res) => {
+router.get('/farmers', authenticate, authorize('MERCHANT', 'EXPERT', 'ADMIN'), async (req, res) => {
   try {
-    if (!['MERCHANT', 'EXPERT', 'ADMIN'].includes(req.user.role)) {
-      return res.status(403).json({ error: 'Access denied' });
-    }
-
     const { search, location, cropType, page = 1, limit = 20 } = req.query;
     const skip = (page - 1) * limit;
 

@@ -1,0 +1,87 @@
+# Security Guide
+
+## Security posture summary
+
+This project has moved from prototype-grade security toward safer full-stack defaults, but it still requires several production hardening steps before real-world scale deployment.
+
+## Security improvements already applied
+
+### Secret handling
+- OpenWeatherMap API key removed from source code and moved to `.env`
+- `.env.example` added for safe onboarding
+- `.env` excluded from version control
+
+### Authentication and authorization
+- static OTP bypass paths removed from major OTP verification flow
+- Socket.IO connection now requires JWT validation
+- sensitive document verification routes now use RBAC middleware
+- farmer directory route uses RBAC middleware
+- Supabase chat edge function JWT verification enabled
+
+### Rate limiting
+- global limiter in Express
+- route-specific limiters for auth, chat, and AI routes
+
+### Data handling
+- Aadhaar and phone removed from insecure local storage persistence paths
+- reduced console leakage of identifiers
+
+## Remaining security gaps / next priorities
+
+### High priority
+- remove any remaining prototype login shortcuts entirely
+- complete request validation coverage for all routes
+- add audit logging for admin actions
+- add file upload scanning beyond MIME filtering
+- implement CSP hardening with tested asset policy
+- add secret rotation runbook and schedule
+
+### Medium priority
+- add security headers review for production CDN setup
+- add token revocation / session invalidation strategy
+- add abuse detection around AI endpoints and uploads
+- add database encryption strategy for future regulated fields
+
+## Recommended RBAC matrix
+
+| Action | Farmer | Merchant | Expert | Admin |
+|---|---:|---:|---:|---:|
+| View own profile | ✅ | ✅ | ✅ | ✅ |
+| View farmer directory | ❌ | ✅ | ✅ | ✅ |
+| Verify uploaded documents | ❌ | ❌ | ✅ | ✅ |
+| Admin analytics/settings | ❌ | ❌ | ❌ | ✅ |
+| Expert advisory review | ❌ | ❌ | ✅ | ✅ |
+
+## Upload security recommendations
+
+Current protection:
+- type whitelist
+- file size limit
+
+Recommended additions:
+- antivirus scanning (ClamAV or managed scanning service)
+- storage outside local disk in production
+- signed download URLs
+- content disarm / metadata stripping for risky formats
+
+## CSP hardening roadmap
+
+Recommended production CSP direction:
+- default self
+- strict script-src
+- explicit image/font/connect sources
+- no unsafe-inline unless refactored away
+
+Because some current UI components still rely on inline style patterns, CSP must be introduced carefully and validated end-to-end.
+
+## Secret rotation policy
+
+- rotate keys immediately if ever exposed in source history
+- use separate dev/staging/prod credentials
+- store backend secrets only in deployment platform secret stores
+- review secrets quarterly or after every incident
+
+## Sensitive data policy
+
+- do not persist Aadhaar unless legally and operationally necessary
+- if future storage is unavoidable, encrypt at rest, tokenize/mask in UI, and log access for audit

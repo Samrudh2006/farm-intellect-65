@@ -8,6 +8,7 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "build": "echo 'No build step needed for Node.js'",
+    "test": "cross-env NODE_ENV=test vitest run",
     "db:migrate": "npx prisma migrate dev",
     "db:push": "npx prisma db push",
     "db:studio": "npx prisma studio"
@@ -31,6 +32,9 @@
     "winston": "^3.11.0"
   },
   "devDependencies": {
-    "nodemon": "^3.0.2"
+    "cross-env": "^10.1.0",
+    "nodemon": "^3.0.2",
+    "supertest": "^7.2.2",
+    "vitest": "^4.0.18"
   }
 }

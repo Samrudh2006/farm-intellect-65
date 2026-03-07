@@ -2,7 +2,7 @@ import express from 'express';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
-import { authenticate } from '../middleware/auth.js';
+import { authenticate, authorize } from '../middleware/auth.js';
 import { logActivity } from '../middleware/activity.js';
 import prisma from '../config/database.js';
 import { logger } from '../utils/logger.js';
@@ -184,13 +184,8 @@ router.delete('/:id', authenticate, logActivity, async (req, res) => {
 });
 
 // Admin routes for document verification
-router.get('/pending-verification', authenticate, async (req, res) => {
+router.get('/pending-verification', authenticate, authorize('ADMIN', 'EXPERT'), async (req, res) => {
   try {
-    // Only admins and experts can verify documents
-    if (!['ADMIN', 'EXPERT'].includes(req.user.role)) {
-      return res.status(403).json({ error: 'Access denied' });
-    }
-
     const documents = await prisma.document.findMany({
       where: { isVerified: false },
       include: {
@@ -214,13 +209,8 @@ router.get('/pending-verification', authenticate, async (req, res) => {
 });
 
 // Verify/reject document
-router.patch('/:id/verify', authenticate, logActivity, async (req, res) => {
+router.patch('/:id/verify', authenticate, authorize('ADMIN', 'EXPERT'), logActivity, async (req, res) => {
   try {
-    // Only admins and experts can verify documents
-    if (!['ADMIN', 'EXPERT'].includes(req.user.role)) {
-      return res.status(403).json({ error: 'Access denied' });
-    }
-
     const { id } = req.params;
     const { isVerified, rejectionReason } = req.body;
 

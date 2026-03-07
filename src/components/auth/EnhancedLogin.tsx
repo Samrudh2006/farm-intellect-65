@@ -8,10 +8,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { CreditCard, Phone, Eye, EyeOff, Shield, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { PasswordValidation } from "./PasswordValidation";
-import { OTPVerification } from "./OTPVerification";
+
+interface LoginUserData {
+  id: string;
+  username: string;
+  farmerId?: string;
+  role: string;
+  isFirstLogin: boolean;
+  loginMethod?: string;
+}
 
 interface EnhancedLoginProps {
-  onLogin: (userData: any) => void;
+  onLogin: (userData: LoginUserData) => void;
 }
 
 export const EnhancedLogin = ({ onLogin }: EnhancedLoginProps) => {
@@ -19,7 +27,6 @@ export const EnhancedLogin = ({ onLogin }: EnhancedLoginProps) => {
   const [activeTab, setActiveTab] = useState("aadhaar");
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
-  const [showOTP, setShowOTP] = useState(false);
   const [isValidPassword, setIsValidPassword] = useState(false);
   
   const [formData, setFormData] = useState({
@@ -54,34 +61,19 @@ export const EnhancedLogin = ({ onLogin }: EnhancedLoginProps) => {
   };
 
   const sendOTP = async () => {
-    const identifier = activeTab === "aadhaar" ? formData.aadhaar : formData.phone;
-    
-    if (activeTab === "aadhaar" && !validateAadhaar(identifier)) {
-      toast({
-        title: "Invalid Aadhaar",
-        description: "Please enter a valid 12-digit Aadhaar number",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    if (activeTab === "phone" && !validatePhone(identifier)) {
+    if (!validatePhone(formData.phone)) {
       toast({
         title: "Invalid Phone",
-        description: "Please enter a valid 10-digit phone number",
+        description: "Please enter a valid 10-digit phone number to use OTP sign-in",
         variant: "destructive"
       });
       return;
     }
 
-    // Mock OTP sending (in production, call backend API)
-    
     toast({
-      title: "OTP Sent",
-      description: `OTP sent to your ${activeTab === "aadhaar" ? "registered mobile" : "phone number"}`,
+      title: "OTP Sign-in Disabled",
+      description: "This screen is being migrated to secure phone verification. Use password sign-in for now.",
     });
-    
-    setShowOTP(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -186,27 +178,6 @@ export const EnhancedLogin = ({ onLogin }: EnhancedLoginProps) => {
         </CardHeader>
         
         <CardContent>
-          {showOTP ? (
-            <div className="text-center space-y-4">
-              <p>OTP sent to {activeTab === "aadhaar" ? "registered mobile" : formData.phone}</p>
-              <Input
-                placeholder="Enter 6-digit OTP"
-                value={formData.otp}
-                onChange={(e) => handleInputChange('otp', e.target.value)}
-                maxLength={6}
-              />
-              <div className="flex gap-2">
-                <Button onClick={() => {
-                  if (formData.otp === "123456") {
-                    const userData = { username: formData.username || "Farmer", role: formData.role || "farmer" };
-                    localStorage.setItem('currentUser', JSON.stringify(userData));
-                    onLogin(userData);
-                  }
-                }} className="flex-1">Verify OTP</Button>
-                <Button variant="outline" onClick={() => setShowOTP(false)}>Back</Button>
-              </div>
-            </div>
-          ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <TabsList className="grid w-full grid-cols-2">
@@ -269,6 +240,17 @@ export const EnhancedLogin = ({ onLogin }: EnhancedLoginProps) => {
                   />
                 </div>
               )}
+
+              <div className="space-y-2">
+                <Label htmlFor="phone">Mobile Number</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => handleInputChange('phone', e.target.value.replace(/\D/g, '').slice(0, 10))}
+                  placeholder="Enter 10-digit mobile number"
+                />
+              </div>
 
               {!isLogin && (
                 <div className="space-y-2">
@@ -362,7 +344,6 @@ export const EnhancedLogin = ({ onLogin }: EnhancedLoginProps) => {
                 </Button>
               </div>
             </form>
-          )}
         </CardContent>
       </Card>
     </div>

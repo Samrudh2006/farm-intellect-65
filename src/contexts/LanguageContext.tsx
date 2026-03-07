@@ -1,6 +1,16 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-export type Language = 'en' | 'hi' | 'bn' | 'te' | 'ta';
+export type Language = 'en' | 'hi' | 'bn' | 'te' | 'ta' | 'pa' | 'mr';
+
+export const languageOptions: { code: Language; name: string; nativeName: string }[] = [
+  { code: 'en', name: 'English', nativeName: 'English' },
+  { code: 'hi', name: 'Hindi', nativeName: 'हिंदी' },
+  { code: 'bn', name: 'Bengali', nativeName: 'বাংলা' },
+  { code: 'te', name: 'Telugu', nativeName: 'తెలుగు' },
+  { code: 'ta', name: 'Tamil', nativeName: 'தமிழ்' },
+  { code: 'pa', name: 'Punjabi', nativeName: 'ਪੰਜਾਬੀ' },
+  { code: 'mr', name: 'Marathi', nativeName: 'मराठी' },
+];
 
 interface LanguageContextType {
   language: Language;
@@ -92,6 +102,14 @@ const translations: Record<Language, Record<string, string>> = {
     'ai.placeholder': 'Ask me about crops, weather, farming tips...',
     'ai.title': 'AI Farm Assistant',
     'ai.greeting': 'Namaste! 🙏 I\'m your AI farming assistant. Ask me anything about crops, weather, soil, or farming techniques!',
+    // Phase 1
+    'phase1.title': 'Phase 1 rollout hub',
+    'phase1.description': 'Offline-ready tools, personalized planning, field history, and scheme guidance are active.',
+    'phase1.install': 'Install farmer app',
+    'phase1.offline_ready': 'Offline-ready farmer mode',
+    'phase1.crop_plans': 'Personalized crop plans',
+    'phase1.field_history': 'Field history timeline',
+    'phase1.scheme_matches': 'Scheme matches',
   },
   hi: {
     'auth.welcome': 'स्मार्ट क्रॉप एडवाइजरी में आपका स्वागत है',
@@ -169,6 +187,13 @@ const translations: Record<Language, Record<string, string>> = {
     'ai.placeholder': 'फसलों, मौसम, खेती की टिप्स के बारे में पूछें...',
     'ai.title': 'AI कृषि सहायक',
     'ai.greeting': 'नमस्ते! 🙏 मैं आपका AI कृषि सहायक हूं। फसलों, मौसम, मिट्टी, या खेती की तकनीकों के बारे में कुछ भी पूछें!',
+    'phase1.title': 'फेज 1 रोलआउट हब',
+    'phase1.description': 'ऑफलाइन उपयोग, व्यक्तिगत योजना, खेत इतिहास और योजना मार्गदर्शन अब उपलब्ध हैं।',
+    'phase1.install': 'किसान ऐप इंस्टॉल करें',
+    'phase1.offline_ready': 'ऑफलाइन किसान मोड',
+    'phase1.crop_plans': 'व्यक्तिगत फसल योजनाएँ',
+    'phase1.field_history': 'खेत इतिहास टाइमलाइन',
+    'phase1.scheme_matches': 'योजना मिलान',
   },
   bn: {
     'auth.welcome': 'স্মার্ট ক্রপ অ্যাডভাইজরিতে স্বাগতম',
@@ -401,6 +426,18 @@ const translations: Record<Language, Record<string, string>> = {
     'ai.title': 'AI விவசாய உதவியாளர்',
     'ai.greeting': 'வணக்கம்! 🙏 நான் உங்கள் AI விவசாய உதவியாளர். பயிர்கள், வானிலை, மண், அல்லது விவசாய நுட்பங்கள் பற்றி எதையும் கேளுங்கள்!',
   },
+  pa: {
+    'common.select_language': 'ਭਾਸ਼ਾ ਚੁਣੋ',
+    'dashboard.welcome': 'ਵਾਪਸੀ ਤੇ ਸਵਾਗਤ ਹੈ',
+    'phase1.title': 'ਫੇਜ਼ 1 ਰੋਲਆਉਟ ਹੱਬ',
+    'phase1.description': 'ਆਫਲਾਈਨ ਵਰਤੋਂ, ਵਿਅਕਤੀਗਤ ਯੋਜਨਾ ਅਤੇ ਯੋਜਨਾ ਮਦਦ ਤਿਆਰ ਹੈ।',
+  },
+  mr: {
+    'common.select_language': 'भाषा निवडा',
+    'dashboard.welcome': 'पुन्हा स्वागत आहे',
+    'phase1.title': 'फेज 1 रोलआउट हब',
+    'phase1.description': 'ऑफलाइन वापर, वैयक्तिक नियोजन आणि योजना मार्गदर्शन तयार आहे.',
+  },
 };
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -420,7 +457,7 @@ interface LanguageProviderProps {
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
   const [language, setLanguageState] = useState<Language>(() => {
     const saved = localStorage.getItem('app-language');
-    return (saved as Language) || 'en';
+    return languageOptions.some((option) => option.code === saved) ? (saved as Language) : 'en';
   });
 
   const setLanguage = (lang: Language) => {

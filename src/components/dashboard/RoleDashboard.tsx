@@ -103,10 +103,10 @@ export const RoleDashboard = ({ userRole }: RoleDashboardProps) => {
             { action: "Soil test results received", time: "3 days ago", type: "soil" }
           ],
           quickActions: [
-            { icon: Plus, label: "🌱 Plant New Crop", color: "primary", description: "Start your next growing season", route: "/farmer/crops" },
-            { icon: Calendar, label: "📅 Schedule Farm Activity", color: "secondary", description: "Plan your farming tasks", route: "/farmer/calendar" },
-            { icon: MessageSquare, label: "🎓 Ask an Expert", color: "outline", description: "Get professional guidance", route: "/farmer/chat" },
-            { icon: TrendingUp, label: "💰 Check Market Prices", color: "outline", description: "Maximize your profits", route: "/farmer/merchants" }
+            { icon: Calendar, label: "🧭 Personalized Crop Planner", color: "primary", description: "Build and store season-wise crop plans", route: "/farmer/calendar" },
+            { icon: Activity, label: "🛰️ Review Field History", color: "secondary", description: "Track field events and health changes", route: "/farmer/field-map" },
+            { icon: Award, label: "🏛️ Scheme Eligibility Wizard", color: "outline", description: "Match subsidies, insurance, and credit", route: "/farmer/schemes" },
+            { icon: MessageSquare, label: "🎓 Ask an Expert", color: "outline", description: "Get professional guidance", route: "/farmer/chat" }
           ]
         };
     }
