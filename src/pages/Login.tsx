@@ -59,8 +59,21 @@ const Login = () => {
     }
   };
 
-  const handleGoogleSignIn = () => {
-    toast({ title: "Google Sign-In", description: "Google sign-in coming soon!" });
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    try {
+      const { lovable } = await import("@/integrations/lovable");
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: window.location.origin,
+      });
+      if (result.error) {
+        toast({ title: "Google Sign-In Failed", description: String(result.error), variant: "destructive" });
+      }
+    } catch (err) {
+      toast({ title: "Error", description: "Google sign-in failed. Please try again.", variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
