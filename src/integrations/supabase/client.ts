@@ -5,21 +5,23 @@ import type { Database } from './types';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
-export const hasSupabaseEnv = Boolean(SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY);
+const fallbackSupabaseUrl = 'https://exynaicvgadoenjfunqz.supabase.co';
+const fallbackSupabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV4eW5haWN2Z2Fkb2VuamZ1bnF6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3NzUwNjgsImV4cCI6MjA4ODM1MTA2OH0.T-xiyOGqzXkfFrg1FxsRyb6f_ErMMKGH8CmBOyVqgu8';
+const resolvedSupabaseUrl = SUPABASE_URL || fallbackSupabaseUrl;
+const resolvedSupabaseKey = SUPABASE_PUBLISHABLE_KEY || fallbackSupabaseKey;
 
-const fallbackSupabaseUrl = 'https://preview-placeholder.supabase.co';
-const fallbackSupabaseKey = 'preview-placeholder-anon-key';
+export const hasSupabaseEnv = Boolean(resolvedSupabaseUrl && resolvedSupabaseKey);
 
-if (!hasSupabaseEnv) {
+if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
   console.warn(
-    'Supabase environment variables are missing. The app will open in preview mode, but auth-backed features will stay unavailable until VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY are configured.',
+    'Supabase preview environment variables are missing. Falling back to the bundled public client config so preview auth can still work.',
   );
 }
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
-export const supabase = createClient<Database>(SUPABASE_URL || fallbackSupabaseUrl, SUPABASE_PUBLISHABLE_KEY || fallbackSupabaseKey, {
+export const supabase = createClient<Database>(resolvedSupabaseUrl, resolvedSupabaseKey, {
   auth: {
     storage: localStorage,
     persistSession: true,
