@@ -16,6 +16,7 @@ import {
   Plus,
   Settings
 } from "lucide-react";
+import { ndviClassification, ndwiClassification, cropNDVIProfiles } from "@/data/satelliteData";
 
 const mockFields = [
   {
@@ -323,6 +324,118 @@ const FieldMap = () => {
                 </CardContent>
               </Card>
             </div>
+          </div>
+
+          {/* Satellite Vegetation Index Panel */}
+          <div className="grid gap-6 lg:grid-cols-2">
+            {/* NDVI Classification Reference */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Satellite className="h-5 w-5 text-primary" />
+                  NDVI Classification Reference
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Normalized Difference Vegetation Index — ISRO/Bhuvan · Sentinel-2 · MODIS standards
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-1">
+                {ndviClassification.map((range, i) => (
+                  <div key={i} className="flex items-center gap-3 py-1">
+                    <div
+                      className="w-3 h-3 rounded-sm flex-shrink-0"
+                      style={{ backgroundColor: range.color }}
+                    />
+                    <span className="text-xs font-mono w-24 shrink-0">
+                      {range.min.toFixed(2)} – {range.max.toFixed(2)}
+                    </span>
+                    <span className="text-xs font-medium w-36 shrink-0">{range.category}</span>
+                    <span className="text-xs text-muted-foreground truncate">{range.cropCondition}</span>
+                  </div>
+                ))}
+                <div className="mt-3 pt-3 border-t">
+                  <p className="text-xs font-medium text-muted-foreground mb-2">NDWI Water Stress Levels:</p>
+                  {ndwiClassification.map((range, i) => (
+                    <div key={i} className="flex items-center gap-3 py-0.5">
+                      <div
+                        className="w-3 h-3 rounded-sm flex-shrink-0"
+                        style={{ backgroundColor: range.color }}
+                      />
+                      <span className="text-xs font-mono w-24 shrink-0">
+                        {range.min.toFixed(2)} – {range.max.toFixed(2)}
+                      </span>
+                      <span className="text-xs text-muted-foreground truncate">{range.cropCondition}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Crop NDVI Stage Profile */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Activity className="h-5 w-5 text-primary" />
+                  Crop NDVI Stage Profile
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  {selectedField
+                    ? `${mockFields.find(f => f.id === selectedField)?.crop} — expected NDVI range per growth stage`
+                    : "Select a field above to view crop-specific NDVI thresholds"}
+                </p>
+              </CardHeader>
+              <CardContent>
+                {selectedField ? (() => {
+                  const field = mockFields.find(f => f.id === selectedField);
+                  const lastWord = field?.crop.split(" ").pop() ?? "";
+                  const firstWord = field?.crop.split(" ")[0] ?? "";
+                  const profile = cropNDVIProfiles.find(p =>
+                    p.crop.toLowerCase().includes(lastWord.toLowerCase()) ||
+                    p.crop.toLowerCase().includes(firstWord.toLowerCase())
+                  );
+                  if (!profile) return (
+                    <p className="text-sm text-muted-foreground py-4 text-center">
+                      No NDVI profile for &ldquo;{field?.crop}&rdquo;.<br />
+                      Available: Rice, Wheat, Cotton, Maize, Soybean, Sugarcane, Potato.
+                    </p>
+                  );
+                  return (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-xs">
+                        <thead>
+                          <tr className="border-b">
+                            <th className="text-left py-1.5 font-semibold">Stage</th>
+                            <th className="text-left py-1.5 font-semibold">DAS</th>
+                            <th className="text-center py-1.5 font-semibold">Min</th>
+                            <th className="text-center py-1.5 font-semibold text-green-700">Optimal</th>
+                            <th className="text-center py-1.5 font-semibold">Max</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {profile.stages.map((stage, i) => (
+                            <tr key={i} className="border-b border-muted/50 hover:bg-muted/30">
+                              <td className="py-1.5 font-medium pr-2">{stage.name.split("(")[0].trim()}</td>
+                              <td className="py-1.5 text-muted-foreground">{stage.das}</td>
+                              <td className="py-1.5 text-center">{stage.ndvi.min.toFixed(2)}</td>
+                              <td className="py-1.5 text-center font-bold text-green-700">{stage.ndvi.optimal.toFixed(2)}</td>
+                              <td className="py-1.5 text-center">{stage.ndvi.max.toFixed(2)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                      <p className="text-xs text-muted-foreground mt-3">
+                        Source: NRSC Bhuvan crop monitoring · FAO ASIS · ICAR remote sensing studies
+                      </p>
+                    </div>
+                  );
+                })() : (
+                  <div className="flex flex-col items-center justify-center h-40 text-muted-foreground">
+                    <Satellite className="h-10 w-10 mb-3 opacity-30" />
+                    <p className="text-sm">Select a field to view NDVI profile</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
         </div>
       </main>

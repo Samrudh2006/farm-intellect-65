@@ -22,6 +22,7 @@ import {
   Loader2
 } from "lucide-react";
 import { getRecommendationBySoil, getHighProfitCrops } from "@/data/cropRecommendations";
+import { getSoilParameterStatus, getFertilizerRecommendation } from "@/data/soilHealth";
 
 interface CropRecommendation {
   crop: string;
@@ -271,30 +272,35 @@ const CropRecommendationEngine = () => {
             Soil Health Analysis
           </CardTitle>
         </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-3">
-          <div className="space-y-2">
-            <Label>pH Level: {soilData.ph}</Label>
-            <Progress value={(soilData.ph / 14) * 100} className="h-2" />
-            <Badge variant={soilData.ph >= 6.5 && soilData.ph <= 7.5 ? "default" : "destructive"}>
-              {soilData.ph >= 6.5 && soilData.ph <= 7.5 ? "Optimal" : "Needs Attention"}
-            </Badge>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Nitrogen: {soilData.nitrogen} kg/ha</Label>
-            <Progress value={Math.min((soilData.nitrogen / 400) * 100, 100)} className="h-2" />
-            <Badge variant={soilData.nitrogen >= 250 ? "default" : "destructive"}>
-              {soilData.nitrogen >= 250 ? "Good" : "Low"}
-            </Badge>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Phosphorus: {soilData.phosphorus} kg/ha</Label>
-            <Progress value={Math.min((soilData.phosphorus / 60) * 100, 100)} className="h-2" />
-            <Badge variant={soilData.phosphorus >= 25 ? "default" : "destructive"}>
-              {soilData.phosphorus >= 25 ? "Good" : "Low"}
-            </Badge>
-          </div>
+        <CardContent className="grid gap-4 md:grid-cols-5">
+          {([
+            { displayLabel: "Soil pH",      value: soilData.ph,           unit: "",      paramId: "pH", max: 14 },
+            { displayLabel: "Nitrogen",      value: soilData.nitrogen,     unit: " kg/ha", paramId: "N",  max: 560 },
+            { displayLabel: "Phosphorus",    value: soilData.phosphorus,   unit: " kg/ha", paramId: "P",  max: 40 },
+            { displayLabel: "Potassium",     value: soilData.potassium,    unit: " kg/ha", paramId: "K",  max: 400 },
+            { displayLabel: "Organic Carbon",value: soilData.organicCarbon,unit: "%",      paramId: "OC", max: 1.0 },
+          ] as { displayLabel: string; value: number; unit: string; paramId: string; max: number }[]).map(
+            ({ displayLabel, value, unit, paramId, max }) => {
+              const status = getSoilParameterStatus(paramId, value);
+              const category = status?.range?.category ?? "—";
+              const isDeficient = status?.isDeficient ?? false;
+              const isHigh = category === "High" || category === "Very High";
+              return (
+                <div key={paramId} className="space-y-2">
+                  <Label className="text-xs font-medium">{displayLabel}: {value}{unit}</Label>
+                  <Progress value={Math.min((value / max) * 100, 100)} className="h-2" />
+                  <Badge variant={isDeficient ? "destructive" : isHigh ? "default" : "secondary"} className="text-xs">
+                    {category}
+                  </Badge>
+                  {status?.range?.recommendation && (
+                    <p className="text-xs text-muted-foreground leading-tight">
+                      {status.range.recommendation.substring(0, 55)}…
+                    </p>
+                  )}
+                </div>
+              );
+            }
+          )}
         </CardContent>
       </Card>
 
@@ -418,6 +424,63 @@ const CropRecommendationEngine = () => {
           ))}
         </div>
       )}
+
+      {/* ICAR Fertilizer Schedule */}
+      {recommendations.length > 0 && (() => {
+        const fertPlan = getFertilizerRecommendation(recommendations[0].crop);
+        if (!fertPlan.length) return null;
+        const f = fertPlan[0];
+        return (
+          <Card className="border-t-4 border-t-green-600">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-green-700">
+                <Leaf className="h-5 w-5" />
+                ICAR Fertilizer Schedule — {f.cropName}
+              </CardTitle>
+              <CardDescription>
+                {f.soilType} soil · {f.season} season · Source: ICAR Crop-Wise Recommendation (2012)
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center gap-3 flex-wrap">
+                <span className="font-medium text-sm">NPK Dose:</span>
+                <Badge className="bg-blue-100 text-blue-700 border border-blue-300">N: {f.NPK.N} kg/ha</Badge>
+                <Badge className="bg-orange-100 text-orange-700 border border-orange-300">P₂O₅: {f.NPK.P} kg/ha</Badge>
+                <Badge className="bg-purple-100 text-purple-700 border border-purple-300">K₂O: {f.NPK.K} kg/ha</Badge>
+              </div>
+              <div>
+                <h4 className="font-medium text-sm mb-2">Split Application Schedule</h4>
+                <div className="space-y-2">
+                  {f.splitApplication.map((s, i) => (
+                    <div key={i} className="flex gap-3 p-2 bg-muted/50 rounded-lg">
+                      <Badge variant="outline" className="text-xs shrink-0">Stage {i + 1}</Badge>
+                      <div>
+                        <div className="text-sm font-medium">{s.stage}</div>
+                        <div className="text-xs text-muted-foreground">{s.nutrients}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {f.Micronutrients.length > 0 && (
+                <div>
+                  <h4 className="font-medium text-sm mb-2">Micronutrient Corrections</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {f.Micronutrients.map((m, i) => (
+                      <Badge key={i} variant="outline" className="text-xs">{m.name} — {m.dose}</Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                <span className="text-sm font-medium text-green-800">Organic Manure: </span>
+                <span className="text-sm text-green-700">{f.organicManure.type} @ {f.organicManure.dose} — {f.organicManure.timing}</span>
+              </div>
+              <p className="text-xs text-muted-foreground border-t pt-2">{f.notes}</p>
+            </CardContent>
+          </Card>
+        );
+      })()}
     </div>
   );
 };
