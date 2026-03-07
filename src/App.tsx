@@ -73,6 +73,7 @@ const AnimatedRoutes = () => {
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<PageTransition><Index /></PageTransition>} />
         <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
+        <Route path="/reset-password" element={<PageTransition><ResetPassword /></PageTransition>} />
         
         {/* Farmer Routes */}
         <Route path="/farmer/dashboard" element={<ProtectedRoute><PageTransition><FarmerDashboard /></PageTransition></ProtectedRoute>} />
