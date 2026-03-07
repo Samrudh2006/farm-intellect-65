@@ -104,6 +104,7 @@ const AnimatedRoutes = () => {
         <Route path="/farmer/polls" element={renderProtectedPage(Polls)} />
         <Route path="/farmer/schemes" element={renderProtectedPage(Schemes)} />
         <Route path="/farmer/ai-advisory" element={renderProtectedPage(AIAdvisory)} />
+        <Route path="/farmer/ai-crop-scanner" element={renderProtectedPage(AICropScanner)} />
         <Route path="/farmer/chat" element={renderProtectedPage(Chat)} />
         <Route path="/farmer/forum" element={renderProtectedPage(Forum)} />
         <Route path="/farmer/calendar" element={renderProtectedPage(Calendar)} />

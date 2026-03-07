@@ -1,22 +1,18 @@
 import { useState } from "react";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
+import { AlertEnginePanel } from "@/components/features/AlertEnginePanel";
 import { NotificationCenter } from "@/components/notifications/NotificationCenter";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 const Notifications = () => {
-  const { t } = useLanguage();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  const user = {
-    name: "John Farmer",
-    role: "farmer",
-  };
+  const { user } = useCurrentUser();
 
   return (
     <div className="min-h-screen bg-background">
       <Header 
-        user={user}
+        user={{ name: user.name, role: "farmer" }}
         onMenuClick={() => setSidebarOpen(!sidebarOpen)}
         notificationCount={3}
       />
@@ -24,10 +20,11 @@ const Notifications = () => {
       <Sidebar 
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
-        userRole={user.role}
+        userRole="farmer"
       />
 
-      <main className="md:ml-64 p-6">
+      <main className="space-y-6 p-6 md:ml-64">
+        <AlertEnginePanel />
         <NotificationCenter />
       </main>
     </div>

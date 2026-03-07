@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-export type Language = 'en' | 'hi' | 'bn' | 'te' | 'ta' | 'pa' | 'mr';
+export type Language = 'en' | 'hi' | 'bn' | 'te' | 'ta' | 'pa' | 'mr' | 'gu' | 'kn';
 
 export const languageOptions: { code: Language; name: string; nativeName: string }[] = [
   { code: 'en', name: 'English', nativeName: 'English' },
@@ -10,6 +10,8 @@ export const languageOptions: { code: Language; name: string; nativeName: string
   { code: 'ta', name: 'Tamil', nativeName: 'தமிழ்' },
   { code: 'pa', name: 'Punjabi', nativeName: 'ਪੰਜਾਬੀ' },
   { code: 'mr', name: 'Marathi', nativeName: 'मराठी' },
+  { code: 'gu', name: 'Gujarati', nativeName: 'ગુજરાતી' },
+  { code: 'kn', name: 'Kannada', nativeName: 'ಕನ್ನಡ' },
 ];
 
 interface LanguageContextType {
@@ -437,6 +439,18 @@ const translations: Record<Language, Record<string, string>> = {
     'dashboard.welcome': 'पुन्हा स्वागत आहे',
     'phase1.title': 'फेज 1 रोलआउट हब',
     'phase1.description': 'ऑफलाइन वापर, वैयक्तिक नियोजन आणि योजना मार्गदर्शन तयार आहे.',
+  },
+  gu: {
+    'common.select_language': 'ભાષા પસંદ કરો',
+    'dashboard.welcome': 'ફરીથી સ્વાગત છે',
+    'phase1.title': 'ફેઝ 1 રોલઆઉટ હબ',
+    'phase1.description': 'ઓફલાઇન વપરાશ, વ્યક્તિગત આયોજન અને યોજના માર્ગદર્શન હવે તૈયાર છે.',
+  },
+  kn: {
+    'common.select_language': 'ಭಾಷೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ',
+    'dashboard.welcome': 'ಮತ್ತೆ ಸ್ವಾಗತ',
+    'phase1.title': 'ಹಂತ 1 ರೋಲೌಟ್ ಹಬ್',
+    'phase1.description': 'ಆಫ್‌ಲೈನ್ ಬಳಕೆ, ವೈಯಕ್ತಿಕ ಯೋಜನೆ ಮತ್ತು ಯೋಜನೆ ಮಾರ್ಗದರ್ಶನ ಈಗ ಸಿದ್ಧವಾಗಿದೆ.',
   },
 };
 

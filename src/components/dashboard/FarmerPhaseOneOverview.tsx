@@ -106,7 +106,7 @@ export const FarmerPhaseOneOverview = () => {
             </Badge>
             <Badge variant="outline" className="border-primary/30 text-primary">
               <Globe2 className="mr-1 h-3.5 w-3.5" />
-              7 farmer languages
+              9 farmer languages
             </Badge>
           </div>
         </div>
@@ -129,6 +129,7 @@ export const FarmerPhaseOneOverview = () => {
           <Button onClick={() => navigate("/farmer/calendar")}>Open crop planner</Button>
           <Button variant="outline" onClick={() => navigate("/farmer/field-map")}>Review field history</Button>
           <Button variant="outline" onClick={() => navigate("/farmer/schemes")}>Run scheme wizard</Button>
+          <Button variant="outline" onClick={() => navigate("/farmer/features")}>Open smart features</Button>
           {canInstall && !isInstalled && (
             <Button variant="secondary" onClick={handleInstall}>
               <Download className="mr-2 h-4 w-4" />

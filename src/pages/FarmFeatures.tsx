@@ -1,34 +1,62 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { AlertEnginePanel } from "@/components/features/AlertEnginePanel";
+import { ExpertConsultationWorkflow } from "@/components/features/ExpertConsultationWorkflow";
+import { GeoPersonalizationPanel } from "@/components/features/GeoPersonalizationPanel";
+import { MultiLanguageVoiceAssistant } from "@/components/features/MultiLanguageVoiceAssistant";
+import { OfflineFarmerMode } from "@/components/features/OfflineFarmerMode";
+import { SmartIrrigationCalculator } from "@/components/features/SmartIrrigationCalculator";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calculator, Mic, BookOpen, Database, Cloud, Calendar, Bell } from "lucide-react";
+import { Bell, Brain, Cloud, Languages, LocateFixed, MapPinned, ShieldAlert, Stethoscope, Waves } from "lucide-react";
 import { AshokaChakra } from "@/components/ui/ashoka-chakra";
-import { YieldProfitEstimator } from "@/components/features/YieldProfitEstimator";
-import { VoiceAssistant } from "@/components/features/VoiceAssistant";
-import { DigitalDiary } from "@/components/features/DigitalDiary";
-import { KnowledgeHub } from "@/components/features/KnowledgeHub";
 import { WeatherMarketAPI } from "@/components/features/WeatherMarketAPI";
-import { CropCalendarReminder } from "@/components/features/CropCalendarReminder";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 const FarmFeatures = () => {
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+  const { user } = useCurrentUser();
 
   const features = [
-    { id: "estimator", title: "AI Yield & Profit Estimator", description: "Calculate expected yield and profit for your crops", icon: Calculator, component: YieldProfitEstimator },
-    { id: "voice", title: "Voice Assistant", description: "Ask questions and get answers in Hindi/Punjabi", icon: Mic, component: VoiceAssistant },
-    { id: "diary", title: "Digital Farmer Diary", description: "Keep track of your farming activities", icon: Database, component: DigitalDiary },
-    { id: "knowledge", title: "Knowledge Hub", description: "Learn from expert videos and articles", icon: BookOpen, component: KnowledgeHub },
-    { id: "weather", title: "Weather & Market Data", description: "Live weather forecasts and mandi prices", icon: Cloud, component: WeatherMarketAPI },
-    { id: "calendar", title: "Crop Calendar & Reminders", description: "Schedule and get reminders for farming activities", icon: Calendar, component: CropCalendarReminder }
+    {
+      id: "launchpad",
+      title: "Farmer capability launchpad",
+      description: "Open the planner, field history, scanner, and scheme workflow from one place.",
+      icon: Brain,
+      component: () => (
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {[
+            { title: "Personalized crop planning", description: "Seasonal plans with reminders and milestones", action: () => navigate("/farmer/calendar") },
+            { title: "Field history timeline", description: "Review past events and log new observations", action: () => navigate("/farmer/field-map") },
+            { title: "ML crop scanner", description: "Scan crop images and shortlist probable diseases", action: () => navigate("/farmer/ai-crop-scanner") },
+            { title: "Scheme eligibility wizard", description: "Check support, insurance, and subsidy fit", action: () => navigate("/farmer/schemes") },
+          ].map((card) => (
+            <div key={card.title} className="rounded-xl border p-4 shadow-sm">
+              <h3 className="font-semibold">{card.title}</h3>
+              <p className="mt-2 text-sm text-muted-foreground">{card.description}</p>
+              <Button className="mt-4" variant="outline" onClick={card.action}>Open</Button>
+            </div>
+          ))}
+        </div>
+      ),
+    },
+    { id: "offline", title: "Offline farmer mode", description: "PWA-first install and cached farmer workflows", icon: Bell, component: OfflineFarmerMode },
+    { id: "multilingual", title: "Multilingual support", description: "Expanded voice-first support for more regional languages", icon: Languages, component: MultiLanguageVoiceAssistant },
+    { id: "irrigation", title: "Smart irrigation advisory", description: "Adaptive irrigation scheduling from crop and weather inputs", icon: Waves, component: SmartIrrigationCalculator },
+    { id: "geo", title: "Village / mandi personalization", description: "Save village and mandi defaults for local prices and alerts", icon: MapPinned, component: GeoPersonalizationPanel },
+    { id: "alerts", title: "Alert engine", description: "Pest, weather, irrigation, market, and booking alerts", icon: ShieldAlert, component: AlertEnginePanel },
+    { id: "expert", title: "Expert booking workflow", description: "Request consultations with slot, mode, and issue context", icon: Stethoscope, component: ExpertConsultationWorkflow },
+    { id: "weather", title: "Weather & market data", description: "Live weather forecasts and mandi price visibility", icon: Cloud, component: WeatherMarketAPI },
   ];
 
   return (
     <div className="min-h-screen bg-background">
-      <Header user={user} onMenuClick={() => setSidebarOpen(!sidebarOpen)} notificationCount={3} />
-      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} userRole={user.role || 'farmer'} />
+      <Header user={{ name: user.name, role: "farmer" }} onMenuClick={() => setSidebarOpen(!sidebarOpen)} notificationCount={3} />
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} userRole="farmer" />
 
       <main className="md:ml-64 p-6">
         <div className="space-y-6">
@@ -37,11 +65,11 @@ const FarmFeatures = () => {
               <AshokaChakra size={40} />
             </div>
             <h1 className="text-4xl font-bold text-gradient-tricolor">Smart Farm Features 🌾</h1>
-            <p className="text-muted-foreground text-lg mt-2">Advanced tools to help you farm smarter and earn more</p>
+            <p className="text-muted-foreground text-lg mt-2">Remaining roadmap capabilities are now grouped into one farmer-ready launchpad.</p>
           </div>
 
-          <Tabs defaultValue="estimator" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6">
+          <Tabs defaultValue="launchpad" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 xl:grid-cols-8">
               {features.map((feature) => (
                 <TabsTrigger key={feature.id} value={feature.id} className="flex flex-col gap-1 h-16">
                   <feature.icon className="h-5 w-5" />
@@ -73,12 +101,12 @@ const FarmFeatures = () => {
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
                 <div className="p-3 rounded-full bg-primary/10 glow-green">
-                  <Bell className="h-8 w-8 text-primary" />
+                  <LocateFixed className="h-8 w-8 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-foreground">Install Farm Intellect App</h3>
+                  <h3 className="font-semibold text-foreground">Farmer capability layer is live</h3>
                   <p className="text-sm text-muted-foreground">
-                    Install this app on your phone for offline access and notifications
+                    Offline mode, geo-personalization, alerts, irrigation guidance, and expert booking are now wired into your farmer journey.
                   </p>
                 </div>
               </div>

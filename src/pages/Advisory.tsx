@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { ExpertConsultationWorkflow } from "@/components/features/ExpertConsultationWorkflow";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { 
   Brain, 
   Calendar, 
@@ -107,11 +109,7 @@ const statusColors = {
 const Advisory = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [filter, setFilter] = useState("all");
-
-  const user = {
-    name: "John Farmer",
-    role: "farmer",
-  };
+  const { user } = useCurrentUser();
 
   const filteredAdvisory = filter === "all" 
     ? mockAdvisory 
@@ -120,7 +118,7 @@ const Advisory = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header 
-        user={user}
+        user={{ name: user.name, role: "farmer" }}
         onMenuClick={() => setSidebarOpen(!sidebarOpen)}
         notificationCount={3}
       />
@@ -128,7 +126,7 @@ const Advisory = () => {
       <Sidebar 
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
-        userRole={user.role}
+        userRole="farmer"
       />
 
       <main className="md:ml-64 p-6">
@@ -138,7 +136,7 @@ const Advisory = () => {
             <div>
               <h2 className="text-3xl font-bold text-foreground">Advisory Center</h2>
               <p className="text-muted-foreground">
-                AI-powered recommendations and expert guidance for your crops
+                AI-powered recommendations, irrigation guidance, and bookable expert support for your crops
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -146,6 +144,8 @@ const Advisory = () => {
               <span className="text-sm text-muted-foreground">AI-Powered Insights</span>
             </div>
           </div>
+
+          <ExpertConsultationWorkflow />
 
           {/* Filter Tabs */}
           <div className="flex gap-2 border-b">

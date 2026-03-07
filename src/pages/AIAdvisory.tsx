@@ -1,24 +1,21 @@
 import { useState } from "react";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
+import { SmartIrrigationCalculator } from "@/components/features/SmartIrrigationCalculator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CropRecommendationEngine from "@/components/ai/CropRecommendationEngine";
 import YieldPredictor from "@/components/analytics/YieldPredictor";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 const AIAdvisory = () => {
-  const { t } = useLanguage();
+  const { user } = useCurrentUser();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  const user = {
-    name: "John Farmer",
-    role: "farmer",
-  };
 
   return (
     <div className="min-h-screen bg-background">
       <Header 
-        user={user}
+        user={{ name: user.name, role: "farmer" }}
         onMenuClick={() => setSidebarOpen(!sidebarOpen)}
         notificationCount={3}
       />
@@ -26,7 +23,7 @@ const AIAdvisory = () => {
       <Sidebar 
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
-        userRole={user.role}
+        userRole="farmer"
       />
 
       <main className="md:ml-64 p-6">
@@ -40,9 +37,10 @@ const AIAdvisory = () => {
           </div>
 
           <Tabs defaultValue="recommendations" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
+            <TabsList className="grid w-full grid-cols-3 lg:w-[560px]">
               <TabsTrigger value="recommendations">Crop Recommendations</TabsTrigger>
               <TabsTrigger value="predictions">Yield Predictions</TabsTrigger>
+              <TabsTrigger value="irrigation">Irrigation Advisory</TabsTrigger>
             </TabsList>
 
             <TabsContent value="recommendations">
@@ -51,6 +49,10 @@ const AIAdvisory = () => {
 
             <TabsContent value="predictions">
               <YieldPredictor />
+            </TabsContent>
+
+            <TabsContent value="irrigation">
+              <SmartIrrigationCalculator />
             </TabsContent>
           </Tabs>
         </div>

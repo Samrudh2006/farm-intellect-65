@@ -43,6 +43,7 @@ const navigationItems = {
     { icon: Vote, label: "🗳 Polls", href: "/farmer/polls" },
     { icon: Landmark, label: "🏛 Gov Schemes", href: "/farmer/schemes" },
     { icon: Brain, label: "🧠 AI Advisory", href: "/farmer/ai-advisory" },
+    { icon: Activity, label: "🚀 Smart Features", href: "/farmer/features" },
     { icon: Bot, label: "🤖 AI Assistant", href: "/farmer/chat" },
     { icon: MessageSquare, label: "💬 Forum", href: "/farmer/forum" },
     { icon: Calendar, label: "📅 Crop Calendar", href: "/farmer/calendar" },

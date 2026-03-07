@@ -47,9 +47,32 @@ export interface SchemeWizardState {
   lastUpdated?: string;
 }
 
+export interface GeoPreference {
+  state: string;
+  district: string;
+  village: string;
+  preferredMarket: string;
+  primaryCrop: string;
+  languageCode: string;
+}
+
+export interface ExpertBooking {
+  id: string;
+  expertName: string;
+  expertise: string;
+  slot: string;
+  mode: "chat" | "call" | "video" | "field_visit";
+  issue: string;
+  status: "requested" | "confirmed" | "completed";
+  notes?: string;
+}
+
 const CROP_PLANS_KEY = "phase1-crop-plans";
 const FIELD_HISTORY_KEY = "phase1-field-history";
 const SCHEME_WIZARD_KEY = "phase1-scheme-wizard";
+const GEO_PREFERENCE_KEY = "phase1-geo-preference";
+const EXPERT_BOOKINGS_KEY = "phase1-expert-bookings";
+const DISMISSED_ALERTS_KEY = "phase1-dismissed-alerts";
 export const PHASE1_STORAGE_EVENT = "phase1-storage-updated";
 
 const isBrowser = () => typeof window !== "undefined" && typeof window.localStorage !== "undefined";
@@ -155,10 +178,60 @@ export const saveSchemeWizardState = (state: SchemeWizardState) => {
   writeToStorage(SCHEME_WIZARD_KEY, state);
 };
 
+export const getGeoPreference = () =>
+  readFromStorage<GeoPreference>(GEO_PREFERENCE_KEY, {
+    state: "Punjab",
+    district: "Ludhiana",
+    village: "Doraha",
+    preferredMarket: "Khanna",
+    primaryCrop: "Wheat",
+    languageCode: "en",
+  });
+
+export const saveGeoPreference = (preference: GeoPreference) => {
+  writeToStorage(GEO_PREFERENCE_KEY, preference);
+};
+
+export const getExpertBookings = () =>
+  readFromStorage<ExpertBooking[]>(EXPERT_BOOKINGS_KEY, [
+    {
+      id: "booking-1",
+      expertName: "Dr. Kavita Sharma",
+      expertise: "Plant pathology",
+      slot: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+      mode: "video",
+      issue: "Recurring leaf spot symptoms after irrigation swings",
+      status: "confirmed",
+      notes: "Keep recent scanner images and field history ready for review.",
+    },
+  ]);
+
+export const saveExpertBookings = (bookings: ExpertBooking[]) => {
+  writeToStorage(EXPERT_BOOKINGS_KEY, bookings);
+};
+
+export const appendExpertBooking = (booking: ExpertBooking) => {
+  saveExpertBookings([booking, ...getExpertBookings()]);
+};
+
+export const getDismissedAlertIds = () => readFromStorage<string[]>(DISMISSED_ALERTS_KEY, []);
+
+export const dismissAlert = (alertId: string) => {
+  const current = getDismissedAlertIds();
+  if (!current.includes(alertId)) {
+    writeToStorage(DISMISSED_ALERTS_KEY, [...current, alertId]);
+  }
+};
+
+export const restoreDismissedAlerts = () => {
+  writeToStorage(DISMISSED_ALERTS_KEY, []);
+};
+
 export const getPhase1Summary = () => {
   const plans = getCropPlans();
   const fieldEvents = getFieldHistoryEntries();
   const schemeState = getSchemeWizardState();
+  const expertBookings = getExpertBookings();
 
   return {
     cropPlans: plans.length,
@@ -166,5 +239,6 @@ export const getPhase1Summary = () => {
     fieldEvents: fieldEvents.length,
     schemeMatches: schemeState.matchedSchemeIds.length,
     lastWizardRun: schemeState.lastUpdated,
+    expertBookings: expertBookings.length,
   };
 };
