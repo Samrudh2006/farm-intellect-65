@@ -3,15 +3,12 @@ import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { AIChatbot } from "@/components/chat/AIChatbot";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 const Chat = () => {
   const { t } = useLanguage();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  const user = {
-    name: "John Farmer",
-    role: "farmer",
-  };
+  const { user } = useCurrentUser();
 
   return (
     <div className="min-h-screen bg-background">

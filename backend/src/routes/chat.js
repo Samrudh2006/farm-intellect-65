@@ -1,34 +1,91 @@
 import express from 'express';
+import multer from 'multer';
 import { authenticate } from '../middleware/auth.js';
 import { logActivity } from '../middleware/activity.js';
 import prisma from '../config/database.js';
 import { logger } from '../utils/logger.js';
+import {
+  createSarvamChatCompletion,
+  synthesizeSarvamSpeech,
+  transcribeSarvamAudio,
+} from '../services/sarvam.js';
 
 const router = express.Router();
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 },
+});
 
-// Simple AI response function (placeholder for actual AI integration)
-const generateAIResponse = async (message, context) => {
-  // This would integrate with actual AI services like OpenAI, Gemini, etc.
-  // For now, return mock responses based on keywords
-  const responses = {
-    'crop': 'Based on your location and soil conditions, I recommend considering wheat or rice cultivation. Would you like specific planting guidelines?',
-    'disease': 'I can help identify crop diseases. Please describe the symptoms you\'re observing, or upload an image for analysis.',
-    'fertilizer': 'For optimal crop growth, consider soil testing first. Generally, NPK fertilizers work well for most crops. What crop are you planning?',
-    'weather': 'Weather conditions are crucial for farming decisions. Check local weather forecasts and plan irrigation accordingly.',
-    'pest': 'Pest control requires integrated management. Can you describe the pests you\'re seeing? I can suggest organic and chemical solutions.',
-    'price': 'Market prices fluctuate based on demand and season. I can provide current market trends for your crops.',
-    'default': 'I\'m here to help with your farming questions! You can ask me about crops, diseases, fertilizers, weather, pests, or market prices.'
-  };
+const CHAT_HISTORY_LIMIT = 12;
 
-  const lowerMessage = message.toLowerCase();
-  
-  for (const [keyword, response] of Object.entries(responses)) {
-    if (lowerMessage.includes(keyword)) {
-      return response;
-    }
+const MODE_PROMPTS = {
+  chat: 'You are Krishi AI, a practical agricultural assistant for Indian farmers. Give accurate, concise, farmer-friendly advice. Prefer actionable bullet points when useful and stay grounded in agronomy, weather risk, pests, soil health, irrigation, crop calendars, mandi realities, and government schemes.',
+  disease: 'You are an agricultural plant-pathology assistant. Diagnose likely crop disease causes from symptoms only and never pretend you visually inspected an image unless the user explicitly described it. Always include likely disease, confidence, severity, treatment, prevention, and a short markdown analysis.',
+  recommendation: 'You are an Indian crop planning advisor. Recommend crops based on season, soil, location, water access, and farmer goals. Explain trade-offs, expected risks, and next steps.',
+  yield: 'You are an agricultural forecasting assistant. Estimate yield carefully, explain assumptions, list risk factors, and avoid false precision.',
+};
+
+const getRoleLabel = (role) => {
+  switch (role) {
+    case 'ADMIN':
+      return 'platform administrator';
+    case 'EXPERT':
+      return 'agriculture expert';
+    case 'MERCHANT':
+      return 'merchant';
+    default:
+      return 'farmer';
   }
-  
-  return responses.default;
+};
+
+const getLanguageInstruction = (languageCode) => (
+  languageCode
+    ? `Reply in the same language as the user whenever possible. Preferred response language code: ${languageCode}.`
+    : 'Reply in the same language as the user whenever possible. If the user switches language, adapt naturally.'
+);
+
+const buildAssistantMessages = ({ user, mode = 'chat', messages, context, languageCode }) => {
+  const safeMessages = Array.isArray(messages) ? messages : [];
+  const systemPrompt = [
+    MODE_PROMPTS[mode] || MODE_PROMPTS.chat,
+    `The authenticated user is a ${getRoleLabel(user.role)} on Farm Intellect.`,
+    getLanguageInstruction(languageCode),
+    'If information is uncertain, say so clearly and suggest the best next action instead of making up facts.',
+  ].join(' ');
+
+  const normalizedMessages = safeMessages
+    .filter((message) => message?.content)
+    .map((message) => ({
+      role: message.role === 'assistant' || message.role === 'system' ? message.role : 'user',
+      content: String(message.content).trim(),
+    }))
+    .filter((message) => message.content.length > 0);
+
+  const contextMessage = context && Object.keys(context).length
+    ? {
+        role: 'system',
+        content: `Conversation context:\n${JSON.stringify(context, null, 2)}`,
+      }
+    : null;
+
+  return [
+    { role: 'system', content: systemPrompt },
+    ...(contextMessage ? [contextMessage] : []),
+    ...normalizedMessages,
+  ];
+};
+
+const getStoredConversationMessages = async (userId) => {
+  const history = await prisma.chatMessage.findMany({
+    where: { userId },
+    take: CHAT_HISTORY_LIMIT,
+    orderBy: { createdAt: 'desc' },
+  });
+
+  return history.reverse().map((message) => ({
+    role: message.type === 'AI_ASSISTANT' ? 'assistant' : 'user',
+    content: message.message,
+  }));
 };
 
 // Get chat history
@@ -51,36 +108,78 @@ router.get('/messages', authenticate, async (req, res) => {
   }
 });
 
+// Generate a one-off assistant completion without storing the response
+router.post('/complete', authenticate, logActivity, async (req, res) => {
+  try {
+    const { messages, context, languageCode, mode = 'chat' } = req.body;
+
+    if (!Array.isArray(messages) || messages.length === 0) {
+      return res.status(400).json({ error: 'At least one message is required' });
+    }
+
+    const completion = await createSarvamChatCompletion({
+      messages: buildAssistantMessages({
+        user: req.user,
+        mode,
+        messages,
+        context,
+        languageCode,
+      }),
+    });
+
+    res.json({ content: completion.content });
+  } catch (error) {
+    logger.error('Assistant completion error:', error);
+    res.status(500).json({ error: error instanceof Error ? error.message : 'Failed to complete assistant request' });
+  }
+});
+
 // Send message to AI chatbot
 router.post('/message', authenticate, logActivity, async (req, res) => {
   try {
-    const { message, context } = req.body;
+    const { message, context, languageCode, mode = 'chat' } = req.body;
 
     if (!message || !message.trim()) {
       return res.status(400).json({ error: 'Message is required' });
     }
 
+    const trimmedMessage = message.trim();
+
     // Save user message
     const userMessage = await prisma.chatMessage.create({
       data: {
         userId: req.user.id,
-        message: message.trim(),
+        message: trimmedMessage,
         type: 'USER',
         context: context ? JSON.stringify(context) : null
       }
     });
 
-    // Generate AI response
-    const aiResponseText = await generateAIResponse(message, context);
+    const conversationMessages = [
+      ...(await getStoredConversationMessages(req.user.id)),
+      { role: 'user', content: trimmedMessage },
+    ];
+
+    const completion = await createSarvamChatCompletion({
+      messages: buildAssistantMessages({
+        user: req.user,
+        mode,
+        messages: conversationMessages,
+        context,
+        languageCode,
+      }),
+    });
 
     // Save AI response
     const aiMessage = await prisma.chatMessage.create({
       data: {
         userId: req.user.id,
-        message: aiResponseText,
+        message: completion.content,
         type: 'AI_ASSISTANT',
         context: JSON.stringify({
-          originalMessage: message,
+          originalMessage: trimmedMessage,
+          mode,
+          languageCode,
           ...context
         })
       }
@@ -92,7 +191,59 @@ router.post('/message', authenticate, logActivity, async (req, res) => {
     });
   } catch (error) {
     logger.error('Chat message error:', error);
-    res.status(500).json({ error: 'Failed to process message' });
+    res.status(500).json({ error: error instanceof Error ? error.message : 'Failed to process message' });
+  }
+});
+
+router.post('/voice/transcribe', authenticate, upload.single('audio'), logActivity, async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'Audio file is required' });
+    }
+
+    const { languageCode, mode = 'transcribe' } = req.body;
+    const transcription = await transcribeSarvamAudio({
+      buffer: req.file.buffer,
+      fileName: req.file.originalname,
+      mimeType: req.file.mimetype,
+      languageCode,
+      mode,
+    });
+
+    res.json({
+      transcript: transcription?.transcript || '',
+      languageCode: transcription?.language_code || languageCode,
+      requestId: transcription?.request_id,
+    });
+  } catch (error) {
+    logger.error('Voice transcription error:', error);
+    res.status(500).json({ error: error instanceof Error ? error.message : 'Failed to transcribe voice input' });
+  }
+});
+
+router.post('/voice/speak', authenticate, logActivity, async (req, res) => {
+  try {
+    const { text, targetLanguageCode, speaker, pace } = req.body;
+
+    if (!text || !String(text).trim()) {
+      return res.status(400).json({ error: 'Text is required' });
+    }
+
+    const speech = await synthesizeSarvamSpeech({
+      text: String(text).trim(),
+      targetLanguageCode: targetLanguageCode || 'en-IN',
+      speaker,
+      pace: typeof pace === 'number' ? pace : 1,
+    });
+
+    res.json({
+      audioBase64: speech.audioBase64,
+      mimeType: 'audio/wav',
+      requestId: speech.raw?.request_id,
+    });
+  } catch (error) {
+    logger.error('Voice synthesis error:', error);
+    res.status(500).json({ error: error instanceof Error ? error.message : 'Failed to synthesize speech' });
   }
 });
 
