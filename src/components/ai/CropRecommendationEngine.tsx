@@ -98,7 +98,7 @@ const CropRecommendationEngine = () => {
           confidence: r.score,
           expectedYield: `${c.avgYield.value} ${c.avgYield.unit}`,
           profitEstimate: `₹${c.profitPerHectare.min.toLocaleString()}–${c.profitPerHectare.max.toLocaleString()}/hectare`,
-          plantingWindow: `${c.sowingWindow?.start || "Season start"}`,
+          plantingWindow: `${c.season} season`,
           waterRequirement: `${c.waterRequirement.value} ${c.waterRequirement.unit}`,
           fertilizers: [...c.fertilizers.basal.slice(0, 2), ...c.fertilizers.topDressing.slice(0, 1)],
           riskFactors: c.rotationCrops.length > 0 ? [`Rotate with: ${c.rotationCrops.slice(0, 2).join(", ")}`] : ["Monitor for common pests"],
