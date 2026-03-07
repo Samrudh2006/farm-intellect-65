@@ -5,10 +5,21 @@ import type { Database } from './types';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
+export const hasSupabaseEnv = Boolean(SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY);
+
+const fallbackSupabaseUrl = 'https://preview-placeholder.supabase.co';
+const fallbackSupabaseKey = 'preview-placeholder-anon-key';
+
+if (!hasSupabaseEnv) {
+  console.warn(
+    'Supabase environment variables are missing. The app will open in preview mode, but auth-backed features will stay unavailable until VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY are configured.',
+  );
+}
+
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+export const supabase = createClient<Database>(SUPABASE_URL || fallbackSupabaseUrl, SUPABASE_PUBLISHABLE_KEY || fallbackSupabaseKey, {
   auth: {
     storage: localStorage,
     persistSession: true,

@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { hasSupabaseEnv, supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
 
 interface UserProfile {
@@ -66,6 +66,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
+    if (!hasSupabaseEnv) {
+      setLoading(false);
+      setSession(null);
+      setUser(null);
+      setProfile(null);
+      return;
+    }
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
         setSession(session);
@@ -97,6 +105,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     password: string,
     metadata: { display_name: string; role: string; phone?: string; location?: string }
   ) => {
+    if (!hasSupabaseEnv) {
+      return {
+        error: new Error("Supabase environment variables are missing. Configure VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY in Vercel preview settings."),
+      };
+    }
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -109,11 +123,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signIn = async (email: string, password: string) => {
+    if (!hasSupabaseEnv) {
+      return {
+        error: new Error("Supabase environment variables are missing. Configure VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY in Vercel preview settings."),
+      };
+    }
+
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     return { error: error as Error | null };
   };
 
   const signOut = async () => {
+    if (!hasSupabaseEnv) {
+      setProfile(null);
+      return;
+    }
+
     await supabase.auth.signOut();
     setProfile(null);
   };
