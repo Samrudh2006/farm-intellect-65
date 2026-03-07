@@ -54,6 +54,7 @@ import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminNotifications from "./pages/admin/AdminNotifications";
 import Profile from "./pages/Profile";
+import ResetPassword from "./pages/ResetPassword";
 
 const queryClient = new QueryClient();
 
