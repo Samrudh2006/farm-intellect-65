@@ -139,42 +139,7 @@ const CropRecommendationEngine = () => {
   return (
     <div className="space-y-6">
       {/* AI API Configuration */}
-      {showApiInput && (
-        <Card className="border-dashed">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Brain className="h-5 w-5" />
-              AI Configuration
-            </CardTitle>
-            <CardDescription>
-              Enter your Perplexity API key for real-time AI recommendations, or continue with demo mode.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="api-key">Perplexity API Key (Optional)</Label>
-              <Input
-                id="api-key"
-                type="password"
-                placeholder="pplx-..."
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-              />
-            </div>
-            <div className="flex gap-2">
-              <Button onClick={generateRecommendations} disabled={!apiKey}>
-                Use AI Mode
-              </Button>
-              <Button variant="outline" onClick={() => {
-                setShowApiInput(false);
-                generateRecommendations();
-              }}>
-                Continue with Demo
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {/* AI powered by Lovable AI */}
 
       {/* Farm Data Input */}
       <Card>
