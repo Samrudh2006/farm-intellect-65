@@ -3,15 +3,12 @@ import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { DocumentUpload } from "@/components/documents/DocumentUpload";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 const Documents = () => {
   const { t } = useLanguage();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  const user = {
-    name: "John Farmer",
-    role: "farmer",
-  };
+  const { user } = useCurrentUser();
 
   return (
     <div className="min-h-screen bg-background">

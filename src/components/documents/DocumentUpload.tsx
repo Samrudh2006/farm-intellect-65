@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,6 +17,9 @@ import {
   Clock,
   Shield
 } from "lucide-react";
+import { apiBaseUrl, apiFetch } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Document {
   id: string;
@@ -33,13 +36,31 @@ interface DocumentUploadProps {
 }
 
 export const DocumentUpload = ({ onUploadComplete }: DocumentUploadProps) => {
+  const { toast } = useToast();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [documentType, setDocumentType] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState("");
   const [documents, setDocuments] = useState<Document[]>([]);
+  const [loadingDocuments, setLoadingDocuments] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const loadDocuments = async () => {
+    try {
+      setLoadingDocuments(true);
+      const response = await apiFetch<{ documents: Document[] }>("/api/documents/my-documents");
+      setDocuments(response.documents);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load documents");
+    } finally {
+      setLoadingDocuments(false);
+    }
+  };
+
+  useEffect(() => {
+    loadDocuments();
+  }, []);
 
   const documentTypes = [
     { value: "ID_PROOF", label: "ID Proof (Aadhar/PAN/Passport)" },
@@ -81,7 +102,7 @@ export const DocumentUpload = ({ onUploadComplete }: DocumentUploadProps) => {
     setError("");
 
     try {
-      // Simulate upload progress
+      // Simulate upload progress while the request is in flight
       const interval = setInterval(() => {
         setUploadProgress(prev => {
           if (prev >= 100) {
@@ -92,18 +113,16 @@ export const DocumentUpload = ({ onUploadComplete }: DocumentUploadProps) => {
         });
       }, 200);
 
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const formData = new FormData();
+      formData.append("document", selectedFile);
+      formData.append("type", documentType);
 
-      // Mock successful upload
-      const newDocument: Document = {
-        id: Date.now().toString(),
-        type: documentType,
-        originalName: selectedFile.name,
-        size: selectedFile.size,
-        isVerified: false,
-        createdAt: new Date().toISOString()
-      };
+      const response = await apiFetch<{ document: Document }>("/api/documents/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const newDocument = response.document;
 
       setDocuments(prev => [newDocument, ...prev]);
       
@@ -118,10 +137,51 @@ export const DocumentUpload = ({ onUploadComplete }: DocumentUploadProps) => {
         fileInputRef.current.value = "";
       }
     } catch (err) {
-      setError("Upload failed. Please try again.");
+      setError(err instanceof Error ? err.message : "Upload failed. Please try again.");
     } finally {
       setIsUploading(false);
       setUploadProgress(0);
+    }
+  };
+
+  const downloadDocument = async (id: string, originalName: string) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const response = await fetch(`${apiBaseUrl}/api/documents/download/${id}`, {
+        headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : undefined,
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to download document");
+      }
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const anchor = window.document.createElement("a");
+      anchor.href = url;
+      anchor.download = originalName;
+      anchor.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      toast({
+        title: "Download failed",
+        description: err instanceof Error ? err.message : "Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const deleteDocument = async (id: string) => {
+    try {
+      await apiFetch(`/api/documents/${id}`, { method: "DELETE" });
+      setDocuments((current) => current.filter((document) => document.id !== id));
+      toast({ title: "Document deleted", description: "The document was removed successfully." });
+    } catch (err) {
+      toast({
+        title: "Delete failed",
+        description: err instanceof Error ? err.message : "Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -250,16 +310,18 @@ export const DocumentUpload = ({ onUploadComplete }: DocumentUploadProps) => {
       </Card>
 
       {/* Documents List */}
-      {documents.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Uploaded Documents</CardTitle>
-            <CardDescription>
-              View and manage your uploaded documents
-            </CardDescription>
-          </CardHeader>
-          
-          <CardContent>
+      <Card>
+        <CardHeader>
+          <CardTitle>Uploaded Documents</CardTitle>
+          <CardDescription>
+            View and manage your uploaded documents
+          </CardDescription>
+        </CardHeader>
+        
+        <CardContent>
+          {loadingDocuments ? (
+            <div className="py-8 text-center text-sm text-muted-foreground">Loading your documents...</div>
+          ) : documents.length > 0 ? (
             <div className="space-y-3">
               {documents.map(document => (
                 <div
@@ -280,19 +342,21 @@ export const DocumentUpload = ({ onUploadComplete }: DocumentUploadProps) => {
                   
                   <div className="flex items-center gap-2">
                     {getStatusBadge(document)}
-                    <Button variant="ghost" size="sm">
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="sm">
+                    <Button variant="ghost" size="sm" onClick={() => downloadDocument(document.id, document.originalName)}>
                       <Download className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => deleteDocument(document.id)}>
+                      <X className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
-      )}
+          ) : (
+            <div className="py-8 text-center text-sm text-muted-foreground">No documents uploaded yet.</div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };

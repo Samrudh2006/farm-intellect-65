@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,9 +14,11 @@ import {
   Settings,
   BellRing,
   Clock,
-  X
+  Loader2,
 } from "lucide-react";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
+import { apiFetch } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
 
 interface Notification {
   id: string;
@@ -24,64 +26,57 @@ interface Notification {
   message: string;
   type: 'info' | 'warning' | 'error' | 'success' | 'reminder';
   isRead: boolean;
-  createdAt: Date;
+  createdAt: string;
   data?: Record<string, unknown>;
 }
 
 export const NotificationCenter = () => {
+  const { toast } = useToast();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [selectedTab, setSelectedTab] = useState("all");
+  const [loading, setLoading] = useState(true);
 
-  const mockNotifications: Notification[] = [
-    {
-      id: "1",
-      title: "Document Verified",
-      message: "Your land records document has been successfully verified by our experts.",
-      type: "success",
-      isRead: false,
-      createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-    },
-    {
-      id: "2", 
-      title: "Crop Calendar Reminder",
-      message: "Time for first irrigation of your wheat crop in Field A.",
-      type: "reminder",
-      isRead: false,
-      createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
-    },
-    {
-      id: "3",
-      title: "Weather Alert",
-      message: "Heavy rainfall expected in your area in the next 48 hours. Secure your crops.",
-      type: "warning",
-      isRead: true,
-      createdAt: new Date(Date.now() - 8 * 60 * 60 * 1000), // 8 hours ago
-    },
-    {
-      id: "4",
-      title: "New Market Price Update", 
-      message: "Wheat prices have increased by 5% in your local market.",
-      type: "info",
-      isRead: false,
-      createdAt: new Date(Date.now() - 12 * 60 * 60 * 1000), // 12 hours ago
-    },
-    {
-      id: "5",
-      title: "Expert Response",
-      message: "Dr. Sharma has responded to your question about pest control in cotton crops.",
-      type: "info",
-      isRead: true,
-      createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
-    },
-    {
-      id: "6",
-      title: "System Maintenance",
-      message: "The system will be under maintenance on Sunday from 2 AM to 4 AM.",
-      type: "warning",
-      isRead: false,
-      createdAt: new Date(Date.now() - 36 * 60 * 60 * 1000), // 1.5 days ago
+  const loadNotifications = async () => {
+    try {
+      setLoading(true);
+      const response = await apiFetch<{
+        notifications: Array<{
+          id: string;
+          title: string;
+          message: string;
+          type: "INFO" | "WARNING" | "ERROR" | "SUCCESS" | "REMINDER";
+          isRead: boolean;
+          createdAt: string;
+          data?: string | null;
+        }>;
+        unreadCount: number;
+      }>("/api/notifications");
+
+      setNotifications(
+        response.notifications.map((notification) => ({
+          id: notification.id,
+          title: notification.title,
+          message: notification.message,
+          type: notification.type.toLowerCase() as Notification["type"],
+          isRead: notification.isRead,
+          createdAt: notification.createdAt,
+          data: notification.data ? JSON.parse(notification.data) as Record<string, unknown> : undefined,
+        })),
+      );
+    } catch (error) {
+      toast({
+        title: "Notifications unavailable",
+        description: error instanceof Error ? error.message : "Failed to load notifications.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  useEffect(() => {
+    loadNotifications();
+  }, []);
 
   const getNotificationIcon = (type: string) => {
     const icons = {
@@ -105,7 +100,8 @@ export const NotificationCenter = () => {
     return badges[type as keyof typeof badges] || badges.info;
   };
 
-  const formatTimeAgo = (date: Date) => {
+  const formatTimeAgo = (dateInput: string) => {
+    const date = parseISO(dateInput);
     const now = new Date();
     const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
     
@@ -118,16 +114,43 @@ export const NotificationCenter = () => {
     }
   };
 
-  const markAsRead = (_id: string) => {
-    // In real app, this would make an API call
+  const markAsRead = async (id: string) => {
+    try {
+      await apiFetch(`/api/notifications/${id}/read`, { method: "PATCH" });
+      setNotifications((current) => current.map((notification) => notification.id === id ? { ...notification, isRead: true } : notification));
+    } catch (error) {
+      toast({
+        title: "Unable to update notification",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const deleteNotification = (_id: string) => {
-    // In real app, this would make an API call
+  const deleteNotification = async (id: string) => {
+    try {
+      await apiFetch(`/api/notifications/${id}`, { method: "DELETE" });
+      setNotifications((current) => current.filter((notification) => notification.id !== id));
+    } catch (error) {
+      toast({
+        title: "Unable to delete notification",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const markAllAsRead = () => {
-    // In real app, this would make an API call
+  const markAllAsRead = async () => {
+    try {
+      await apiFetch("/api/notifications/mark-all-read", { method: "PATCH" });
+      setNotifications((current) => current.map((notification) => ({ ...notification, isRead: true })));
+    } catch (error) {
+      toast({
+        title: "Unable to mark all as read",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const filterNotifications = (notifications: Notification[], filter: string) => {
@@ -145,8 +168,8 @@ export const NotificationCenter = () => {
     }
   };
 
-  const filteredNotifications = filterNotifications(mockNotifications, selectedTab);
-  const unreadCount = mockNotifications.filter(n => !n.isRead).length;
+  const filteredNotifications = useMemo(() => filterNotifications(notifications, selectedTab), [notifications, selectedTab]);
+  const unreadCount = notifications.filter(n => !n.isRead).length;
 
   return (
     <div className="space-y-6">
@@ -183,7 +206,7 @@ export const NotificationCenter = () => {
             <div className="flex items-center gap-3">
               <BellRing className="h-8 w-8 text-blue-600" />
               <div>
-                <p className="text-2xl font-bold">{mockNotifications.length}</p>
+                <p className="text-2xl font-bold">{notifications.length}</p>
                 <p className="text-sm text-muted-foreground">Total</p>
               </div>
             </div>
@@ -208,7 +231,7 @@ export const NotificationCenter = () => {
               <Calendar className="h-8 w-8 text-purple-600" />
               <div>
                 <p className="text-2xl font-bold">
-                  {mockNotifications.filter(n => n.type === "reminder").length}
+                  {notifications.filter(n => n.type === "reminder").length}
                 </p>
                 <p className="text-sm text-muted-foreground">Reminders</p>
               </div>
@@ -222,7 +245,7 @@ export const NotificationCenter = () => {
               <AlertTriangle className="h-8 w-8 text-yellow-600" />
               <div>
                 <p className="text-2xl font-bold">
-                  {mockNotifications.filter(n => n.type === "warning" || n.type === "error").length}
+                  {notifications.filter(n => n.type === "warning" || n.type === "error").length}
                 </p>
                 <p className="text-sm text-muted-foreground">Alerts</p>
               </div>
@@ -253,7 +276,11 @@ export const NotificationCenter = () => {
             </TabsList>
             
             <TabsContent value={selectedTab} className="mt-6">
-              {filteredNotifications.length > 0 ? (
+              {loading ? (
+                <div className="flex items-center justify-center py-10 text-muted-foreground">
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Loading notifications...
+                </div>
+              ) : filteredNotifications.length > 0 ? (
                 <div className="space-y-3">
                   {filteredNotifications.map(notification => (
                     <div
@@ -307,7 +334,7 @@ export const NotificationCenter = () => {
                           <Clock className="h-3 w-3" />
                           <span>{formatTimeAgo(notification.createdAt)}</span>
                           <span>•</span>
-                          <span>{format(notification.createdAt, "MMM dd, yyyy")}</span>
+                          <span>{format(parseISO(notification.createdAt), "MMM dd, yyyy")}</span>
                         </div>
                       </div>
                     </div>

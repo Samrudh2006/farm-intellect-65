@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import rateLimit from 'express-rate-limit';
-import { verifyToken } from './utils/auth.js';
+import { resolveAuthenticatedUser } from './middleware/auth.js';
 
 import authRoutes from './routes/auth.js';
 import userRoutes from './routes/users.js';
@@ -95,13 +95,18 @@ io.use((socket, next) => {
   if (!token) {
     return next(new Error('Authentication required'));
   }
-  try {
-    const decoded = verifyToken(token);
-    socket.userId = decoded.userId;
-    next();
-  } catch {
-    next(new Error('Invalid token'));
-  }
+  resolveAuthenticatedUser(token)
+    .then((user) => {
+      if (!user) {
+        next(new Error('Invalid token'));
+        return;
+      }
+
+      socket.userId = user.id;
+      socket.userRole = user.role;
+      next();
+    })
+    .catch(() => next(new Error('Invalid token')));
 });
 
 // Socket.IO for real-time features

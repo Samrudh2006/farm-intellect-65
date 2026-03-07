@@ -15,6 +15,7 @@ const Profile = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user, updateUser } = useCurrentUser();
   const { t } = useLanguage();
+  const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     name: user.name,
     email: user.email || "",
@@ -22,12 +23,23 @@ const Profile = () => {
     location: user.location || "",
   });
 
-  const handleSave = () => {
-    updateUser(form);
-    toast({
-      title: "✅ Profile Updated",
-      description: "Your profile has been saved successfully.",
-    });
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      await updateUser(form);
+      toast({
+        title: "✅ Profile Updated",
+        description: "Your profile has been saved successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Profile update failed",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -129,10 +141,11 @@ const Profile = () => {
 
               <Button
                 onClick={handleSave}
+                disabled={saving}
                 className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 <Save className="h-4 w-4 mr-2" />
-                {t("common.save")}
+                {saving ? "Saving..." : t("common.save")}
               </Button>
             </CardContent>
           </Card>

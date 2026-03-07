@@ -10,6 +10,15 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { AppErrorBoundary } from "@/components/system/AppErrorBoundary";
 
+type AppRole = "farmer" | "merchant" | "expert" | "admin";
+
+const roleHomeRoutes: Record<AppRole, string> = {
+  farmer: "/farmer/dashboard",
+  merchant: "/merchant/dashboard",
+  expert: "/expert/dashboard",
+  admin: "/admin/dashboard",
+};
+
 const Index = lazy(() => import("./pages/Index"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const FarmerDashboard = lazy(() => import("./pages/FarmerDashboard"));
@@ -64,10 +73,20 @@ const RouteLoader = () => (
   </div>
 );
 
-const ProtectedRoute = ({ children }: { children: ReactNode }) => {
-  const { user, loading } = useAuth();
+const ProtectedRoute = ({ children, allowedRoles }: { children: ReactNode; allowedRoles?: AppRole[] }) => {
+  const { user, profile, loading } = useAuth();
   if (loading) return <div className="min-h-screen flex items-center justify-center"><span className="h-8 w-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" /></div>;
   if (!user) return <Navigate to="/login" replace />;
+  if (allowedRoles) {
+    if (!profile) {
+      return <div className="min-h-screen flex items-center justify-center"><span className="h-8 w-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" /></div>;
+    }
+
+    const role = profile.role as AppRole;
+    if (!allowedRoles.includes(role)) {
+      return <Navigate to={roleHomeRoutes[role] || "/farmer/dashboard"} replace />;
+    }
+  }
   return <>{children}</>;
 };
 
@@ -79,8 +98,8 @@ const renderPage = (Component: LazyExoticComponent<ComponentType>) => (
   </Suspense>
 );
 
-const renderProtectedPage = (Component: LazyExoticComponent<ComponentType>) => (
-  <ProtectedRoute>{renderPage(Component)}</ProtectedRoute>
+const renderProtectedPage = (Component: LazyExoticComponent<ComponentType>, allowedRoles?: AppRole[]) => (
+  <ProtectedRoute allowedRoles={allowedRoles}>{renderPage(Component)}</ProtectedRoute>
 );
 
 const AnimatedRoutes = () => {
@@ -94,48 +113,48 @@ const AnimatedRoutes = () => {
         <Route path="/reset-password" element={renderPage(ResetPassword)} />
         
         {/* Farmer Routes */}
-        <Route path="/farmer/dashboard" element={renderProtectedPage(FarmerDashboard)} />
-        <Route path="/farmer/crops" element={renderProtectedPage(Crops)} />
-        <Route path="/farmer/advisory" element={renderProtectedPage(Advisory)} />
-        <Route path="/farmer/weather" element={renderProtectedPage(Weather)} />
-        <Route path="/farmer/sensors" element={renderProtectedPage(Sensors)} />
-        <Route path="/farmer/field-map" element={renderProtectedPage(FieldMap)} />
-        <Route path="/farmer/merchants" element={renderProtectedPage(Merchants)} />
-        <Route path="/farmer/polls" element={renderProtectedPage(Polls)} />
-        <Route path="/farmer/schemes" element={renderProtectedPage(Schemes)} />
-        <Route path="/farmer/ai-advisory" element={renderProtectedPage(AIAdvisory)} />
-        <Route path="/farmer/ai-crop-scanner" element={renderProtectedPage(AICropScanner)} />
-        <Route path="/farmer/chat" element={renderProtectedPage(Chat)} />
-        <Route path="/farmer/forum" element={renderProtectedPage(Forum)} />
-        <Route path="/farmer/calendar" element={renderProtectedPage(Calendar)} />
-        <Route path="/farmer/documents" element={renderProtectedPage(Documents)} />
-        <Route path="/farmer/notifications" element={renderProtectedPage(Notifications)} />
-        <Route path="/farmer/features" element={renderProtectedPage(FarmFeatures)} />
-        <Route path="/farmer/profile" element={renderProtectedPage(Profile)} />
+        <Route path="/farmer/dashboard" element={renderProtectedPage(FarmerDashboard, ["farmer"])} />
+        <Route path="/farmer/crops" element={renderProtectedPage(Crops, ["farmer"])} />
+        <Route path="/farmer/advisory" element={renderProtectedPage(Advisory, ["farmer"])} />
+        <Route path="/farmer/weather" element={renderProtectedPage(Weather, ["farmer"])} />
+        <Route path="/farmer/sensors" element={renderProtectedPage(Sensors, ["farmer"])} />
+        <Route path="/farmer/field-map" element={renderProtectedPage(FieldMap, ["farmer"])} />
+        <Route path="/farmer/merchants" element={renderProtectedPage(Merchants, ["farmer"])} />
+        <Route path="/farmer/polls" element={renderProtectedPage(Polls, ["farmer"])} />
+        <Route path="/farmer/schemes" element={renderProtectedPage(Schemes, ["farmer"])} />
+        <Route path="/farmer/ai-advisory" element={renderProtectedPage(AIAdvisory, ["farmer"])} />
+        <Route path="/farmer/ai-crop-scanner" element={renderProtectedPage(AICropScanner, ["farmer"])} />
+        <Route path="/farmer/chat" element={renderProtectedPage(Chat, ["farmer"])} />
+        <Route path="/farmer/forum" element={renderProtectedPage(Forum, ["farmer"])} />
+        <Route path="/farmer/calendar" element={renderProtectedPage(Calendar, ["farmer"])} />
+        <Route path="/farmer/documents" element={renderProtectedPage(Documents, ["farmer"])} />
+        <Route path="/farmer/notifications" element={renderProtectedPage(Notifications, ["farmer"])} />
+        <Route path="/farmer/features" element={renderProtectedPage(FarmFeatures, ["farmer"])} />
+        <Route path="/farmer/profile" element={renderProtectedPage(Profile, ["farmer"])} />
         
         {/* Merchant Routes */}
-        <Route path="/merchant/dashboard" element={renderProtectedPage(MerchantDashboardPage)} />
-        <Route path="/merchant/farmers" element={renderProtectedPage(MerchantFarmers)} />
-        <Route path="/merchant/market-prices" element={renderProtectedPage(MerchantMarketPrices)} />
-        <Route path="/merchant/documents" element={renderProtectedPage(MerchantDocuments)} />
-        <Route path="/merchant/notifications" element={renderProtectedPage(MerchantNotifications)} />
-        <Route path="/merchant/profile" element={renderProtectedPage(Profile)} />
+        <Route path="/merchant/dashboard" element={renderProtectedPage(MerchantDashboardPage, ["merchant"])} />
+        <Route path="/merchant/farmers" element={renderProtectedPage(MerchantFarmers, ["merchant"])} />
+        <Route path="/merchant/market-prices" element={renderProtectedPage(MerchantMarketPrices, ["merchant"])} />
+        <Route path="/merchant/documents" element={renderProtectedPage(MerchantDocuments, ["merchant"])} />
+        <Route path="/merchant/notifications" element={renderProtectedPage(MerchantNotifications, ["merchant"])} />
+        <Route path="/merchant/profile" element={renderProtectedPage(Profile, ["merchant"])} />
         
         {/* Expert Routes */}
-        <Route path="/expert/dashboard" element={renderProtectedPage(ExpertDashboardPage)} />
-        <Route path="/expert/ai-crop-scanner" element={renderProtectedPage(ExpertAICropScanner)} />
-        <Route path="/expert/ai-advisory" element={renderProtectedPage(ExpertAIAdvisory)} />
-        <Route path="/expert/chat" element={renderProtectedPage(ExpertChat)} />
-        <Route path="/expert/notifications" element={renderProtectedPage(ExpertNotifications)} />
-        <Route path="/expert/profile" element={renderProtectedPage(Profile)} />
+        <Route path="/expert/dashboard" element={renderProtectedPage(ExpertDashboardPage, ["expert"])} />
+        <Route path="/expert/ai-crop-scanner" element={renderProtectedPage(ExpertAICropScanner, ["expert"])} />
+        <Route path="/expert/ai-advisory" element={renderProtectedPage(ExpertAIAdvisory, ["expert"])} />
+        <Route path="/expert/chat" element={renderProtectedPage(ExpertChat, ["expert"])} />
+        <Route path="/expert/notifications" element={renderProtectedPage(ExpertNotifications, ["expert"])} />
+        <Route path="/expert/profile" element={renderProtectedPage(Profile, ["expert"])} />
         
         {/* Admin Routes */}
-        <Route path="/admin/dashboard" element={renderProtectedPage(AdminDashboardPage)} />
-        <Route path="/admin/users" element={renderProtectedPage(AdminUsers)} />
-        <Route path="/admin/analytics" element={renderProtectedPage(AdminAnalytics)} />
-        <Route path="/admin/settings" element={renderProtectedPage(AdminSettings)} />
-        <Route path="/admin/notifications" element={renderProtectedPage(AdminNotifications)} />
-        <Route path="/admin/profile" element={renderProtectedPage(Profile)} />
+        <Route path="/admin/dashboard" element={renderProtectedPage(AdminDashboardPage, ["admin"])} />
+        <Route path="/admin/users" element={renderProtectedPage(AdminUsers, ["admin"])} />
+        <Route path="/admin/analytics" element={renderProtectedPage(AdminAnalytics, ["admin"])} />
+        <Route path="/admin/settings" element={renderProtectedPage(AdminSettings, ["admin"])} />
+        <Route path="/admin/notifications" element={renderProtectedPage(AdminNotifications, ["admin"])} />
+        <Route path="/admin/profile" element={renderProtectedPage(Profile, ["admin"])} />
         
         {/* Legacy Routes */}
         <Route path="/dashboard" element={renderProtectedPage(Dashboard)} />

@@ -12,7 +12,7 @@ const Notifications = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header 
-        user={{ name: user.name, role: "farmer" }}
+        user={{ name: user.name, role: user.role }}
         onMenuClick={() => setSidebarOpen(!sidebarOpen)}
         notificationCount={3}
       />
@@ -20,7 +20,7 @@ const Notifications = () => {
       <Sidebar 
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
-        userRole="farmer"
+        userRole={user.role}
       />
 
       <main className="space-y-6 p-6 md:ml-64">

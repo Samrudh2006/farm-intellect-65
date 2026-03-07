@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .single();
 
       if (profileData) {
-        setProfile({
+        const nextProfile = {
           id: profileData.id,
           display_name: profileData.display_name || "",
           email: profileData.email || "",
@@ -54,10 +54,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           location: profileData.location || "",
           avatar_url: profileData.avatar_url || "",
           role: roleData?.role || "farmer",
-        });
+        };
+
+        setProfile(nextProfile);
+        return nextProfile;
       }
+
+      setProfile(null);
+      return null;
     } catch (err) {
       console.error("Error fetching profile:", err);
+      setProfile(null);
+      return null;
     }
   };
 
@@ -79,20 +87,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          // Use setTimeout to avoid Supabase client deadlock
-          setTimeout(() => fetchProfile(session.user.id), 0);
+          setLoading(true);
+          setTimeout(async () => {
+            await fetchProfile(session.user.id);
+            setLoading(false);
+          }, 0);
         } else {
           setProfile(null);
+          setLoading(false);
         }
-        setLoading(false);
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchProfile(session.user.id);
+        await fetchProfile(session.user.id);
+      } else {
+        setProfile(null);
       }
       setLoading(false);
     });
@@ -140,6 +153,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
 
     await supabase.auth.signOut();
+    setSession(null);
+    setUser(null);
     setProfile(null);
   };
 
