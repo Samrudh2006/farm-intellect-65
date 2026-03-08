@@ -55,7 +55,7 @@ export const Header = ({ user, onMenuClick, notificationCount = 0 }: HeaderProps
             </Button>
             <div className="flex items-center gap-3">
               <AshokaChakra size={32} />
-              <h1 className="text-xl font-bold text-foreground">Smart Crop Advisory</h1>
+              <h1 className="text-xl font-bold text-foreground">{t('header.app_title')}</h1>
             </div>
           </div>
 
@@ -89,12 +89,12 @@ export const Header = ({ user, onMenuClick, notificationCount = 0 }: HeaderProps
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={handleProfile}>
                     <User className="mr-2 h-4 w-4" />
-                    Profile
+                    {t('common.profile')}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem className="text-destructive" onClick={handleSignOut}>
                     <LogOut className="mr-2 h-4 w-4" />
-                    {t("auth.signin") === "Sign In" ? "Sign Out" : "साइन आउट"}
+                    {t('common.signout')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

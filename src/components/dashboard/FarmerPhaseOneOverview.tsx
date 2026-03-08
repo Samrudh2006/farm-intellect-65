@@ -6,11 +6,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { usePwaStatus } from "@/hooks/usePwaStatus";
 import { PHASE1_STORAGE_EVENT, getPhase1Summary } from "@/lib/phase1-storage";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { CheckCircle2, Download, Globe2, History, Leaf, ShieldCheck, Wifi, WifiOff } from "lucide-react";
 
 export const FarmerPhaseOneOverview = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const { isOnline, isInstalled, canInstall, installApp } = usePwaStatus();
   const [summary, setSummary] = useState(() => getPhase1Summary());
 
@@ -29,37 +31,37 @@ export const FarmerPhaseOneOverview = () => {
   const phaseCards = useMemo(
     () => [
       {
-        title: "Offline-ready farmer mode",
-        value: isOnline ? "Online" : "Offline",
+        title: t('phase1.offline_ready'),
+        value: isOnline ? t('phase1.online') : t('phase1.offline'),
         description: isInstalled
-          ? "Installed for quick home-screen access"
+          ? t('phase1.installed_desc')
           : canInstall
-            ? "Ready to install for low-connectivity use"
-            : "Service worker enabled for cached farmer flows",
+            ? t('phase1.can_install_desc')
+            : t('phase1.sw_desc'),
         icon: isOnline ? Wifi : WifiOff,
       },
       {
-        title: "Personalized crop plans",
+        title: t('phase1.crop_plans'),
         value: `${summary.cropPlans}`,
-        description: `${summary.openTasks} open reminders across your saved plans`,
+        description: `${summary.openTasks} ${t('phase1.open_reminders')}`,
         icon: Leaf,
       },
       {
-        title: "Field history events",
+        title: t('phase1.field_history'),
         value: `${summary.fieldEvents}`,
-        description: "Timeline entries ready for field-by-field review",
+        description: t('phase1.timeline_entries'),
         icon: History,
       },
       {
-        title: "Scheme matches",
+        title: t('phase1.scheme_matches'),
         value: `${summary.schemeMatches}`,
         description: summary.lastWizardRun
-          ? `Wizard last updated on ${new Date(summary.lastWizardRun).toLocaleDateString()}`
-          : "Run the eligibility wizard to get matched support",
+          ? `${t('phase1.wizard_updated')} ${new Date(summary.lastWizardRun).toLocaleDateString()}`
+          : t('phase1.run_wizard'),
         icon: ShieldCheck,
       },
     ],
-    [canInstall, isInstalled, isOnline, summary],
+    [canInstall, isInstalled, isOnline, summary, t],
   );
 
   const handleInstall = async () => {
@@ -67,23 +69,23 @@ export const FarmerPhaseOneOverview = () => {
 
     if (result === "accepted") {
       toast({
-        title: "App installed",
-        description: "Farm Intellect is now ready from your home screen.",
+        title: t('phase1.install'),
+        description: t('phase1.installed_desc'),
       });
       return;
     }
 
     if (result === "dismissed") {
       toast({
-        title: "Install skipped",
-        description: "No worries — you can install the app whenever you're ready.",
+        title: t('phase1.install'),
+        description: t('phase1.can_install_desc'),
       });
       return;
     }
 
     toast({
-      title: "Install unavailable",
-      description: "Your browser has already installed the app or does not support the prompt.",
+      title: t('phase1.install'),
+      description: t('phase1.sw_desc'),
     });
   };
 
@@ -94,19 +96,19 @@ export const FarmerPhaseOneOverview = () => {
           <div>
             <CardTitle className="flex items-center gap-2 text-xl">
               <CheckCircle2 className="h-5 w-5 text-primary" />
-              Phase 1 rollout hub
+              {t('phase1.title')}
             </CardTitle>
             <CardDescription>
-              Multilingual, offline-first, planning, history, and schemes are now wired into the farmer journey.
+              {t('phase1.rollout_desc')}
             </CardDescription>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant={isOnline ? "default" : "secondary"}>
-              {isOnline ? "Network available" : "Working offline"}
+              {isOnline ? t('phase1.network_available') : t('phase1.working_offline')}
             </Badge>
             <Badge variant="outline" className="border-primary/30 text-primary">
               <Globe2 className="mr-1 h-3.5 w-3.5" />
-              9 farmer languages
+              {t('phase1.languages_badge')}
             </Badge>
           </div>
         </div>
@@ -126,14 +128,14 @@ export const FarmerPhaseOneOverview = () => {
         </div>
 
         <div className="flex flex-wrap gap-3">
-          <Button onClick={() => navigate("/farmer/calendar")}>Open crop planner</Button>
-          <Button variant="outline" onClick={() => navigate("/farmer/field-map")}>Review field history</Button>
-          <Button variant="outline" onClick={() => navigate("/farmer/schemes")}>Run scheme wizard</Button>
-          <Button variant="outline" onClick={() => navigate("/farmer/features")}>Open smart features</Button>
+          <Button onClick={() => navigate("/farmer/calendar")}>{t('phase1.open_planner')}</Button>
+          <Button variant="outline" onClick={() => navigate("/farmer/field-map")}>{t('phase1.review_history')}</Button>
+          <Button variant="outline" onClick={() => navigate("/farmer/schemes")}>{t('phase1.run_scheme')}</Button>
+          <Button variant="outline" onClick={() => navigate("/farmer/features")}>{t('phase1.open_features')}</Button>
           {canInstall && !isInstalled && (
             <Button variant="secondary" onClick={handleInstall}>
               <Download className="mr-2 h-4 w-4" />
-              Install farmer app
+              {t('phase1.install')}
             </Button>
           )}
         </div>

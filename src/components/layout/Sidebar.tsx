@@ -24,6 +24,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { AshokaChakra } from "@/components/ui/ashoka-chakra";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -31,50 +32,66 @@ interface SidebarProps {
   userRole?: string;
 }
 
-const navigationItems = {
+const getNavigationItems = (t: (key: string) => string) => ({
   farmer: [
-    { icon: LayoutDashboard, label: "🏠 My Farm Hub", href: "/farmer/dashboard" },
-    { icon: Wheat, label: "🌾 My Crops", href: "/farmer/crops" },
-    { icon: BookOpen, label: "📚 Advisory", href: "/farmer/advisory" },
-    { icon: CloudSun, label: "🌤 Weather", href: "/farmer/weather" },
-    { icon: Gauge, label: "📡 Sensors", href: "/farmer/sensors" },
-    { icon: Map, label: "🗺 Field Map", href: "/farmer/field-map" },
-    { icon: Building, label: "🏪 Merchants", href: "/farmer/merchants" },
-    { icon: Vote, label: "🗳 Polls", href: "/farmer/polls" },
-    { icon: Landmark, label: "🏛 Gov Schemes", href: "/farmer/schemes" },
-    { icon: Brain, label: "🧠 AI Advisory", href: "/farmer/ai-advisory" },
-    { icon: Activity, label: "🚀 Smart Features", href: "/farmer/features" },
-    { icon: Bot, label: "🤖 AI Assistant", href: "/farmer/chat" },
-    { icon: MessageSquare, label: "💬 Forum", href: "/farmer/forum" },
-    { icon: Calendar, label: "📅 Crop Calendar", href: "/farmer/calendar" },
-    { icon: FileText, label: "📄 Documents", href: "/farmer/documents" },
-    { icon: Bell, label: "🔔 Notifications", href: "/farmer/notifications" },
+    { icon: LayoutDashboard, label: t('nav.farm_hub'), href: "/farmer/dashboard" },
+    { icon: Wheat, label: t('nav.my_crops'), href: "/farmer/crops" },
+    { icon: BookOpen, label: `📚 ${t('nav.advisory')}`, href: "/farmer/advisory" },
+    { icon: CloudSun, label: `🌤 ${t('nav.weather')}`, href: "/farmer/weather" },
+    { icon: Gauge, label: `📡 ${t('nav.sensors')}`, href: "/farmer/sensors" },
+    { icon: Map, label: `🗺 ${t('nav.fieldmap')}`, href: "/farmer/field-map" },
+    { icon: Building, label: `🏪 ${t('nav.merchants')}`, href: "/farmer/merchants" },
+    { icon: Vote, label: `🗳 ${t('nav.polls')}`, href: "/farmer/polls" },
+    { icon: Landmark, label: `🏛 ${t('nav.schemes')}`, href: "/farmer/schemes" },
+    { icon: Brain, label: t('nav.ai_advisory'), href: "/farmer/ai-advisory" },
+    { icon: Activity, label: t('nav.smart_features'), href: "/farmer/features" },
+    { icon: Bot, label: t('nav.ai_assistant'), href: "/farmer/chat" },
+    { icon: MessageSquare, label: t('nav.forum'), href: "/farmer/forum" },
+    { icon: Calendar, label: t('nav.crop_calendar'), href: "/farmer/calendar" },
+    { icon: FileText, label: t('nav.documents'), href: "/farmer/documents" },
+    { icon: Bell, label: t('nav.notifications'), href: "/farmer/notifications" },
   ],
   merchant: [
-    { icon: LayoutDashboard, label: "🏢 Business Hub", href: "/merchant/dashboard" },
-    { icon: Users, label: "🤝 Partner Farmers", href: "/merchant/farmers" },
-    { icon: TrendingUp, label: "📈 Market Prices", href: "/merchant/market-prices" },
-    { icon: FileText, label: "📄 Documents", href: "/merchant/documents" },
-    { icon: Bell, label: "🔔 Notifications", href: "/merchant/notifications" },
+    { icon: LayoutDashboard, label: `🏢 ${t('sidebar.business_hub')}`, href: "/merchant/dashboard" },
+    { icon: Users, label: t('nav.partner_farmers'), href: "/merchant/farmers" },
+    { icon: TrendingUp, label: t('nav.market_prices'), href: "/merchant/market-prices" },
+    { icon: FileText, label: t('nav.documents'), href: "/merchant/documents" },
+    { icon: Bell, label: t('nav.notifications'), href: "/merchant/notifications" },
   ],
   expert: [
-    { icon: LayoutDashboard, label: "🎓 Expert Hub", href: "/expert/dashboard" },
-    { icon: Activity, label: "🔬 AI Crop Scanner", href: "/expert/ai-crop-scanner" },
-    { icon: Brain, label: "🧠 AI Advisory", href: "/expert/ai-advisory" },
-    { icon: Bot, label: "🤖 AI Assistant", href: "/expert/chat" },
-    { icon: Bell, label: "🔔 Notifications", href: "/expert/notifications" },
+    { icon: LayoutDashboard, label: `🎓 ${t('sidebar.expert_center')}`, href: "/expert/dashboard" },
+    { icon: Activity, label: t('nav.ai_crop_scanner'), href: "/expert/ai-crop-scanner" },
+    { icon: Brain, label: t('nav.ai_advisory'), href: "/expert/ai-advisory" },
+    { icon: Bot, label: t('nav.ai_assistant'), href: "/expert/chat" },
+    { icon: Bell, label: t('nav.notifications'), href: "/expert/notifications" },
   ],
   admin: [
-    { icon: LayoutDashboard, label: "🛡 Admin Center", href: "/admin/dashboard" },
-    { icon: Users, label: "👥 Users", href: "/admin/users" },
-    { icon: TrendingUp, label: "📊 Analytics", href: "/admin/analytics" },
-    { icon: Settings, label: "⚙️ Settings", href: "/admin/settings" },
-    { icon: Bell, label: "🔔 Notifications", href: "/admin/notifications" },
+    { icon: LayoutDashboard, label: t('sidebar.admin_control'), href: "/admin/dashboard" },
+    { icon: Users, label: t('nav.users'), href: "/admin/users" },
+    { icon: TrendingUp, label: t('nav.analytics'), href: "/admin/analytics" },
+    { icon: Settings, label: t('nav.settings'), href: "/admin/settings" },
+    { icon: Bell, label: t('nav.notifications'), href: "/admin/notifications" },
   ],
-};
+});
 
 export const Sidebar = ({ isOpen, onClose, userRole = "farmer" }: SidebarProps) => {
+  const { t } = useLanguage();
+  const navigationItems = getNavigationItems(t);
   const items = navigationItems[userRole as keyof typeof navigationItems] || navigationItems.farmer;
+
+  const portalTitle = {
+    farmer: t('sidebar.farmer_portal'),
+    merchant: t('sidebar.business_hub'),
+    expert: t('sidebar.expert_center'),
+    admin: t('sidebar.admin_control'),
+  }[userRole] || t('sidebar.farmer_portal');
+
+  const portalDesc = {
+    farmer: t('sidebar.farmer_desc'),
+    merchant: t('sidebar.business_desc'),
+    expert: t('sidebar.expert_desc'),
+    admin: t('sidebar.admin_desc'),
+  }[userRole] || t('sidebar.farmer_desc');
 
   return (
     <>
@@ -102,17 +119,11 @@ export const Sidebar = ({ isOpen, onClose, userRole = "farmer" }: SidebarProps) 
             <div className="flex items-center gap-2 mb-1">
               <AshokaChakra size={20} />
               <h3 className="font-semibold text-sm text-foreground">
-                {userRole === 'farmer' && '🚜 Farmer Portal'}
-                {userRole === 'merchant' && '🤝 Business Hub'}
-                {userRole === 'expert' && '🎓 Expert Center'}
-                {userRole === 'admin' && '🛡 Admin Control'}
+                {portalTitle}
               </h3>
             </div>
             <p className="text-xs text-muted-foreground">
-              {userRole === 'farmer' && 'Your farm management toolkit'}
-              {userRole === 'merchant' && 'Partner farmer connections'}
-              {userRole === 'expert' && 'AI-powered expertise'}
-              {userRole === 'admin' && 'Platform administration'}
+              {portalDesc}
             </p>
           </div>
           
