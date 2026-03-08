@@ -3,6 +3,7 @@ import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { FarmerPhaseOneOverview } from "@/components/dashboard/FarmerPhaseOneOverview";
 import { RoleDashboard } from "@/components/dashboard/RoleDashboard";
+import { FarmerConsultationForm } from "@/components/consultations/FarmerConsultationForm";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useLanguage } from "@/contexts/LanguageContext";
 import heroImage from "@/assets/hero-farming.jpg";
