@@ -174,8 +174,8 @@ export const EnhancedLogin = ({ onLogin }: EnhancedLoginProps) => {
 
     setIsOtpLoading(true);
     try {
-      // Demo phone OTP verification
-      if (otpMethod === 'phone' && demoOtpCode) {
+      // Demo phone OTP verification (SMS or WhatsApp)
+      if ((otpMethod === 'sms' || otpMethod === 'whatsapp') && demoOtpCode) {
         if (formData.otp !== demoOtpCode) {
           throw new Error("Invalid OTP code");
         }
