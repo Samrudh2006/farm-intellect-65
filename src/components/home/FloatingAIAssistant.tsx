@@ -366,7 +366,7 @@ export const FloatingAIAssistant = () => {
                     )}
                   </div>
                 </motion.div>
-              ))
+              ))}
               {isTyping && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-1 px-4 py-3 bg-muted rounded-2xl rounded-bl-md w-fit">
                   <span className="w-2 h-2 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: "0ms" }} />
