@@ -94,8 +94,8 @@ const Index = () => {
           >
             <source src="/video/hero-bg.mp4" type="video/mp4" />
           </video>
-          <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background/90" />
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-accent/10" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/75 to-background/95" />
+          <div className="absolute inset-0 bg-black/40" />
         </div>
 
         <div className="container mx-auto px-4 relative z-10">
