@@ -11,10 +11,14 @@
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="/favicon.png" type="image/png" />
 
-    <!-- Core fonts: Poppins (render-blocking, critical for FCP) -->
+    <!-- Core fonts: Poppins (non-render-blocking via preload + swap) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet" /></noscript>
+
+    <!-- LCP hint: preload hero image so browser discovers it from HTML immediately -->
+    <link rel="preload" as="image" href="/images/hero-farming.jpg" fetchpriority="high" />
 
     <!-- Deferred regional fonts (non-render-blocking) -->
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'" />
