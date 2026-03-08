@@ -56,6 +56,7 @@ const MerchantFarmers = lazy(() => import("./pages/merchant/MerchantFarmers"));
 const MerchantMarketPrices = lazy(() => import("./pages/merchant/MerchantMarketPrices"));
 const MerchantDocuments = lazy(() => import("./pages/merchant/MerchantDocuments"));
 const MerchantNotifications = lazy(() => import("./pages/merchant/MerchantNotifications"));
+const MerchantChat = lazy(() => import("./pages/merchant/MerchantChat"));
 
 const ExpertAICropScanner = lazy(() => import("./pages/expert/ExpertAICropScanner"));
 const ExpertAIAdvisory = lazy(() => import("./pages/expert/ExpertAIAdvisory"));
@@ -66,6 +67,7 @@ const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
 const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
 const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 const AdminNotifications = lazy(() => import("./pages/admin/AdminNotifications"));
+const AdminChat = lazy(() => import("./pages/admin/AdminChat"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
