@@ -16,7 +16,7 @@ import {
   ThumbsDown,
   StopCircle
 } from "lucide-react";
-import krishiLogo from "@/assets/krishi-ai-logo.png";
+import krishiAvatar from "@/assets/krishi-ai-avatar.png";
 import krishiAvatar from "@/assets/krishi-ai-avatar.png";
 import { streamChat, type AiMessage } from "@/lib/aiStream";
 import { toast } from "sonner";
