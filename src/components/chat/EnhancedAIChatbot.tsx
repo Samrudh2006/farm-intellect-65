@@ -347,7 +347,7 @@ export const EnhancedAIChatbot = () => {
                   key={i} 
                   variant="outline" 
                   size="sm" 
-                  onClick={() => setInputMessage(q)} 
+                  onClick={() => sendMessage(q)} 
                   className="text-xs hover:bg-primary/10 hover:border-primary transition-all"
                 >
                   {q}
