@@ -8,7 +8,7 @@ export const AmbientMusic = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    const audio = new Audio("/audio/birds.mp3");
+    const audio = new Audio("/audio/Silicon_Sitar.mp3");
     audio.loop = true;
     audio.volume = 0.2;
     audio.preload = "auto";
