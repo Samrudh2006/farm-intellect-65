@@ -143,6 +143,49 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family: 'Poppins', 'Noto Sans Devanagari', sans-serif;
+  }
+
+  /* RTL support for Urdu, Sindhi, Kashmiri */
+  html.rtl {
+    direction: rtl;
+  }
+  
+  html.rtl body {
+    font-family: 'Noto Nastaliq Urdu', 'Noto Sans Arabic', sans-serif;
+  }
+
+  /* RTL-specific adjustments */
+  html.rtl .md\:ml-64 {
+    margin-left: 0;
+    margin-right: 16rem;
+  }
+
+  html.rtl .space-x-2 > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-x-reverse: 1;
+  }
+
+  html.rtl .text-left {
+    text-align: right;
+  }
+
+  html.rtl .text-right {
+    text-align: left;
+  }
+
+  html.rtl .pl-10 {
+    padding-left: 0;
+    padding-right: 2.5rem;
+  }
+
+  html.rtl .mr-2 {
+    margin-right: 0;
+    margin-left: 0.5rem;
+  }
+
+  html.rtl .ml-2 {
+    margin-left: 0;
+    margin-right: 0.5rem;
   }
 }
 
