@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { LocationSelector } from "@/components/ui/location-selector";
 import { supabase } from "@/integrations/supabase/client";
 import { 
@@ -68,10 +69,10 @@ const getConditionIcon = (condition: string, size = "h-8 w-8") => {
 
 const getFarmCondition = (temp: number, humidity: number, wind: number, condition: string) => {
   const condLower = condition.toLowerCase();
-  if (condLower.includes("thunder") || wind > 40) return { label: "Poor", color: "text-red-600", bg: "bg-red-50" };
-  if (condLower.includes("rain") || condLower.includes("snow") || humidity > 90) return { label: "Moderate", color: "text-yellow-600", bg: "bg-yellow-50" };
-  if (temp > 10 && temp < 40 && humidity > 30 && humidity < 80) return { label: "Optimal for Growth", color: "text-green-600", bg: "bg-green-50" };
-  return { label: "Good", color: "text-green-600", bg: "bg-green-50" };
+  if (condLower.includes("thunder") || wind > 40) return { label: "poor", color: "text-destructive", bg: "bg-destructive/10" };
+  if (condLower.includes("rain") || condLower.includes("snow") || humidity > 90) return { label: "moderate", color: "text-harvest", bg: "bg-harvest/10" };
+  if (temp > 10 && temp < 40 && humidity > 30 && humidity < 80) return { label: "optimal", color: "text-primary", bg: "bg-primary/10" };
+  return { label: "good", color: "text-primary", bg: "bg-primary/10" };
 };
 
 const getMostCommon = (arr: string[]): string => {
@@ -83,6 +84,7 @@ const getMostCommon = (arr: string[]): string => {
 const Weather = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user } = useCurrentUser();
+  const { t } = useLanguage();
   const [location, setLocation] = useState(user?.location || "Chandigarh");
   const [currentWeather, setCurrentWeather] = useState<CurrentWeather | null>(null);
   const [forecast, setForecast] = useState<ForecastDay[]>([]);
@@ -140,7 +142,7 @@ const Weather = () => {
         const d = new Date(date);
         forecastDays.push({
           date,
-          dayName: i === 0 ? "Today" : d.toLocaleDateString("en-IN", { weekday: "short" }),
+          dayName: i === 0 ? t('calendar.today') : d.toLocaleDateString("en-IN", { weekday: "short" }),
           tempMax: Math.round(Math.max(...data.temps)),
           tempMin: Math.round(Math.min(...data.temps)),
           condition: getMostCommon(data.conditions),
@@ -201,7 +203,7 @@ const Weather = () => {
 
   const farmCondition = currentWeather
     ? getFarmCondition(currentWeather.temp, currentWeather.humidity, currentWeather.wind, currentWeather.condition)
-    : { label: "Loading...", color: "text-gray-500", bg: "bg-gray-50" };
+    : { label: "loading", color: "text-muted-foreground", bg: "bg-muted" };
 
   return (
     <div className="min-h-screen bg-background">
@@ -217,34 +219,34 @@ const Weather = () => {
       />
 
       <main className="md:ml-64 p-6">
-        <div className="space-y-6">
+        <div className="space-y-6 animate-fade-in">
           {/* Page Header */}
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
-              <h2 className="text-3xl font-bold text-foreground">Weather Station</h2>
+              <h2 className="text-3xl font-bold text-foreground">{t('weather.title')}</h2>
               <p className="text-muted-foreground flex items-center gap-2">
                 <MapPin className="h-4 w-4" />
-                {currentWeather?.location || location} • Real-time weather monitoring
+                {currentWeather?.location || location} • {t('weather.subtitle')}
               </p>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setShowLocationPicker(!showLocationPicker)}>
+              <Button variant="outline" onClick={() => setShowLocationPicker(!showLocationPicker)} className="hover:bg-primary/10">
                 <MapPin className="h-4 w-4 mr-2" />
-                Change Location
+                {t('weather.change_location')}
               </Button>
-              <Button variant="outline" onClick={() => fetchWeatherData(location)} disabled={loading}>
+              <Button variant="outline" onClick={() => fetchWeatherData(location)} disabled={loading} className="hover:bg-primary/10">
                 <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
-                Refresh
+                {t('weather.refresh')}
               </Button>
             </div>
           </div>
 
           {showLocationPicker && (
-            <Card>
+            <Card className="animate-slide-up">
               <CardContent className="pt-4">
-                <p className="text-sm text-muted-foreground mb-2">Search for a city across India:</p>
+                <p className="text-sm text-muted-foreground mb-2">{t('weather.search_city')}:</p>
                 <div className="max-w-md">
-                  <LocationSelector value={location} onChange={handleLocationChange} placeholder="Search city..." />
+                  <LocationSelector value={location} onChange={handleLocationChange} placeholder={t('common.search')} />
                 </div>
               </CardContent>
             </Card>
@@ -260,39 +262,39 @@ const Weather = () => {
             <>
               <div className="grid gap-6 lg:grid-cols-3">
                 <div className="lg:col-span-2">
-                  <Card>
+                  <Card className="tricolor-card">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         {getConditionIcon(currentWeather.condition, "h-5 w-5")}
-                        Weather Conditions
+                        {t('weather.conditions')}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                        <div className="text-center p-4 bg-blue-50 rounded-lg">
-                          <div className="text-3xl font-bold text-blue-600">{currentWeather.temp}°C</div>
+                        <div className="text-center p-4 bg-primary/10 rounded-lg transition-all hover:scale-105">
+                          <div className="text-3xl font-bold text-primary">{currentWeather.temp}°C</div>
                           <div className="text-xs text-muted-foreground capitalize">{currentWeather.description}</div>
-                          <div className="text-xs text-muted-foreground mt-1">Feels like {currentWeather.feelsLike}°C</div>
+                          <div className="text-xs text-muted-foreground mt-1">{t('weather.feels_like')} {currentWeather.feelsLike}°C</div>
                         </div>
-                        <div className={`text-center p-4 ${farmCondition.bg} rounded-lg`}>
-                          <div className={`text-2xl font-bold ${farmCondition.color}`}>{farmCondition.label}</div>
-                          <div className="text-sm text-muted-foreground">Farm Conditions</div>
+                        <div className={`text-center p-4 ${farmCondition.bg} rounded-lg transition-all hover:scale-105`}>
+                          <div className={`text-2xl font-bold ${farmCondition.color}`}>{t(`weather.${farmCondition.label}`)}</div>
+                          <div className="text-sm text-muted-foreground">{t('weather.farm_conditions')}</div>
                         </div>
-                        <div className="text-center p-4 bg-green-50 rounded-lg">
-                          <Droplets className="h-5 w-5 text-green-600 mx-auto mb-1" />
-                          <div className="text-2xl font-bold text-green-600">{currentWeather.humidity}%</div>
-                          <div className="text-sm text-muted-foreground">Humidity</div>
+                        <div className="text-center p-4 bg-primary/10 rounded-lg transition-all hover:scale-105">
+                          <Droplets className="h-5 w-5 text-primary mx-auto mb-1" />
+                          <div className="text-2xl font-bold text-primary">{currentWeather.humidity}%</div>
+                          <div className="text-sm text-muted-foreground">{t('weather.humidity')}</div>
                         </div>
-                        <div className="text-center p-4 bg-purple-50 rounded-lg">
-                          <Wind className="h-5 w-5 text-purple-600 mx-auto mb-1" />
-                          <div className="text-2xl font-bold text-purple-600">{currentWeather.wind} km/h</div>
-                          <div className="text-sm text-muted-foreground">Wind</div>
+                        <div className="text-center p-4 bg-accent/10 rounded-lg transition-all hover:scale-105">
+                          <Wind className="h-5 w-5 text-accent mx-auto mb-1" />
+                          <div className="text-2xl font-bold text-accent">{currentWeather.wind} km/h</div>
+                          <div className="text-sm text-muted-foreground">{t('weather.wind')}</div>
                         </div>
                       </div>
-                      <h4 className="font-semibold mb-3">5-Day Forecast</h4>
+                      <h4 className="font-semibold mb-3">{t('weather.forecast_5day')}</h4>
                       <div className="grid grid-cols-5 gap-2">
                         {forecast.slice(0, 5).map((day, idx) => (
-                          <div key={idx} className="text-center p-3 bg-gray-50 rounded-lg">
+                          <div key={idx} className="text-center p-3 bg-muted rounded-lg transition-all hover:scale-105 hover:bg-muted/80">
                             <div className="text-sm font-medium">{day.dayName}</div>
                             <div className="my-2 flex justify-center">{getConditionIcon(day.condition)}</div>
                             <div className="text-sm font-bold">{day.tempMax}°</div>
@@ -304,16 +306,16 @@ const Weather = () => {
                   </Card>
                 </div>
                 <div>
-                  <Card>
+                  <Card className="tricolor-card">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
-                        <Thermometer className="h-5 w-5 text-orange-500" />
-                        Weather Alerts
+                        <Thermometer className="h-5 w-5 text-accent" />
+                        {t('weather.alerts')}
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
                       {alerts.map((alert, idx) => (
-                        <div key={idx} className="space-y-2 p-3 rounded-lg border border-border">
+                        <div key={idx} className="space-y-2 p-3 rounded-lg border border-border transition-all hover:shadow-md">
                           <div className="flex items-center justify-between">
                             <h4 className="font-medium text-sm">{alert.title}</h4>
                             <Badge variant={getSeverityColor(alert.severity) as "destructive" | "secondary" | "outline"}>
@@ -325,7 +327,7 @@ const Weather = () => {
                       ))}
                       {alerts.length === 0 && (
                         <div className="text-center py-4">
-                          <p className="text-sm text-muted-foreground">No active weather alerts</p>
+                          <p className="text-sm text-muted-foreground">{t('weather.no_alerts')}</p>
                         </div>
                       )}
                     </CardContent>
@@ -334,11 +336,11 @@ const Weather = () => {
               </div>
 
               {/* Detailed Forecast */}
-              <Card>
+              <Card className="tricolor-card">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <TrendingUp className="h-5 w-5 text-primary" />
-                    Detailed Forecast
+                    {t('weather.detailed_forecast')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -346,9 +348,10 @@ const Weather = () => {
                     {forecast.map((day, index) => (
                       <div 
                         key={index} 
-                        className={`flex items-center justify-between p-4 rounded-lg border ${
-                          index === 0 ? "border-primary bg-primary/5" : "border-border"
+                        className={`flex items-center justify-between p-4 rounded-lg border transition-all hover:shadow-md ${
+                          index === 0 ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
                         }`}
+                        style={{ animationDelay: `${index * 50}ms` }}
                       >
                         <div className="flex items-center gap-4">
                           <div className="text-center min-w-[80px]">
@@ -365,7 +368,7 @@ const Weather = () => {
                         </div>
                         <div className="flex items-center gap-6 text-sm">
                           <div className="flex items-center gap-1">
-                            <Droplets className="h-4 w-4 text-blue-500" />
+                            <Droplets className="h-4 w-4 text-primary" />
                             <span>{day.rain}mm</span>
                           </div>
                           <div className="flex items-center gap-1">
@@ -373,8 +376,8 @@ const Weather = () => {
                             <span>{day.wind} km/h</span>
                           </div>
                           <div className="flex items-center gap-1">
-                            <div className="w-4 h-4 rounded-full bg-blue-100 flex items-center justify-center">
-                              <div className="w-2 h-2 rounded-full bg-blue-500" />
+                            <div className="w-4 h-4 rounded-full bg-primary/20 flex items-center justify-center">
+                              <div className="w-2 h-2 rounded-full bg-primary" />
                             </div>
                             <span>{day.humidity}%</span>
                           </div>
