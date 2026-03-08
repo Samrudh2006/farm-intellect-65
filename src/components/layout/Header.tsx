@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { AshokaChakra } from "@/components/ui/ashoka-chakra";
 import { LanguageSelector } from "@/components/ui/language-selector";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface HeaderProps {
   user?: {
@@ -26,9 +27,10 @@ interface HeaderProps {
 export const Header = ({ user, onMenuClick, notificationCount = 0 }: HeaderProps) => {
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const { signOut } = useAuth();
 
-  const handleSignOut = () => {
-    localStorage.removeItem("currentUser");
+  const handleSignOut = async () => {
+    await signOut();
     navigate("/login");
   };
 
@@ -62,7 +64,7 @@ export const Header = ({ user, onMenuClick, notificationCount = 0 }: HeaderProps
               <LanguageSelector />
             </div>
 
-            <Button variant="ghost" size="icon" className="relative">
+            <Button variant="ghost" size="icon" className="relative" onClick={() => navigate(`/${user?.role || "farmer"}/notifications`)}>
               <Bell className="h-5 w-5" />
               {notificationCount > 0 && (
                 <Badge
