@@ -33,6 +33,18 @@ const scaleIn = {
 
 const Index = () => {
   const { t } = useLanguage();
+  const { user, profile, loading } = useAuth();
+
+  // Auto-redirect authenticated users to their role dashboard
+  if (!loading && user && profile) {
+    const roleRoutes: Record<string, string> = {
+      farmer: "/farmer/dashboard",
+      merchant: "/merchant/dashboard",
+      expert: "/expert/dashboard",
+      admin: "/admin/dashboard",
+    };
+    return <Navigate to={roleRoutes[profile.role] || "/farmer/dashboard"} replace />;
+  }
 
   const features = [
     { icon: Brain, title: "AI-Powered Recommendations", description: "Get personalised crop advice powered by machine learning algorithms", iconBg: "bg-accent/10", iconColor: "text-accent" },
