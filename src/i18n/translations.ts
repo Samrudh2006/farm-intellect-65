@@ -860,7 +860,7 @@ const as_: Record<string, string> = {
   'auth.location': 'স্থান',
   'auth.login_success': 'পুনৰ আপোনাক স্বাগতম!',
   'auth.login_failed': 'লগইন বিফল',
-  'auth.signup_success': 'একাউণ্ট সৃষ্টি হ'ল!',
+  'auth.signup_success': 'একাউণ্ট সৃষ্টি হল!',
   'common.select_language': 'ভাষা বাছনি কৰক',
   'common.continue': 'আগবাঢ়ক',
   'common.cancel': 'বাতিল',
