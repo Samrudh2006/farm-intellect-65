@@ -277,9 +277,9 @@ export const EnhancedAIChatbot = () => {
               style={{ animationDelay: `${index * 50}ms` }}
             >
               {message.type === "assistant" && (
-                <Avatar className="w-8 h-8">
-                  <AvatarFallback className="bg-primary/10 p-0.5">
-                    <img src={krishiLogo} alt="Krishi AI" className="h-6 w-6 object-contain" />
+                <Avatar className="w-8 h-8 border border-primary/20">
+                  <AvatarFallback className="p-0 overflow-hidden">
+                    <img src={krishiAvatar} alt="Krishi AI" className="h-full w-full object-cover scale-110" />
                   </AvatarFallback>
                 </Avatar>
               )}
