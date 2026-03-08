@@ -151,6 +151,7 @@ const AnimatedRoutes = () => {
         <Route path="/merchant/market-prices" element={renderProtectedPage(MerchantMarketPrices, ["merchant"])} />
         <Route path="/merchant/documents" element={renderProtectedPage(MerchantDocuments, ["merchant"])} />
         <Route path="/merchant/notifications" element={renderProtectedPage(MerchantNotifications, ["merchant"])} />
+        <Route path="/merchant/chat" element={renderProtectedPage(MerchantChat, ["merchant"])} />
         <Route path="/merchant/profile" element={renderProtectedPage(Profile, ["merchant"])} />
         
         {/* Expert Routes */}
