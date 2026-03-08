@@ -1,8 +1,30 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Mic, MicOff, Loader2 } from "lucide-react";
+import { Mic, MicOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
+
+// Extend Window interface for SpeechRecognition
+interface SpeechRecognitionInstance extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  maxAlternatives: number;
+  lang: string;
+  start: () => void;
+  stop: () => void;
+  abort: () => void;
+  onstart: ((this: SpeechRecognitionInstance, ev: Event) => any) | null;
+  onresult: ((this: SpeechRecognitionInstance, ev: SpeechRecognitionEvent) => any) | null;
+  onerror: ((this: SpeechRecognitionInstance, ev: SpeechRecognitionErrorEvent) => any) | null;
+  onend: ((this: SpeechRecognitionInstance, ev: Event) => any) | null;
+}
+
+declare global {
+  interface Window {
+    SpeechRecognition: new () => SpeechRecognitionInstance;
+    webkitSpeechRecognition: new () => SpeechRecognitionInstance;
+  }
+}
 
 // Map app language codes to Web Speech API language codes
 const languageToSpeechCode: Record<string, string> = {
@@ -50,16 +72,16 @@ export const VoiceInput = ({
   const [isListening, setIsListening] = useState(false);
   const [isSupported, setIsSupported] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
 
   useEffect(() => {
     // Check for browser support
-    const SpeechRecognition =
-      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const SpeechRecognitionClass =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
     
-    if (SpeechRecognition) {
+    if (SpeechRecognitionClass) {
       setIsSupported(true);
-      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current = new SpeechRecognitionClass();
       recognitionRef.current.continuous = false;
       recognitionRef.current.interimResults = true;
       recognitionRef.current.maxAlternatives = 1;
