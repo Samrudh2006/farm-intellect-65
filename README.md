@@ -21,7 +21,7 @@
   <img src="https://img.shields.io/badge/22_Languages-Supported-FF9933?style=flat-square" alt="Languages" />
   <img src="https://img.shields.io/badge/4_Roles-Farmer_•_Expert_•_Merchant_•_Admin-138808?style=flat-square" alt="Roles" />
   <img src="https://img.shields.io/badge/Rating-9.4/10-gold?style=flat-square" alt="Rating" />
-  <img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" alt="License" />
+  <img src="https://img.shields.io/badge/License-All_Rights_Reserved-red?style=flat-square" alt="License" />
 </p>
 
 ---
