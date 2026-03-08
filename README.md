@@ -21,7 +21,7 @@
   <img src="https://img.shields.io/badge/22_Languages-Supported-FF9933?style=flat-square" alt="Languages" />
   <img src="https://img.shields.io/badge/4_Roles-Farmer_•_Expert_•_Merchant_•_Admin-138808?style=flat-square" alt="Roles" />
   <img src="https://img.shields.io/badge/Rating-9.4/10-gold?style=flat-square" alt="Rating" />
-  <img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" alt="License" />
+  <img src="https://img.shields.io/badge/License-All_Rights_Reserved-red?style=flat-square" alt="License" />
 </p>
 
 ---
@@ -33,10 +33,8 @@
 ### 🔐 Login — 4-Role Selector
 <img src="docs/screenshots/login-page.png" alt="Login Page with 4 Role Selection" width="100%" />
 
-### 🔐 Login — 4-Role Selector
-<img src="docs/screenshots/login-page.png" alt="Login Page with 4 Role Selection" width="100%" />
-
----
+### 🏠 Landing Page — Hero Section
+<img src="docs/screenshots/login-page.png" alt="Landing Page Hero with AI Features" width="100%" />
 
 
 
@@ -492,13 +490,26 @@ npm run lint
 
 ---
 
-## 📄 License
+## 📄 License & Copyright
 
-This project is open source. Curated agricultural datasets retain source attribution when reused.
+```
+© 2025 Samrudh. All Rights Reserved.
+```
+
+This project is **proprietary software**. No part of this software — including source code,
+documentation, datasets, AI prompts, designs, or any other materials — may be copied,
+modified, distributed, or used without **prior written authorization** from the Author.
+
+This repository is publicly visible for **demonstration and portfolio purposes only**.
+Public visibility does **NOT** grant any rights to use, copy, or create derivative works.
+
+See [LICENSE](LICENSE) for full terms and conditions.
+See [AUTHORS.md](AUTHORS.md) for authorship and intellectual property details.
 
 ---
 
 <p align="center">
+  <strong>© 2025 Samrudh. All Rights Reserved.</strong><br/>
   <strong>Made with 🇮🇳 for Indian Agriculture</strong><br/>
-  <em>Empowering farmers with AI-driven insights in their own language</em>
+  <em>Krishi AI — Farm Intellect | Empowering farmers with AI-driven insights in their own language 🌾</em>
 </p>
