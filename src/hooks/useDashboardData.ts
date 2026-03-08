@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { withOfflineCache, setCache } from "@/lib/offline-cache";
 
 export interface CropPlan {
   id: string;
