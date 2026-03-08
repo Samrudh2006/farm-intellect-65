@@ -111,9 +111,13 @@ export const EnhancedLogin = ({ onLogin }: EnhancedLoginProps) => {
     }
   };
 
-  // Phone OTP Sign In
+  // Demo OTP code - in production, integrate with Twilio via backend
+  const [demoOtpCode, setDemoOtpCode] = useState<string | null>(null);
+  const [otpMethod, setOtpMethod] = useState<'phone' | 'email'>('phone');
+
+  // Phone OTP Sign In - Uses demo mode since Twilio requires configuration
   const sendOTP = async () => {
-    if (!validatePhone(formData.phone)) {
+    if (otpMethod === 'phone' && !validatePhone(formData.phone)) {
       toast({
         title: "Invalid Phone",
         description: "Please enter a valid 10-digit phone number",
@@ -124,17 +128,36 @@ export const EnhancedLogin = ({ onLogin }: EnhancedLoginProps) => {
 
     setIsOtpLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithOtp({
-        phone: `+91${formData.phone}`,
-      });
-
-      if (error) throw error;
-
-      setOtpSent(true);
-      toast({
-        title: "OTP Sent",
-        description: "Please check your phone for the verification code",
-      });
+      // Generate demo OTP for phone (since Twilio not configured)
+      // In production, this would call your backend with Twilio integration
+      if (otpMethod === 'phone') {
+        const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+        setDemoOtpCode(generatedOtp);
+        setOtpSent(true);
+        
+        toast({
+          title: "📱 Demo OTP Sent",
+          description: (
+            <div className="space-y-1">
+              <p>Since Twilio is not configured, use this demo OTP:</p>
+              <p className="font-mono text-lg font-bold text-primary">{generatedOtp}</p>
+              <p className="text-xs text-muted-foreground">In production, this would be sent via SMS</p>
+            </div>
+          ) as any,
+          duration: 30000,
+        });
+      } else {
+        // Email OTP - works with Supabase built-in
+        const email = formData.phone.includes('@') ? formData.phone : `${formData.phone}@farmapp.local`;
+        const { error } = await supabase.auth.signInWithOtp({ email });
+        if (error) throw error;
+        
+        setOtpSent(true);
+        toast({
+          title: "OTP Sent",
+          description: "Check your email for the verification code",
+        });
+      }
     } catch (error: any) {
       console.error("OTP send error:", error);
       toast({
@@ -159,29 +182,86 @@ export const EnhancedLogin = ({ onLogin }: EnhancedLoginProps) => {
 
     setIsOtpLoading(true);
     try {
-      const { data, error } = await supabase.auth.verifyOtp({
-        phone: `+91${formData.phone}`,
-        token: formData.otp,
-        type: 'sms'
-      });
+      // Demo phone OTP verification
+      if (otpMethod === 'phone' && demoOtpCode) {
+        if (formData.otp !== demoOtpCode) {
+          throw new Error("Invalid OTP code");
+        }
+        
+        // Create or sign in user with phone-based email
+        const phoneEmail = `phone_${formData.phone}@farmapp.local`;
+        const tempPassword = `Phone_${formData.phone}_${Date.now()}`;
+        
+        // Try to sign up first
+        let authResult = await supabase.auth.signUp({
+          email: phoneEmail,
+          password: tempPassword,
+          options: {
+            data: {
+              phone: `+91${formData.phone}`,
+              display_name: formData.username || `User ${formData.phone.slice(-4)}`,
+              role: formData.role || 'farmer',
+              login_method: 'phone'
+            }
+          }
+        });
+        
+        // If user exists, sign in
+        if (authResult.error?.message?.includes('already registered')) {
+          authResult = await supabase.auth.signInWithPassword({
+            email: phoneEmail,
+            password: tempPassword,
+          });
+        }
+        
+        if (authResult.error && !authResult.error.message.includes('already registered')) {
+          throw authResult.error;
+        }
+        
+        const user = authResult.data?.user;
+        if (user) {
+          const userData = {
+            id: user.id,
+            username: user.user_metadata?.display_name || `Phone User ${formData.phone.slice(-4)}`,
+            role: formData.role || 'farmer',
+            loginMethod: 'phone',
+            isFirstLogin: true
+          };
 
-      if (error) throw error;
+          toast({
+            title: t('auth.login_success'),
+            description: "Phone verification successful!",
+          });
 
-      if (data.user) {
-        const userData = {
-          id: data.user.id,
-          username: data.user.phone || "Phone User",
-          role: formData.role || 'farmer',
-          loginMethod: 'phone',
-          isFirstLogin: true
-        };
-
-        toast({
-          title: t('auth.login_success'),
-          description: t('auth.phone_signin'),
+          onLogin(userData);
+        }
+      } else {
+        // Email OTP verification
+        const email = formData.phone.includes('@') ? formData.phone : `${formData.phone}@farmapp.local`;
+        const { data, error } = await supabase.auth.verifyOtp({
+          email,
+          token: formData.otp,
+          type: 'email'
         });
 
-        onLogin(userData);
+        if (error) throw error;
+
+        if (data.user) {
+          const userData = {
+            id: data.user.id,
+            username: data.user.user_metadata?.display_name || "User",
+            role: formData.role || 'farmer',
+            loginMethod: 'email_otp',
+            isFirstLogin: true
+          };
+
+          toast({
+            title: t('auth.login_success'),
+            description: t('auth.phone_signin'),
+          });
+
+          onLogin(userData);
+        }
       }
     } catch (error: any) {
       console.error("OTP verification error:", error);
@@ -192,6 +272,7 @@ export const EnhancedLogin = ({ onLogin }: EnhancedLoginProps) => {
       });
     } finally {
       setIsOtpLoading(false);
+      setDemoOtpCode(null);
     }
   };
 
