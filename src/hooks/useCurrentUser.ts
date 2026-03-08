@@ -49,13 +49,6 @@ export const useCurrentUser = (): {
       throw error;
     }
 
-    await supabase.from("notifications").insert({
-      user_id: authUser.id,
-      title: "Profile updated",
-      message: "Your account details were updated successfully.",
-      type: "success",
-    });
-
     await refreshProfile();
   };
 
