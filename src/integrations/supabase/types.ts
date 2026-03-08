@@ -14,6 +14,108 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_log: {
+        Row: {
+          action: string
+          action_type: string
+          created_at: string | null
+          id: string
+          metadata: Json | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          action_type: string
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          action_type?: string
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      crop_plans: {
+        Row: {
+          area_acres: number | null
+          created_at: string | null
+          crop_name: string
+          expected_harvest: string | null
+          id: string
+          notes: string | null
+          season: string
+          sowing_date: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          area_acres?: number | null
+          created_at?: string | null
+          crop_name: string
+          expected_harvest?: string | null
+          id?: string
+          notes?: string | null
+          season: string
+          sowing_date?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          area_acres?: number | null
+          created_at?: string | null
+          crop_name?: string
+          expected_harvest?: string | null
+          id?: string
+          notes?: string | null
+          season?: string
+          sowing_date?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      field_events: {
+        Row: {
+          created_at: string | null
+          event_date: string | null
+          event_description: string
+          event_type: string
+          field_name: string | null
+          id: string
+          metadata: Json | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          event_date?: string | null
+          event_description: string
+          event_type: string
+          field_name?: string | null
+          id?: string
+          metadata?: Json | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          event_date?: string | null
+          event_description?: string
+          event_type?: string
+          field_name?: string | null
+          id?: string
+          metadata?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -50,6 +152,36 @@ export type Database = {
         }
         Relationships: []
       }
+      scheme_matches: {
+        Row: {
+          eligibility_score: number | null
+          id: string
+          matched_at: string | null
+          scheme_name: string
+          scheme_type: string | null
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          eligibility_score?: number | null
+          id?: string
+          matched_at?: string | null
+          scheme_name: string
+          scheme_type?: string | null
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          eligibility_score?: number | null
+          id?: string
+          matched_at?: string | null
+          scheme_name?: string
+          scheme_type?: string | null
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -64,6 +196,42 @@ export type Database = {
         Update: {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_tasks: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          description: string | null
+          due_date: string | null
+          id: string
+          priority: string | null
+          status: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: string | null
+          status?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: string | null
+          status?: string | null
+          title?: string
           user_id?: string
         }
         Relationships: []
