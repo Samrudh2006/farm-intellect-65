@@ -7,7 +7,7 @@ import { AshokaChakra } from "@/components/ui/ashoka-chakra";
 import { FloatingAIAssistant } from "@/components/home/FloatingAIAssistant";
 import { LanguageSelector } from "@/components/ui/language-selector";
 import { useLanguage } from "@/contexts/LanguageContext";
-import heroImage from "@/assets/hero-farming.jpg";
+const heroImage = "/images/hero-farming.jpg";
 import { 
   Wheat, Brain, CloudSun, TrendingUp, Shield, Users,
   ArrowRight, CheckCircle, Sparkles, Zap, BarChart3, Leaf
