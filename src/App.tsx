@@ -57,17 +57,20 @@ const MerchantMarketPrices = lazy(() => import("./pages/merchant/MerchantMarketP
 const MerchantDocuments = lazy(() => import("./pages/merchant/MerchantDocuments"));
 const MerchantNotifications = lazy(() => import("./pages/merchant/MerchantNotifications"));
 const MerchantChat = lazy(() => import("./pages/merchant/MerchantChat"));
+const MerchantOrders = lazy(() => import("./pages/merchant/MerchantOrders"));
 
 const ExpertAICropScanner = lazy(() => import("./pages/expert/ExpertAICropScanner"));
 const ExpertAIAdvisory = lazy(() => import("./pages/expert/ExpertAIAdvisory"));
 const ExpertChat = lazy(() => import("./pages/expert/ExpertChat"));
 const ExpertNotifications = lazy(() => import("./pages/expert/ExpertNotifications"));
+const ExpertConsultations = lazy(() => import("./pages/expert/ExpertConsultations"));
 
 const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
 const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
 const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 const AdminNotifications = lazy(() => import("./pages/admin/AdminNotifications"));
 const AdminChat = lazy(() => import("./pages/admin/AdminChat"));
+const AdminAuditLog = lazy(() => import("./pages/admin/AdminAuditLog"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
