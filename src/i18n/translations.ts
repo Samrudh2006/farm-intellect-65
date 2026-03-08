@@ -379,7 +379,7 @@ const bn: Record<string, string> = full({
   'header.app_title': 'স্মার্ট ক্রপ অ্যাডভাইজরি',
 });
 
-const te: Record<string, string> = {
+const te: Record<string, string> = full({
   'auth.welcome': 'స్మార్ట్ క్రాప్ అడ్వైజరీకి స్వాగతం',
   'auth.signin_farmer': 'రైతుగా సైన్ ఇన్ చేయండి',
   'auth.signin_merchant': 'వ్యాపారిగా సైన్ ఇన్ చేయండి',
