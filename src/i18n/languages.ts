@@ -3,6 +3,54 @@ export type Language =
   | 'ml' | 'or' | 'as' | 'ur' | 'sa' | 'ne' | 'sd' | 'ks' | 'kok'
   | 'doi' | 'mai' | 'mni' | 'sat' | 'brx';
 
+// RTL languages: Urdu, Sindhi, Kashmiri (Arabic script)
+export const RTL_LANGUAGES: Language[] = ['ur', 'sd', 'ks'];
+
+export const isRTL = (lang: Language): boolean => RTL_LANGUAGES.includes(lang);
+
+// Font family mapping for each script
+export const getScriptFontFamily = (lang: Language): string => {
+  switch (lang) {
+    case 'hi':
+    case 'mr':
+    case 'sa':
+    case 'ne':
+    case 'kok':
+    case 'doi':
+    case 'mai':
+    case 'brx':
+      return "'Noto Sans Devanagari', 'Poppins', sans-serif";
+    case 'bn':
+    case 'as':
+      return "'Noto Sans Bengali', 'Poppins', sans-serif";
+    case 'ta':
+      return "'Noto Sans Tamil', 'Poppins', sans-serif";
+    case 'te':
+      return "'Noto Sans Telugu', 'Poppins', sans-serif";
+    case 'kn':
+      return "'Noto Sans Kannada', 'Poppins', sans-serif";
+    case 'ml':
+      return "'Noto Sans Malayalam', 'Poppins', sans-serif";
+    case 'gu':
+      return "'Noto Sans Gujarati', 'Poppins', sans-serif";
+    case 'pa':
+      return "'Noto Sans Gurmukhi', 'Poppins', sans-serif";
+    case 'or':
+      return "'Noto Sans Oriya', 'Poppins', sans-serif";
+    case 'ur':
+      return "'Noto Nastaliq Urdu', 'Noto Sans Arabic', sans-serif";
+    case 'sd':
+    case 'ks':
+      return "'Noto Sans Arabic', 'Noto Nastaliq Urdu', sans-serif";
+    case 'mni':
+      return "'Noto Sans Meetei Mayek', 'Poppins', sans-serif";
+    case 'sat':
+      return "'Noto Sans Ol Chiki', 'Poppins', sans-serif";
+    default:
+      return "'Poppins', sans-serif";
+  }
+};
+
 export const languageOptions: { code: Language; name: string; nativeName: string }[] = [
   { code: 'en', name: 'English', nativeName: 'English' },
   { code: 'hi', name: 'Hindi', nativeName: 'हिंदी' },
