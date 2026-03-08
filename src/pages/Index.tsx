@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AshokaChakra } from "@/components/ui/ashoka-chakra";
 import { FloatingAIAssistant } from "@/components/home/FloatingAIAssistant";
+import { ScrollReveal, CountUp, ParallaxFloat } from "@/components/home/ScrollReveal";
 import { LanguageSelector } from "@/components/ui/language-selector";
 import { useLanguage } from "@/contexts/LanguageContext";
 import heroImage from "@/assets/hero-farming.jpg";
