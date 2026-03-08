@@ -802,7 +802,7 @@ const kn: Record<string, string> = full({
   'phase1.crop_plans': 'ವೈಯಕ್ತಿಕ ಬೆಳೆ ಯೋಜನೆಗಳು',
   'phase1.field_history': 'ಹೊಲದ ಇತಿಹಾಸ ಟೈಮ್‌ಲೈನ್',
   'phase1.scheme_matches': 'ಯೋಜನೆ ಹೊಂದಾಣಿಕೆ',
-};
+});
 
 // Helper: create full translation by merging with English fallback
 function full(partial: Record<string, string>): Record<string, string> {
