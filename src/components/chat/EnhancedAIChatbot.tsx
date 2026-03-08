@@ -214,11 +214,11 @@ export const EnhancedAIChatbot = () => {
   };
 
   const quickQuestions = [
-    t('ai.quick_crop_season') || "Best crops for Rabi season in Punjab?",
-    t('ai.quick_pest_control') || "How to control aphids in mustard crop?",
-    t('ai.quick_fertilizer') || "NPK dosage for wheat PBW 725?",
-    t('ai.quick_msp') || "Current MSP for paddy 2025?",
-    t('ai.quick_soil') || "How to improve soil organic carbon?",
+    t('ai.quick_crop_season'),
+    t('ai.quick_pest_control'),
+    t('ai.quick_fertilizer'),
+    t('ai.quick_msp'),
+    t('ai.quick_soil'),
   ];
 
   return (
