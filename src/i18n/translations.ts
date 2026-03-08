@@ -102,6 +102,7 @@ const en: Record<string, string> = {
   'ai.listen_message': 'Listen to this message',
   'ai.copied': 'Copied!',
   'ai.powered_by': 'Powered by Krishi AI',
+  'ai.error_chat_failed': 'Chat is temporarily unavailable. Please try again.',
   'ai.clear_chat': 'Clear chat',
   'phase1.title': 'Phase 1 rollout hub',
   'phase1.description': 'Offline-ready tools, personalized planning, field history, and scheme guidance are active.',
