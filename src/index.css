@@ -96,49 +96,81 @@
   }
 
   .dark {
-    --background: 220 20% 5%;
-    --foreground: 0 0% 95%;
+    /* Deep warm charcoal with slight green-brown undertone — like rich Indian soil at night */
+    --background: 200 15% 6%;
+    --foreground: 35 20% 92%;
 
-    --card: 220 18% 8%;
-    --card-foreground: 0 0% 95%;
+    --card: 200 12% 9%;
+    --card-foreground: 35 20% 92%;
 
-    --popover: 220 18% 8%;
-    --popover-foreground: 0 0% 95%;
+    --popover: 200 12% 9%;
+    --popover-foreground: 35 20% 92%;
 
-    --primary: 145 55% 40%;
-    --primary-foreground: 0 0% 100%;
+    /* India Green — luminous in dark mode */
+    --primary: 145 60% 42%;
+    --primary-foreground: 200 15% 6%;
 
-    --secondary: 220 12% 14%;
-    --secondary-foreground: 0 0% 95%;
+    /* Warm earthy secondary */
+    --secondary: 25 18% 14%;
+    --secondary-foreground: 35 20% 90%;
 
-    --muted: 220 12% 14%;
-    --muted-foreground: 220 8% 58%;
+    /* Muted with warm undertone */
+    --muted: 25 12% 13%;
+    --muted-foreground: 35 12% 55%;
 
-    --accent: 24 85% 55%;
-    --accent-foreground: 0 0% 100%;
+    /* Saffron accent — glowing warmth in dark */
+    --accent: 24 90% 55%;
+    --accent-foreground: 200 15% 6%;
 
-    --destructive: 0 62% 35%;
-    --destructive-foreground: 0 0% 95%;
+    --destructive: 0 65% 42%;
+    --destructive-foreground: 35 20% 92%;
 
-    --border: 220 12% 16%;
-    --input: 220 12% 16%;
-    --ring: 145 55% 40%;
+    /* Warm borders */
+    --border: 25 10% 16%;
+    --input: 25 10% 16%;
+    --ring: 145 60% 42%;
 
-    --saffron: 24 85% 55%;
-    --saffron-foreground: 0 0% 100%;
-    --india-green: 145 55% 40%;
-    --india-green-foreground: 0 0% 100%;
-    --navy: 220 60% 50%;
-    --navy-foreground: 0 0% 100%;
+    /* Tricolor — vivid on dark */
+    --saffron: 24 90% 58%;
+    --saffron-foreground: 200 15% 6%;
+    --saffron-light: 24 50% 18%;
 
-    --sidebar-background: 220 18% 7%;
-    --sidebar-foreground: 0 0% 92%;
-    --sidebar-primary: 145 55% 40%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 12% 13%;
-    --sidebar-accent-foreground: 0 0% 92%;
-    --sidebar-border: 220 12% 15%;
-    --sidebar-ring: 145 55% 40%;
+    --india-green: 145 60% 42%;
+    --india-green-foreground: 200 15% 6%;
+    --india-green-light: 145 25% 14%;
+
+    --navy: 220 55% 55%;
+    --navy-foreground: 200 15% 6%;
+
+    --tricolor-white: 35 20% 88%;
+
+    /* Legacy */
+    --earth: 24 75% 50%;
+    --earth-foreground: 200 15% 6%;
+    --harvest: 40 85% 50%;
+    --harvest-foreground: 200 15% 6%;
+    --water: 220 55% 55%;
+    --water-foreground: 200 15% 6%;
+    --soil: 145 45% 30%;
+    --soil-foreground: 35 20% 92%;
+
+    /* Dark mode tricolor background gradient — subtle saffron top, green bottom */
+    --gradient-tricolor-bg: linear-gradient(180deg, hsl(24 90% 55% / 0.05) 0%, hsl(200 15% 6%) 30%, hsl(200 15% 6%) 70%, hsl(145 60% 42% / 0.05) 100%);
+
+    /* Shadows glow warmly */
+    --shadow-soft: 0 2px 10px hsl(145 60% 42% / 0.08);
+    --shadow-glow: 0 0 20px hsl(24 90% 55% / 0.15);
+    --shadow-tricolor: 0 4px 20px hsl(145 60% 42% / 0.1), 0 0 40px hsl(24 90% 55% / 0.05);
+
+    /* Sidebar — deep with green warmth */
+    --sidebar-background: 200 12% 7%;
+    --sidebar-foreground: 35 20% 90%;
+    --sidebar-primary: 145 60% 42%;
+    --sidebar-primary-foreground: 200 15% 6%;
+    --sidebar-accent: 25 18% 12%;
+    --sidebar-accent-foreground: 35 20% 90%;
+    --sidebar-border: 25 10% 14%;
+    --sidebar-ring: 145 60% 42%;
   }
 }
 
