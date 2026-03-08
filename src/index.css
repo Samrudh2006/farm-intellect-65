@@ -150,6 +150,9 @@
   body {
     @apply bg-background text-foreground;
     font-family: 'Poppins', 'Noto Sans Devanagari', sans-serif;
+    background-image: var(--gradient-tricolor-bg);
+    background-attachment: fixed;
+    min-height: 100vh;
   }
 
   /* RTL support for Urdu, Sindhi, Kashmiri */
