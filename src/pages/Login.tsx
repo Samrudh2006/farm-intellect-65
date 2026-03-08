@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Mail, Lock, User, Phone, MapPin, ArrowLeft, Eye, EyeOff, Smartphone } from "lucide-react";
+import { Mail, Lock, User, Phone, MapPin, ArrowLeft, Eye, EyeOff, Smartphone, Sun, Moon } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSelector } from "@/components/ui/language-selector";
 import { AshokaChakra } from "@/components/ui/ashoka-chakra";
