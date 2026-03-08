@@ -277,8 +277,8 @@ export const EnhancedAIChatbot = () => {
             >
               {message.type === "assistant" && (
                 <Avatar className="w-8 h-8">
-                  <AvatarFallback className="bg-primary/10">
-                    <Bot className="h-4 w-4 text-primary" />
+                  <AvatarFallback className="bg-primary/10 p-0.5">
+                    <img src={krishiLogo} alt="Krishi AI" className="h-6 w-6 object-contain" />
                   </AvatarFallback>
                 </Avatar>
               )}
