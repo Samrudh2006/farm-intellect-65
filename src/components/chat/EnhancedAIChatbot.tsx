@@ -257,11 +257,11 @@ export const EnhancedAIChatbot = () => {
                 setVoiceEnabled(!voiceEnabled);
               }} 
               className="h-8 w-8 p-0"
-              title={voiceEnabled ? "Disable voice responses" : "Enable voice responses"}
+              title={voiceEnabled ? t('ai.disable_voice') : t('ai.enable_voice')}
             >
               {voiceEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
             </Button>
-            <Button variant="ghost" size="sm" onClick={clearChat} className="h-8 w-8 p-0 hover:bg-destructive/10">
+            <Button variant="ghost" size="sm" onClick={clearChat} className="h-8 w-8 p-0 hover:bg-destructive/10" title={t('ai.clear_chat')}>
               <Trash2 className="h-4 w-4" />
             </Button>
           </div>
