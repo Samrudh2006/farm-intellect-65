@@ -215,23 +215,22 @@ export const FloatingAIAssistant = () => {
         animate={{ scale: 1 }}
         transition={{ delay: 1, type: "spring", stiffness: 200 }}
       >
-        <Button
+        <button
           onClick={() => setIsOpen(!isOpen)}
-          className="h-14 w-14 rounded-full shadow-xl bg-gradient-to-br from-accent to-primary text-white hover:shadow-2xl"
-          size="icon"
+          className="h-16 w-16 rounded-full shadow-xl hover:shadow-2xl transition-shadow overflow-hidden border-2 border-primary/30 bg-white p-0 focus:outline-none focus:ring-2 focus:ring-primary"
         >
           <AnimatePresence mode="wait">
             {isOpen ? (
-              <motion.div key="close" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }}>
-                <X className="h-6 w-6" />
+              <motion.div key="close" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} className="flex items-center justify-center h-full w-full bg-gradient-to-br from-accent to-primary">
+                <X className="h-6 w-6 text-white" />
               </motion.div>
             ) : (
-              <motion.div key="bot" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }}>
-                <img src={krishiLogo} alt="Krishi AI" className="h-6 w-6 object-contain" />
+              <motion.div key="bot" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} className="h-full w-full">
+                <img src={krishiLogo} alt="Krishi AI" className="h-full w-full object-cover rounded-full" />
               </motion.div>
             )}
           </AnimatePresence>
-        </Button>
+        </button>
         {!isOpen && (
           <span className="absolute inset-0 rounded-full animate-ping bg-accent/30 pointer-events-none" />
         )}
