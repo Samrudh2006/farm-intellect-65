@@ -385,7 +385,7 @@ export const EnhancedAIChatbot = () => {
               {isListening && <Badge variant="secondary" className="animate-pulse">🎤 {t('ai.listening')}</Badge>}
               {isSpeaking && <Badge variant="default" className="animate-pulse">🔊 {t('ai.speaking')}</Badge>}
             </span>
-            <Badge variant="secondary" className="text-xs">Powered by Krishi AI</Badge>
+            <Badge variant="secondary" className="text-xs">{t('ai.powered_by')}</Badge>
           </div>
         </div>
       </CardContent>
