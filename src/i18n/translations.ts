@@ -547,7 +547,7 @@ const ta: Record<string, string> = full({
   'phase1.crop_plans': 'தனிப்பயன் பயிர் திட்டங்கள்',
   'phase1.field_history': 'வயல் வரலாறு காலவரிசை',
   'phase1.scheme_matches': 'திட்ட பொருத்தம்',
-};
+});
 
 const mr: Record<string, string> = {
   'auth.welcome': 'स्मार्ट क्रॉप अॅडव्हायझरीमध्ये आपले स्वागत आहे',
