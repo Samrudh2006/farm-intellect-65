@@ -93,30 +93,20 @@ const Index = () => {
         </div>
       </motion.header>
 
-      {/* Hero Section with Background Video */}
+      {/* Hero Section with Background Image */}
       <section className="relative py-20 lg:py-32 overflow-hidden min-h-[85vh] flex items-center">
-        {/* Background Video with Image Fallback */}
+        {/* Background Image */}
         <div className="absolute inset-0 z-0">
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            poster="/images/hero-farming.jpg"
+          <img
+            src="/images/hero-farming.jpg"
+            alt="Indian farming landscape with golden wheat fields"
             className="w-full h-full object-cover"
-          >
-            <source src="/videos/krishi-ai-demo.mp4" type="video/mp4" />
-            {/* Fallback to image if video can't play */}
-            <img
-              src="/images/hero-farming.jpg"
-              alt="Indian farming landscape with golden wheat fields"
-              className="w-full h-full object-cover"
-              loading="eager"
-              fetchPriority="high"
-              width={1920}
-              height={1080}
-            />
-          </video>
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+            width={1920}
+            height={1080}
+          />
           <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background/90" />
           <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-accent/10" />
         </div>
