@@ -232,8 +232,8 @@ export const EnhancedAIChatbot = () => {
             <div>
               <CardTitle className="text-lg">{t('ai.title')}</CardTitle>
               <CardDescription className="flex items-center gap-2">
-                Real-time AI farming advice
-                {voiceEnabled && <Badge variant="outline" className="text-xs">🔊 Voice On</Badge>}
+                {t('ai.realtime_advice')}
+                {voiceEnabled && <Badge variant="outline" className="text-xs">🔊 {t('ai.voice_on')}</Badge>}
               </CardDescription>
             </div>
           </div>
