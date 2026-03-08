@@ -405,10 +405,6 @@ export const FloatingAIAssistant = () => {
                 </Button>
               </form>
             </div>
-                  <Send className="h-4 w-4" />
-                </Button>
-              </form>
-            </div>
           </motion.div>
         )}
       </AnimatePresence>
