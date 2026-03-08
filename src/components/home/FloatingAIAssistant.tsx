@@ -183,12 +183,70 @@ export const FloatingAIAssistant = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<any>(null);
   const { t, language } = useLanguage();
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // TTS: speak response aloud
+  const speakText = useCallback((text: string) => {
+    if (!("speechSynthesis" in window)) return;
+    window.speechSynthesis.cancel();
+    // Strip markdown formatting
+    const clean = text.replace(/[*#_~`>\[\]()!]/g, "").replace(/\n+/g, ". ");
+    const utterance = new SpeechSynthesisUtterance(clean.slice(0, 300));
+    const langMap: Record<string, string> = { en: "en-IN", hi: "hi-IN", bn: "bn-IN", te: "te-IN", ta: "ta-IN", pa: "pa-IN" };
+    utterance.lang = langMap[language] || "en-IN";
+    utterance.rate = 0.9;
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    window.speechSynthesis.speak(utterance);
+  }, [language]);
+
+  // Voice recognition
+  const toggleListening = useCallback(() => {
+    if (isListening && recognitionRef.current) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+      return;
+    }
+    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SR) return;
+    const recognition = new SR();
+    recognitionRef.current = recognition;
+    const langMap: Record<string, string> = { en: "en-IN", hi: "hi-IN", bn: "bn-IN", te: "te-IN", ta: "ta-IN", pa: "pa-IN" };
+    recognition.lang = langMap[language] || "en-IN";
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0]?.[0]?.transcript;
+      if (transcript) {
+        setInput(transcript);
+        // Auto-send after voice input
+        setTimeout(() => {
+          const userMsg: Message = { role: "user", content: transcript };
+          setMessages((prev) => [...prev, userMsg]);
+          setInput("");
+          setIsTyping(true);
+          setTimeout(() => {
+            const response = getSmartResponse(transcript, language);
+            setMessages((prev) => [...prev, { role: "assistant", content: response }]);
+            setIsTyping(false);
+            speakText(response);
+          }, 500 + Math.random() * 500);
+        }, 200);
+      }
+    };
+    recognition.onend = () => setIsListening(false);
+    recognition.onerror = () => setIsListening(false);
+    setIsListening(true);
+    recognition.start();
+  }, [isListening, language, speakText]);
 
   const handleSend = () => {
     if (!input.trim()) return;
