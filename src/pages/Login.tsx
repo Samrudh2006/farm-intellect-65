@@ -17,6 +17,7 @@ import heroImage from "@/assets/hero-farming.jpg";
 import farmerImg from "@/assets/roles/farmer-role.jpg";
 import merchantImg from "@/assets/roles/merchant-role.jpg";
 import expertImg from "@/assets/roles/expert-role.jpg";
+import adminImg from "@/assets/roles/admin-role.jpg";
 
 const Login = () => {
   const { t } = useLanguage();
@@ -117,6 +118,12 @@ const Login = () => {
         navigate(routes[userRole] || "/farmer/dashboard");
       }
     } else {
+      // Block admin self-registration
+      if (selectedRole === "admin") {
+        toast({ title: "Not Allowed", description: "Admin accounts cannot be created via self-registration. Contact your system administrator.", variant: "destructive" });
+        setLoading(false);
+        return;
+      }
       if (formData.password.length < 6) {
         toast({ title: t("auth.weak_password"), description: t("auth.password_min"), variant: "destructive" });
         setLoading(false);
@@ -152,6 +159,7 @@ const Login = () => {
     { role: "farmer", title: t("auth.signin_farmer"), image: farmerImg, description: t("auth.farmer_desc") },
     { role: "merchant", title: t("auth.signin_merchant"), image: merchantImg, description: t("auth.merchant_desc") },
     { role: "expert", title: t("auth.signin_expert"), image: expertImg, description: t("auth.expert_desc") },
+    { role: "admin", title: t("auth.signin_admin"), image: adminImg, description: t("auth.admin_desc") },
   ];
 
   // ROLE SELECTION SCREEN
