@@ -180,7 +180,7 @@ export const AnimatedHero = () => {
     <canvas
       ref={canvasRef}
       className="absolute inset-0 w-full h-full"
-      style={{ pointerEvents: "none" }}
+      style={{ pointerEvents: "none", willChange: "contents" }}
     />
   );
 };
