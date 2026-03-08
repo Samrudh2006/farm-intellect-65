@@ -1,173 +1,264 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Users, UserCheck, UserX, Shield, Settings } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Users, UserCheck, Shield, GraduationCap, Store, Search, RefreshCw } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { toast } from "sonner";
+
+interface UserWithRole {
+  user_id: string;
+  display_name: string;
+  email: string | null;
+  location: string | null;
+  created_at: string;
+  role: string;
+}
 
 const AdminUsers = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { user } = useCurrentUser();
+  const [users, setUsers] = useState<UserWithRole[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [roleFilter, setRoleFilter] = useState("all");
+  const [changingRole, setChangingRole] = useState<string | null>(null);
 
-  const user = {
-    name: "Admin User",
-    role: "admin",
+  const fetchUsers = async () => {
+    setLoading(true);
+    try {
+      const { data: profiles, error: profilesError } = await supabase
+        .from("profiles")
+        .select("user_id, display_name, email, location, created_at")
+        .order("created_at", { ascending: false });
+
+      if (profilesError) throw profilesError;
+
+      const { data: roles, error: rolesError } = await supabase
+        .from("user_roles")
+        .select("user_id, role");
+
+      if (rolesError) throw rolesError;
+
+      const roleMap = new Map(roles?.map((r) => [r.user_id, r.role]) || []);
+
+      const merged: UserWithRole[] = (profiles || []).map((p) => ({
+        ...p,
+        role: roleMap.get(p.user_id) || "farmer",
+      }));
+
+      setUsers(merged);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to load users");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const userStats = [
-    { icon: Users, label: "Total Users", value: "1,247", trend: "+15%" },
-    { icon: UserCheck, label: "Active Users", value: "1,156", trend: "+12%" },
-    { icon: UserX, label: "Pending Verification", value: "91", trend: "+8%" },
-    { icon: Shield, label: "Verified Experts", value: "23", trend: "+3%" }
-  ];
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
-  const recentUsers = [
-    {
-      id: 1,
-      name: "Rajesh Kumar",
-      email: "rajesh@email.com",
-      role: "farmer",
-      status: "active",
-      joinDate: "2024-01-15",
-      location: "Punjab"
-    },
-    {
-      id: 2,
-      name: "Merchant Corp",
-      email: "merchant@corp.com",
-      role: "merchant",
-      status: "pending",
-      joinDate: "2024-01-14",
-      location: "Delhi"
-    },
-    {
-      id: 3,
-      name: "Dr. Priya Sharma",
-      email: "priya@expert.com",
-      role: "expert",
-      status: "active",
-      joinDate: "2024-01-13",
-      location: "Haryana"
+  const handleRoleChange = async (targetUserId: string, newRole: string) => {
+    setChangingRole(targetUserId);
+    try {
+      const { error } = await supabase.rpc("admin_assign_role", {
+        _target_user_id: targetUserId,
+        _new_role: newRole as "farmer" | "merchant" | "expert" | "admin",
+      });
+      if (error) throw error;
+
+      // Update local state
+      setUsers((prev) =>
+        prev.map((u) => (u.user_id === targetUserId ? { ...u, role: newRole } : u))
+      );
+      toast.success(`Role updated to ${newRole}`);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to change role");
+    } finally {
+      setChangingRole(null);
     }
-  ];
+  };
 
-  const getRoleColor = (role: string) => {
+  const filteredUsers = users.filter((u) => {
+    const matchesSearch =
+      !searchQuery ||
+      u.display_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (u.email?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false);
+    const matchesRole = roleFilter === "all" || u.role === roleFilter;
+    return matchesSearch && matchesRole;
+  });
+
+  const roleCounts = {
+    total: users.length,
+    farmer: users.filter((u) => u.role === "farmer").length,
+    merchant: users.filter((u) => u.role === "merchant").length,
+    expert: users.filter((u) => u.role === "expert").length,
+    admin: users.filter((u) => u.role === "admin").length,
+  };
+
+  const getRoleBadge = (role: string) => {
+    const styles: Record<string, string> = {
+      farmer: "bg-primary/15 text-primary border-primary/30",
+      merchant: "bg-accent/15 text-accent border-accent/30",
+      expert: "bg-navy/15 text-navy border-navy/30",
+      admin: "bg-destructive/15 text-destructive border-destructive/30",
+    };
+    return styles[role] || "bg-muted text-muted-foreground";
+  };
+
+  const getRoleIcon = (role: string) => {
     switch (role) {
-      case "farmer": return "bg-green-100 text-green-800";
-      case "merchant": return "bg-blue-100 text-blue-800";
-      case "expert": return "bg-purple-100 text-purple-800";
-      case "admin": return "bg-red-100 text-red-800";
-      default: return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active": return "bg-green-100 text-green-800";
-      case "pending": return "bg-yellow-100 text-yellow-800";
-      case "suspended": return "bg-red-100 text-red-800";
-      default: return "bg-gray-100 text-gray-800";
+      case "farmer": return <UserCheck className="h-4 w-4" />;
+      case "merchant": return <Store className="h-4 w-4" />;
+      case "expert": return <GraduationCap className="h-4 w-4" />;
+      case "admin": return <Shield className="h-4 w-4" />;
+      default: return <Users className="h-4 w-4" />;
     }
   };
 
   return (
     <div className="min-h-screen bg-background">
-      <Header 
-        user={user}
-        onMenuClick={() => setSidebarOpen(!sidebarOpen)}
-        notificationCount={3}
-      />
-      
-      <Sidebar 
-        isOpen={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-        userRole={user.role}
-      />
+      <Header user={{ name: user.name, role: "admin" }} onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} userRole="admin" />
 
-      <main className="md:ml-64 p-6">
-        <div className="space-y-6">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-gradient-saffron-navy">
-              👥 User Management Center
-            </h1>
-            <p className="text-muted-foreground text-lg mt-2">
-              Oversee platform community and user verification
-            </p>
+      <main className="md:ml-64 pt-16 p-6">
+        <div className="max-w-7xl mx-auto space-y-6">
+          <div>
+            <h1 className="text-3xl font-bold text-gradient-saffron-navy">👥 User Management</h1>
+            <p className="text-muted-foreground mt-1">Manage all platform users and roles</p>
           </div>
 
-          {/* User Statistics */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {userStats.map((stat, index) => (
-              <Card key={index} className="hover:shadow-lg transition-all duration-200 hover:scale-105 border-l-4 border-l-primary/20">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">{stat.label}</CardTitle>
-                  <div className="p-2 rounded-full bg-primary/10">
-                    <stat.icon className="h-4 w-4 text-primary" />
+          {/* Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            {[
+              { label: "Total", count: roleCounts.total, icon: Users, color: "text-foreground" },
+              { label: "Farmers", count: roleCounts.farmer, icon: UserCheck, color: "text-primary" },
+              { label: "Merchants", count: roleCounts.merchant, icon: Store, color: "text-accent" },
+              { label: "Experts", count: roleCounts.expert, icon: GraduationCap, color: "text-navy" },
+              { label: "Admins", count: roleCounts.admin, icon: Shield, color: "text-destructive" },
+            ].map((s) => (
+              <Card key={s.label} className="tricolor-card">
+                <CardContent className="p-4 flex items-center gap-3">
+                  <s.icon className={`h-5 w-5 ${s.color}`} />
+                  <div>
+                    <p className="text-2xl font-bold">{s.count}</p>
+                    <p className="text-xs text-muted-foreground">{s.label}</p>
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                    {stat.value}
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    <span className="text-green-600 font-medium">{stat.trend}</span>
-                    {" from last month"}
-                  </p>
                 </CardContent>
               </Card>
             ))}
           </div>
 
-          {/* User Management Table */}
+          {/* Filters */}
           <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Recent User Registrations</CardTitle>
-                <Button variant="outline" size="sm">
-                  <Settings className="h-4 w-4 mr-2" />
-                  Manage All Users
+            <CardContent className="p-4">
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search by name or email..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                <Select value={roleFilter} onValueChange={setRoleFilter}>
+                  <SelectTrigger className="w-[160px]">
+                    <SelectValue placeholder="Filter by role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Roles</SelectItem>
+                    <SelectItem value="farmer">Farmers</SelectItem>
+                    <SelectItem value="merchant">Merchants</SelectItem>
+                    <SelectItem value="expert">Experts</SelectItem>
+                    <SelectItem value="admin">Admins</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button variant="outline" onClick={fetchUsers} disabled={loading}>
+                  <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
+                  Refresh
                 </Button>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* User List */}
+          <Card>
+            <CardHeader>
+              <CardTitle>All Users ({filteredUsers.length})</CardTitle>
+              <CardDescription>Click a role badge to change user's role</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {recentUsers.map((userData) => (
-                  <div key={userData.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <Avatar>
-                        <AvatarImage src="" />
-                        <AvatarFallback className="bg-primary text-primary-foreground">
-                          {userData.name.split(' ').map(n => n[0]).join('')}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="font-medium">{userData.name}</div>
-                        <div className="text-sm text-muted-foreground">{userData.email}</div>
-                        <div className="text-xs text-muted-foreground">{userData.location} • Joined {userData.joinDate}</div>
+              {loading ? (
+                <div className="flex justify-center py-12">
+                  <RefreshCw className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : filteredUsers.length === 0 ? (
+                <p className="text-center text-muted-foreground py-8">No users found</p>
+              ) : (
+                <div className="space-y-3">
+                  {filteredUsers.map((u) => (
+                    <div
+                      key={u.user_id}
+                      className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg hover:bg-muted/30 transition-colors gap-3"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-10 w-10">
+                          <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                            {u.display_name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")
+                              .toUpperCase()
+                              .slice(0, 2)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-medium">{u.display_name}</p>
+                          <p className="text-sm text-muted-foreground">{u.email || "No email"}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {u.location || "Unknown"} • Joined{" "}
+                            {new Date(u.created_at).toLocaleDateString("en-IN", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge className={`${getRoleBadge(u.role)} border`}>
+                          {getRoleIcon(u.role)}
+                          <span className="ml-1 capitalize">{u.role}</span>
+                        </Badge>
+                        <Select
+                          value={u.role}
+                          onValueChange={(val) => handleRoleChange(u.user_id, val)}
+                          disabled={changingRole === u.user_id}
+                        >
+                          <SelectTrigger className="w-[130px] h-8 text-xs">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="farmer">🌾 Farmer</SelectItem>
+                            <SelectItem value="merchant">🏢 Merchant</SelectItem>
+                            <SelectItem value="expert">🎓 Expert</SelectItem>
+                            <SelectItem value="admin">🛡️ Admin</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Badge className={getRoleColor(userData.role)}>
-                        {userData.role}
-                      </Badge>
-                      <Badge className={getStatusColor(userData.status)}>
-                        {userData.status}
-                      </Badge>
-                      <div className="flex gap-1">
-                        <Button size="sm" variant="outline">
-                          View
-                        </Button>
-                        {userData.status === "pending" && (
-                          <Button size="sm" variant="default">
-                            Approve
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

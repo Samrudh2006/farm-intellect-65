@@ -56,6 +56,7 @@ const MerchantFarmers = lazy(() => import("./pages/merchant/MerchantFarmers"));
 const MerchantMarketPrices = lazy(() => import("./pages/merchant/MerchantMarketPrices"));
 const MerchantDocuments = lazy(() => import("./pages/merchant/MerchantDocuments"));
 const MerchantNotifications = lazy(() => import("./pages/merchant/MerchantNotifications"));
+const MerchantChat = lazy(() => import("./pages/merchant/MerchantChat"));
 
 const ExpertAICropScanner = lazy(() => import("./pages/expert/ExpertAICropScanner"));
 const ExpertAIAdvisory = lazy(() => import("./pages/expert/ExpertAIAdvisory"));
@@ -66,6 +67,7 @@ const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
 const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
 const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 const AdminNotifications = lazy(() => import("./pages/admin/AdminNotifications"));
+const AdminChat = lazy(() => import("./pages/admin/AdminChat"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -149,6 +151,7 @@ const AnimatedRoutes = () => {
         <Route path="/merchant/market-prices" element={renderProtectedPage(MerchantMarketPrices, ["merchant"])} />
         <Route path="/merchant/documents" element={renderProtectedPage(MerchantDocuments, ["merchant"])} />
         <Route path="/merchant/notifications" element={renderProtectedPage(MerchantNotifications, ["merchant"])} />
+        <Route path="/merchant/chat" element={renderProtectedPage(MerchantChat, ["merchant"])} />
         <Route path="/merchant/profile" element={renderProtectedPage(Profile, ["merchant"])} />
         
         {/* Expert Routes */}
@@ -163,6 +166,7 @@ const AnimatedRoutes = () => {
         <Route path="/admin/dashboard" element={renderProtectedPage(AdminDashboardPage, ["admin"])} />
         <Route path="/admin/users" element={renderProtectedPage(AdminUsers, ["admin"])} />
         <Route path="/admin/analytics" element={renderProtectedPage(AdminAnalytics, ["admin"])} />
+        <Route path="/admin/chat" element={renderProtectedPage(AdminChat, ["admin"])} />
         <Route path="/admin/settings" element={renderProtectedPage(AdminSettings, ["admin"])} />
         <Route path="/admin/notifications" element={renderProtectedPage(AdminNotifications, ["admin"])} />
         <Route path="/admin/profile" element={renderProtectedPage(Profile, ["admin"])} />
