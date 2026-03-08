@@ -804,14 +804,7 @@ const kn: Record<string, string> = full({
   'phase1.scheme_matches': 'ಯೋಜನೆ ಹೊಂದಾಣಿಕೆ',
 });
 
-// Helper: create full translation by merging with English fallback
-function full(partial: Record<string, string>): Record<string, string> {
-  const result: Record<string, string> = {};
-  for (const key of Object.keys(en)) {
-    result[key] = partial[key] || en[key];
-  }
-  return result;
-}
+
 
 const ml: Record<string, string> = full({
   'auth.welcome': 'സ്മാർട്ട് ക്രോപ്പ് അഡ്വൈസറിയിലേക്ക് സ്വാഗതം',
