@@ -227,7 +227,7 @@ export const FloatingAIAssistant = () => {
               </motion.div>
             ) : (
               <motion.div key="bot" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} className="h-full w-full">
-                <img src={krishiLogo} alt="Krishi AI" className="h-full w-full object-cover rounded-full" />
+                <img src={krishiAvatar} alt="Krishi AI" className="h-full w-full object-cover rounded-full scale-125" />
               </motion.div>
             )}
           </AnimatePresence>
