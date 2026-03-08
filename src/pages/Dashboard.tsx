@@ -6,6 +6,7 @@ import { StatCard } from "@/components/ui/stat-card";
 import { WeatherWidget } from "@/components/dashboard/WeatherWidget";
 import { CropStatusWidget } from "@/components/dashboard/CropStatusWidget";
 import { AIRecommendations } from "@/components/dashboard/AIRecommendations";
+import { SmartInsights } from "@/components/dashboard/SmartInsights";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -137,6 +138,9 @@ const Dashboard = () => {
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
+              {/* AI Smart Insights */}
+              <SmartInsights />
+              
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 <div className="lg:col-span-2 space-y-6">
                   <CropStatusWidget />

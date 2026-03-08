@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Send, Sparkles } from "lucide-react";
+import { X, Send, Sparkles, Mic, MicOff, Volume2 } from "lucide-react";
 import krishiLogo from "@/assets/krishi-ai-logo.png";
 import krishiAvatar from "@/assets/krishi-ai-avatar.png";
 import { Button } from "@/components/ui/button";
@@ -183,12 +183,70 @@ export const FloatingAIAssistant = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<any>(null);
   const { t, language } = useLanguage();
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // TTS: speak response aloud
+  const speakText = useCallback((text: string) => {
+    if (!("speechSynthesis" in window)) return;
+    window.speechSynthesis.cancel();
+    // Strip markdown formatting
+    const clean = text.replace(/[*#_~`>\[\]()!]/g, "").replace(/\n+/g, ". ");
+    const utterance = new SpeechSynthesisUtterance(clean.slice(0, 300));
+    const langMap: Record<string, string> = { en: "en-IN", hi: "hi-IN", bn: "bn-IN", te: "te-IN", ta: "ta-IN", pa: "pa-IN" };
+    utterance.lang = langMap[language] || "en-IN";
+    utterance.rate = 0.9;
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    window.speechSynthesis.speak(utterance);
+  }, [language]);
+
+  // Voice recognition
+  const toggleListening = useCallback(() => {
+    if (isListening && recognitionRef.current) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+      return;
+    }
+    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SR) return;
+    const recognition = new SR();
+    recognitionRef.current = recognition;
+    const langMap: Record<string, string> = { en: "en-IN", hi: "hi-IN", bn: "bn-IN", te: "te-IN", ta: "ta-IN", pa: "pa-IN" };
+    recognition.lang = langMap[language] || "en-IN";
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0]?.[0]?.transcript;
+      if (transcript) {
+        setInput(transcript);
+        // Auto-send after voice input
+        setTimeout(() => {
+          const userMsg: Message = { role: "user", content: transcript };
+          setMessages((prev) => [...prev, userMsg]);
+          setInput("");
+          setIsTyping(true);
+          setTimeout(() => {
+            const response = getSmartResponse(transcript, language);
+            setMessages((prev) => [...prev, { role: "assistant", content: response }]);
+            setIsTyping(false);
+            speakText(response);
+          }, 500 + Math.random() * 500);
+        }, 200);
+      }
+    };
+    recognition.onend = () => setIsListening(false);
+    recognition.onerror = () => setIsListening(false);
+    setIsListening(true);
+    recognition.start();
+  }, [isListening, language, speakText]);
 
   const handleSend = () => {
     if (!input.trim()) return;
@@ -287,14 +345,25 @@ export const FloatingAIAssistant = () => {
                   animate={{ opacity: 1, y: 0 }}
                   className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                 >
-                  <div
-                    className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm whitespace-pre-line ${
-                      msg.role === "user"
-                        ? "bg-primary text-primary-foreground rounded-br-md"
-                        : "bg-muted text-foreground rounded-bl-md"
-                    }`}
-                  >
-                    {msg.content}
+                  <div className="relative group">
+                    <div
+                      className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm whitespace-pre-line ${
+                        msg.role === "user"
+                          ? "bg-primary text-primary-foreground rounded-br-md"
+                          : "bg-muted text-foreground rounded-bl-md"
+                      }`}
+                    >
+                      {msg.content}
+                    </div>
+                    {msg.role === "assistant" && (
+                      <button
+                        onClick={() => speakText(msg.content)}
+                        className="absolute -bottom-1 -right-1 p-1 rounded-full bg-card border border-border shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-accent/10"
+                        title="Listen to response"
+                      >
+                        <Volume2 className={`h-3 w-3 ${isSpeaking ? "text-accent animate-pulse" : "text-muted-foreground"}`} />
+                      </button>
+                    )}
                   </div>
                 </motion.div>
               ))}
@@ -314,14 +383,24 @@ export const FloatingAIAssistant = () => {
                 onSubmit={(e) => { e.preventDefault(); handleSend(); }}
                 className="flex gap-2"
               >
+                <Button
+                  type="button"
+                  size="icon"
+                  variant={isListening ? "destructive" : "outline"}
+                  onClick={toggleListening}
+                  className={`flex-shrink-0 rounded-full h-9 w-9 ${isListening ? "animate-pulse" : ""}`}
+                  title={isListening ? "Stop listening" : "Voice input"}
+                >
+                  {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                </Button>
                 <Input
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder={t("ai.placeholder")}
+                  placeholder={isListening ? "🎙️ Listening..." : t("ai.placeholder")}
                   className="flex-1 text-sm"
                   disabled={isTyping}
                 />
-                <Button type="submit" size="icon" disabled={!input.trim() || isTyping} className="bg-accent text-accent-foreground hover:bg-accent/90">
+                <Button type="submit" size="icon" disabled={!input.trim() || isTyping} className="bg-accent text-accent-foreground hover:bg-accent/90 h-9 w-9">
                   <Send className="h-4 w-4" />
                 </Button>
               </form>

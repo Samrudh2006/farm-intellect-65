@@ -10,6 +10,7 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { AppErrorBoundary } from "@/components/system/AppErrorBoundary";
 import { AmbientMusic } from "@/components/ui/ambient-music";
+import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 
 type AppRole = "farmer" | "merchant" | "expert" | "admin";
 
@@ -204,6 +205,7 @@ const App = () => (
             <BrowserRouter>
               <AnimatedRoutes />
               <AmbientMusic />
+              <InstallPrompt />
             </BrowserRouter>
           </TooltipProvider>
         </AuthProvider>
