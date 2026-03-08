@@ -464,7 +464,7 @@ const te: Record<string, string> = full({
   'phase1.scheme_matches': 'పథక అనుసంధానం',
 });
 
-const ta: Record<string, string> = {
+const ta: Record<string, string> = full({
   'auth.welcome': 'ஸ்மார்ட் க்ராப் அட்வைசரிக்கு வரவேற்கிறோம்',
   'auth.signin_farmer': 'விவசாயியாக உள்நுழைக',
   'auth.signin_merchant': 'வணிகராக உள்நுழைக',
