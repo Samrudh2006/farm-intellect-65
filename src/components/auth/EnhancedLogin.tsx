@@ -577,20 +577,37 @@ export const EnhancedLogin = ({ onLogin }: EnhancedLoginProps) => {
                 {isLogin ? t('auth.signin') : t('auth.signup')}
               </Button>
               
-              <Button 
-                type="button" 
-                onClick={sendOTP} 
-                variant="outline" 
-                className="w-full hover:bg-accent/10 transition-all"
-                disabled={isOtpLoading || !formData.phone}
-              >
-                {isOtpLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                ) : (
-                  <Phone className="h-4 w-4 mr-2" />
-                )}
-                {t('auth.phone_signin')}
-              </Button>
+              {/* OTP Method selector */}
+              <div className="flex gap-2">
+                <Button 
+                  type="button" 
+                  onClick={() => { setOtpMethod('sms'); sendOTP(); }} 
+                  variant="outline" 
+                  className="flex-1 hover:bg-accent/10 transition-all"
+                  disabled={isOtpLoading || !formData.phone}
+                >
+                  {isOtpLoading && otpMethod === 'sms' ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <Phone className="h-4 w-4 mr-2" />
+                  )}
+                  SMS OTP
+                </Button>
+                <Button 
+                  type="button" 
+                  onClick={() => { setOtpMethod('whatsapp'); sendOTP(); }} 
+                  variant="outline" 
+                  className="flex-1 hover:bg-green-500/10 border-green-500/30 transition-all"
+                  disabled={isOtpLoading || !formData.phone}
+                >
+                  {isOtpLoading && otpMethod === 'whatsapp' ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <MessageCircle className="h-4 w-4 mr-2 text-green-600" />
+                  )}
+                  WhatsApp OTP
+                </Button>
+              </div>
               
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
-import { AIChatbot } from "@/components/chat/AIChatbot";
+import { EnhancedAIChatbot } from "@/components/chat/EnhancedAIChatbot";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 
@@ -27,12 +27,12 @@ const Chat = () => {
       <main className="md:ml-64 p-6">
         <div className="space-y-6">
           <div>
-            <h2 className="text-3xl font-bold text-foreground">AI Assistant</h2>
+            <h2 className="text-3xl font-bold text-foreground">{t('ai.title') || "AI Assistant"}</h2>
             <p className="text-muted-foreground">
-              Get instant help and expert advice from our AI-powered farming assistant
+              {t('ai.description') || "Get instant help and expert advice from our AI-powered farming assistant"}
             </p>
           </div>
-          <AIChatbot />
+          <EnhancedAIChatbot />
         </div>
       </main>
     </div>
