@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { LocationSelector } from "@/components/ui/location-selector";
+import { supabase } from "@/integrations/supabase/client";
 import { 
   CloudSun, 
   MapPin, 
@@ -21,8 +22,6 @@ import {
   RefreshCw,
   Loader2
 } from "lucide-react";
-
-const OWM_API_KEY = import.meta.env.VITE_OWM_API_KEY as string;
 
 interface CurrentWeather {
   temp: number;
