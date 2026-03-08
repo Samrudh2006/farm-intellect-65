@@ -14,39 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      notifications: {
-        Row: {
-          created_at: string
-          data: Json | null
-          id: string
-          is_read: boolean
-          message: string
-          title: string
-          type: Database["public"]["Enums"]["notification_type"]
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          data?: Json | null
-          id?: string
-          is_read?: boolean
-          message: string
-          title: string
-          type?: Database["public"]["Enums"]["notification_type"]
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          data?: Json | null
-          id?: string
-          is_read?: boolean
-          message?: string
-          title?: string
-          type?: Database["public"]["Enums"]["notification_type"]
-          user_id?: string
-        }
-        Relationships: []
-      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -120,7 +87,6 @@ export type Database = {
     }
     Enums: {
       app_role: "farmer" | "merchant" | "expert" | "admin"
-      notification_type: "info" | "warning" | "error" | "success" | "reminder"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -249,7 +215,6 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["farmer", "merchant", "expert", "admin"],
-      notification_type: ["info", "warning", "error", "success", "reminder"],
     },
   },
 } as const
