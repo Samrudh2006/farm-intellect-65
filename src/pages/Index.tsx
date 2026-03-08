@@ -45,9 +45,9 @@ const Index = () => {
   ];
 
   const stats = [
-    { icon: Users, value: "10,000+", label: "Active Farmers", color: "text-primary", bg: "bg-primary/10" },
-    { icon: TrendingUp, value: "35%", label: "Average Yield Increase", color: "text-accent", bg: "bg-accent/10" },
-    { icon: Shield, value: "98%", label: "Problem Detection Rate", color: "text-navy", bg: "bg-navy/10" },
+    { icon: Users, value: 10000, suffix: "+", label: "Active Farmers", color: "text-primary", bg: "bg-primary/10" },
+    { icon: TrendingUp, value: 35, suffix: "%", label: "Average Yield Increase", color: "text-accent", bg: "bg-accent/10" },
+    { icon: Shield, value: 98, suffix: "%", label: "Problem Detection Rate", color: "text-navy", bg: "bg-navy/10" },
   ];
 
   return (
