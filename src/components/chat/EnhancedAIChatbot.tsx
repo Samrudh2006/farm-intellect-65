@@ -381,9 +381,9 @@ export const EnhancedAIChatbot = () => {
           </div>
           <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
             <span className="flex items-center gap-2">
-              {t('ai.press_enter') || "Press Enter to send"}
-              {isListening && <Badge variant="secondary" className="animate-pulse">🎤 {t('ai.listening') || "Listening..."}</Badge>}
-              {isSpeaking && <Badge variant="default" className="animate-pulse">🔊 {t('ai.speaking') || "Speaking..."}</Badge>}
+              {t('ai.press_enter')}
+              {isListening && <Badge variant="secondary" className="animate-pulse">🎤 {t('ai.listening')}</Badge>}
+              {isSpeaking && <Badge variant="default" className="animate-pulse">🔊 {t('ai.speaking')}</Badge>}
             </span>
             <Badge variant="secondary" className="text-xs">Powered by Krishi AI</Badge>
           </div>
