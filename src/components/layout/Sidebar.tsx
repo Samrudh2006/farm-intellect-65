@@ -153,6 +153,13 @@ export const Sidebar = ({ isOpen, onClose, userRole = "farmer" }: SidebarProps) 
               </NavLink>
             ))}
           </nav>
+
+          {/* Copyright */}
+          <div className="mt-auto pt-4 border-t border-border">
+            <p className="text-[10px] text-muted-foreground text-center leading-tight">
+              © 2025 Samrudh. All Rights Reserved.
+            </p>
+          </div>
         </div>
 
         {/* Tricolor bottom bar */}
