@@ -597,13 +597,13 @@ export const EnhancedLogin = ({ onLogin }: EnhancedLoginProps) => {
                   type="button" 
                   onClick={() => { setOtpMethod('whatsapp'); sendOTP(); }} 
                   variant="outline" 
-                  className="flex-1 hover:bg-green-500/10 border-green-500/30 transition-all"
+                  className="flex-1 hover:bg-accent/10 border-accent/30 transition-all"
                   disabled={isOtpLoading || !formData.phone}
                 >
                   {isOtpLoading && otpMethod === 'whatsapp' ? (
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
                   ) : (
-                    <MessageCircle className="h-4 w-4 mr-2 text-green-600" />
+                    <MessageCircle className="h-4 w-4 mr-2 text-accent" />
                   )}
                   WhatsApp OTP
                 </Button>
