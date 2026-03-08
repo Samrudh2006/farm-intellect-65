@@ -11,7 +11,7 @@ export const AmbientMusic = () => {
     const audio = new Audio("/audio/Silicon_Sitar.mp3");
     audio.loop = true;
     audio.volume = 0.2;
-    audio.preload = "auto";
+    audio.preload = "none";
     audio.addEventListener("canplaythrough", () => setReady(true));
     audio.addEventListener("error", (e) => console.warn("Ambient audio failed to load", e));
     audioRef.current = audio;

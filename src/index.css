@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap');
+/* Fonts loaded via index.html <link> for faster rendering */
 
 @tailwind base;
 @tailwind components;
