@@ -8,7 +8,7 @@ import { FloatingAIAssistant } from "@/components/home/FloatingAIAssistant";
 import { ScrollReveal, CountUp, ParallaxFloat } from "@/components/home/ScrollReveal";
 import { LanguageSelector } from "@/components/ui/language-selector";
 import { useLanguage } from "@/contexts/LanguageContext";
-import heroImage from "@/assets/hero-farming.jpg";
+
 import { 
   Wheat, Brain, CloudSun, TrendingUp, Shield, Users,
   ArrowRight, CheckCircle, Sparkles, Zap, BarChart3, Leaf
@@ -85,13 +85,15 @@ const Index = () => {
       <section className="relative py-20 lg:py-32 overflow-hidden min-h-[85vh] flex items-center">
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
-          <img
-            src={heroImage}
-            alt="Indian farming landscape with golden wheat fields"
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
             className="w-full h-full object-cover"
-            loading="eager"
-            fetchPriority="high"
-          />
+          >
+            <source src="/video/hero-bg.mp4" type="video/mp4" />
+          </video>
           <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background/90" />
           <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-accent/10" />
         </div>
