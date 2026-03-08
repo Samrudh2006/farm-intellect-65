@@ -345,17 +345,28 @@ export const FloatingAIAssistant = () => {
                   animate={{ opacity: 1, y: 0 }}
                   className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                 >
-                  <div
-                    className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm whitespace-pre-line ${
-                      msg.role === "user"
-                        ? "bg-primary text-primary-foreground rounded-br-md"
-                        : "bg-muted text-foreground rounded-bl-md"
-                    }`}
-                  >
-                    {msg.content}
+                  <div className="relative group">
+                    <div
+                      className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm whitespace-pre-line ${
+                        msg.role === "user"
+                          ? "bg-primary text-primary-foreground rounded-br-md"
+                          : "bg-muted text-foreground rounded-bl-md"
+                      }`}
+                    >
+                      {msg.content}
+                    </div>
+                    {msg.role === "assistant" && (
+                      <button
+                        onClick={() => speakText(msg.content)}
+                        className="absolute -bottom-1 -right-1 p-1 rounded-full bg-card border border-border shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-accent/10"
+                        title="Listen to response"
+                      >
+                        <Volume2 className={`h-3 w-3 ${isSpeaking ? "text-accent animate-pulse" : "text-muted-foreground"}`} />
+                      </button>
+                    )}
                   </div>
                 </motion.div>
-              ))}
+              ))
               {isTyping && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-1 px-4 py-3 bg-muted rounded-2xl rounded-bl-md w-fit">
                   <span className="w-2 h-2 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: "0ms" }} />
