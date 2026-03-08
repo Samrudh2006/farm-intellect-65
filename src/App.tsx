@@ -165,6 +165,7 @@ const AnimatedRoutes = () => {
         <Route path="/expert/ai-advisory" element={renderProtectedPage(ExpertAIAdvisory, ["expert"])} />
         <Route path="/expert/chat" element={renderProtectedPage(ExpertChat, ["expert"])} />
         <Route path="/expert/consultations" element={renderProtectedPage(ExpertConsultations, ["expert"])} />
+        <Route path="/expert/knowledge" element={renderProtectedPage(ExpertKnowledgeHub, ["expert"])} />
         <Route path="/expert/notifications" element={renderProtectedPage(ExpertNotifications, ["expert"])} />
         <Route path="/expert/profile" element={renderProtectedPage(Profile, ["expert"])} />
         
