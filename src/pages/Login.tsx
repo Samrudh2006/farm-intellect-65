@@ -118,6 +118,12 @@ const Login = () => {
         navigate(routes[userRole] || "/farmer/dashboard");
       }
     } else {
+      // Block admin self-registration
+      if (selectedRole === "admin") {
+        toast({ title: "Not Allowed", description: "Admin accounts cannot be created via self-registration. Contact your system administrator.", variant: "destructive" });
+        setLoading(false);
+        return;
+      }
       if (formData.password.length < 6) {
         toast({ title: t("auth.weak_password"), description: t("auth.password_min"), variant: "destructive" });
         setLoading(false);
