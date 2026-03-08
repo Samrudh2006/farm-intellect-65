@@ -57,17 +57,20 @@ const MerchantMarketPrices = lazy(() => import("./pages/merchant/MerchantMarketP
 const MerchantDocuments = lazy(() => import("./pages/merchant/MerchantDocuments"));
 const MerchantNotifications = lazy(() => import("./pages/merchant/MerchantNotifications"));
 const MerchantChat = lazy(() => import("./pages/merchant/MerchantChat"));
+const MerchantOrders = lazy(() => import("./pages/merchant/MerchantOrders"));
 
 const ExpertAICropScanner = lazy(() => import("./pages/expert/ExpertAICropScanner"));
 const ExpertAIAdvisory = lazy(() => import("./pages/expert/ExpertAIAdvisory"));
 const ExpertChat = lazy(() => import("./pages/expert/ExpertChat"));
 const ExpertNotifications = lazy(() => import("./pages/expert/ExpertNotifications"));
+const ExpertConsultations = lazy(() => import("./pages/expert/ExpertConsultations"));
 
 const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
 const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
 const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 const AdminNotifications = lazy(() => import("./pages/admin/AdminNotifications"));
 const AdminChat = lazy(() => import("./pages/admin/AdminChat"));
+const AdminAuditLog = lazy(() => import("./pages/admin/AdminAuditLog"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -152,6 +155,7 @@ const AnimatedRoutes = () => {
         <Route path="/merchant/documents" element={renderProtectedPage(MerchantDocuments, ["merchant"])} />
         <Route path="/merchant/notifications" element={renderProtectedPage(MerchantNotifications, ["merchant"])} />
         <Route path="/merchant/chat" element={renderProtectedPage(MerchantChat, ["merchant"])} />
+        <Route path="/merchant/orders" element={renderProtectedPage(MerchantOrders, ["merchant"])} />
         <Route path="/merchant/profile" element={renderProtectedPage(Profile, ["merchant"])} />
         
         {/* Expert Routes */}
@@ -159,6 +163,7 @@ const AnimatedRoutes = () => {
         <Route path="/expert/ai-crop-scanner" element={renderProtectedPage(ExpertAICropScanner, ["expert"])} />
         <Route path="/expert/ai-advisory" element={renderProtectedPage(ExpertAIAdvisory, ["expert"])} />
         <Route path="/expert/chat" element={renderProtectedPage(ExpertChat, ["expert"])} />
+        <Route path="/expert/consultations" element={renderProtectedPage(ExpertConsultations, ["expert"])} />
         <Route path="/expert/notifications" element={renderProtectedPage(ExpertNotifications, ["expert"])} />
         <Route path="/expert/profile" element={renderProtectedPage(Profile, ["expert"])} />
         
@@ -166,6 +171,7 @@ const AnimatedRoutes = () => {
         <Route path="/admin/dashboard" element={renderProtectedPage(AdminDashboardPage, ["admin"])} />
         <Route path="/admin/users" element={renderProtectedPage(AdminUsers, ["admin"])} />
         <Route path="/admin/analytics" element={renderProtectedPage(AdminAnalytics, ["admin"])} />
+        <Route path="/admin/audit-log" element={renderProtectedPage(AdminAuditLog, ["admin"])} />
         <Route path="/admin/chat" element={renderProtectedPage(AdminChat, ["admin"])} />
         <Route path="/admin/settings" element={renderProtectedPage(AdminSettings, ["admin"])} />
         <Route path="/admin/notifications" element={renderProtectedPage(AdminNotifications, ["admin"])} />
