@@ -153,6 +153,7 @@ const Login = () => {
     { role: "farmer", title: t("auth.signin_farmer"), image: farmerImg, description: t("auth.farmer_desc") },
     { role: "merchant", title: t("auth.signin_merchant"), image: merchantImg, description: t("auth.merchant_desc") },
     { role: "expert", title: t("auth.signin_expert"), image: expertImg, description: t("auth.expert_desc") },
+    { role: "admin", title: t("auth.signin_admin"), image: adminImg, description: t("auth.admin_desc") },
   ];
 
   // ROLE SELECTION SCREEN
