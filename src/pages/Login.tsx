@@ -23,7 +23,20 @@ const Login = () => {
   const { t } = useLanguage();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { signUp, signIn } = useAuth();
+  const { signUp, signIn, user, profile, loading: authLoading } = useAuth();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (!authLoading && user && profile) {
+      const routes: Record<string, string> = {
+        farmer: "/farmer/dashboard",
+        merchant: "/merchant/dashboard",
+        expert: "/expert/dashboard",
+        admin: "/admin/dashboard",
+      };
+      navigate(routes[profile.role] || "/farmer/dashboard", { replace: true });
+    }
+  }, [authLoading, user, profile, navigate]);
   const [isLogin, setIsLogin] = useState(true);
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
