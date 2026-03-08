@@ -634,7 +634,7 @@ const mr: Record<string, string> = full({
   'phase1.scheme_matches': 'योजना जुळणी',
 });
 
-const gu: Record<string, string> = {
+const gu: Record<string, string> = full({
   'auth.welcome': 'સ્માર્ટ ક્રોપ એડવાઈઝરીમાં આપનું સ્વાગત છે',
   'auth.signin_farmer': 'ખેડૂત તરીકે સાઈન ઇન કરો',
   'auth.signin_merchant': 'વેપારી તરીકે સાઈન ઇન કરો',
