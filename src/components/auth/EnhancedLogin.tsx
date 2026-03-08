@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CreditCard, Phone, Eye, EyeOff, Shield, User, Loader2 } from "lucide-react";
+import { CreditCard, Phone, Eye, EyeOff, Shield, User, Loader2, MessageCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { lovable } from "@/integrations/lovable/index";
@@ -113,11 +113,11 @@ export const EnhancedLogin = ({ onLogin }: EnhancedLoginProps) => {
 
   // Demo OTP code - in production, integrate with Twilio via backend
   const [demoOtpCode, setDemoOtpCode] = useState<string | null>(null);
-  const [otpMethod, setOtpMethod] = useState<'phone' | 'email'>('phone');
+  const [otpMethod, setOtpMethod] = useState<'sms' | 'whatsapp' | 'email'>('sms');
 
-  // Phone OTP Sign In - Uses demo mode since Twilio requires configuration
+  // Phone OTP Sign In - Supports SMS and WhatsApp
   const sendOTP = async () => {
-    if (otpMethod === 'phone' && !validatePhone(formData.phone)) {
+    if (!validatePhone(formData.phone)) {
       toast({
         title: "Invalid Phone",
         description: "Please enter a valid 10-digit phone number",
@@ -128,36 +128,28 @@ export const EnhancedLogin = ({ onLogin }: EnhancedLoginProps) => {
 
     setIsOtpLoading(true);
     try {
-      // Generate demo OTP for phone (since Twilio not configured)
-      // In production, this would call your backend with Twilio integration
-      if (otpMethod === 'phone') {
-        const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
-        setDemoOtpCode(generatedOtp);
-        setOtpSent(true);
-        
-        toast({
-          title: "📱 Demo OTP Sent",
-          description: (
-            <div className="space-y-1">
-              <p>Since Twilio is not configured, use this demo OTP:</p>
-              <p className="font-mono text-lg font-bold text-primary">{generatedOtp}</p>
-              <p className="text-xs text-muted-foreground">In production, this would be sent via SMS</p>
-            </div>
-          ) as any,
-          duration: 30000,
-        });
-      } else {
-        // Email OTP - works with Supabase built-in
-        const email = formData.phone.includes('@') ? formData.phone : `${formData.phone}@farmapp.local`;
-        const { error } = await supabase.auth.signInWithOtp({ email });
-        if (error) throw error;
-        
-        setOtpSent(true);
-        toast({
-          title: "OTP Sent",
-          description: "Check your email for the verification code",
-        });
-      }
+      // Generate demo OTP (in production, this would call Twilio API via edge function)
+      const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+      setDemoOtpCode(generatedOtp);
+      setOtpSent(true);
+      
+      const methodLabel = otpMethod === 'whatsapp' ? 'WhatsApp' : 'SMS';
+      const methodIcon = otpMethod === 'whatsapp' ? '💬' : '📱';
+      
+      toast({
+        title: `${methodIcon} Demo ${methodLabel} OTP`,
+        description: (
+          <div className="space-y-1">
+            <p>Since Twilio is not configured, use this demo OTP:</p>
+            <p className="font-mono text-lg font-bold text-primary">{generatedOtp}</p>
+            <p className="text-xs text-muted-foreground">
+              In production, this would be sent via {methodLabel}
+              {otpMethod === 'whatsapp' && " to WhatsApp number +91" + formData.phone}
+            </p>
+          </div>
+        ) as any,
+        duration: 30000,
+      });
     } catch (error: any) {
       console.error("OTP send error:", error);
       toast({
