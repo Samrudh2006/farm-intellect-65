@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Mail, Lock, User, Phone, MapPin, ArrowLeft, Eye, EyeOff, Smartphone } from "lucide-react";
+import { Mail, Lock, User, Phone, MapPin, ArrowLeft, Eye, EyeOff, Smartphone, Sun, Moon } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSelector } from "@/components/ui/language-selector";
 import { AshokaChakra } from "@/components/ui/ashoka-chakra";
@@ -181,7 +181,19 @@ const Login = () => {
       <div className="min-h-screen bg-background">
         <div className="tricolor-bar h-1.5" />
         <div className="container mx-auto px-4 py-8">
-          <div className="flex justify-end mb-6">
+          <div className="flex justify-end gap-2 mb-6">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                const isDark = document.documentElement.classList.toggle("dark");
+                localStorage.setItem("theme", isDark ? "dark" : "light");
+              }}
+              aria-label="Toggle dark mode"
+            >
+              <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+              <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            </Button>
             <LanguageSelector />
           </div>
           <div className="text-center mb-10">
@@ -265,7 +277,21 @@ const Login = () => {
             <Button variant="ghost" onClick={() => setSelectedRole(null)} className="gap-2">
               <ArrowLeft className="h-4 w-4" /> {t("common.back")}
             </Button>
-            <LanguageSelector />
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  const isDark = document.documentElement.classList.toggle("dark");
+                  localStorage.setItem("theme", isDark ? "dark" : "light");
+                }}
+                aria-label="Toggle dark mode"
+              >
+                <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+              </Button>
+              <LanguageSelector />
+            </div>
           </div>
           <div className="flex items-center justify-center gap-3 mb-6">
             <AshokaChakra size={32} />
