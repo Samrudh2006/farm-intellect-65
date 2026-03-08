@@ -389,6 +389,7 @@ const hi: Record<string, string> = full({
   'ai.listen_message': 'यह संदेश सुनें',
   'ai.copied': 'कॉपी किया!',
   'ai.powered_by': 'Krishi AI द्वारा संचालित',
+  'ai.error_chat_failed': 'चैट अभी उपलब्ध नहीं है। कृपया फिर से प्रयास करें।',
   'ai.clear_chat': 'चैट साफ़ करें',
   'phase1.title': 'फेज 1 रोलआउट हब',
   'phase1.description': 'ऑफलाइन उपयोग, व्यक्तिगत योजना, खेत इतिहास और योजना मार्गदर्शन अब उपलब्ध हैं।',
