@@ -31,6 +31,9 @@ const FarmerDashboard = () => {
           </div>
         </div>
         <FarmerPhaseOneOverview />
+        <div className="mt-6">
+          <FarmerConsultationForm />
+        </div>
         <RoleDashboard userRole="farmer" />
       </main>
     </div>
