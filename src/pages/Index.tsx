@@ -7,7 +7,7 @@ import { AshokaChakra } from "@/components/ui/ashoka-chakra";
 import { FloatingAIAssistant } from "@/components/home/FloatingAIAssistant";
 import { LanguageSelector } from "@/components/ui/language-selector";
 import { useLanguage } from "@/contexts/LanguageContext";
-const heroImage = "/images/hero-farming.jpg";
+import heroImage from "@/assets/hero-farming.jpg";
 import { 
   Wheat, Brain, CloudSun, TrendingUp, Shield, Users,
   ArrowRight, CheckCircle, Sparkles, Zap, BarChart3, Leaf
@@ -89,6 +89,7 @@ const Index = () => {
             alt="Indian farming landscape with golden wheat fields"
             className="w-full h-full object-cover"
             loading="eager"
+            fetchPriority="high"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background/90" />
           <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-accent/10" />
