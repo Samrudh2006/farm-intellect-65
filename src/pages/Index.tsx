@@ -323,6 +323,9 @@ const Index = () => {
             <p className="text-muted-foreground">
               Empowering farmers with intelligent technology for sustainable agriculture 🇮🇳
             </p>
+            <p className="text-xs text-muted-foreground/70 mt-4">
+              © 2025 Samrudh. All Rights Reserved.
+            </p>
           </motion.div>
         </div>
         <div className="tricolor-bar h-1.5 mt-8" />
