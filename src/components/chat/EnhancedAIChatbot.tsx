@@ -206,7 +206,7 @@ export const EnhancedAIChatbot = () => {
   
   const copyMessage = (content: string) => {
     navigator.clipboard.writeText(content);
-    toast.success("Copied!");
+    toast.success(t('ai.copied'));
   };
 
   const speakMessage = (content: string) => {
