@@ -41,6 +41,51 @@ export type Database = {
         }
         Relationships: []
       }
+      consultations: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string
+          expert_id: string | null
+          farmer_id: string
+          id: string
+          priority: string | null
+          resolution: string | null
+          resolved_at: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description: string
+          expert_id?: string | null
+          farmer_id: string
+          id?: string
+          priority?: string | null
+          resolution?: string | null
+          resolved_at?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string
+          expert_id?: string | null
+          farmer_id?: string
+          id?: string
+          priority?: string | null
+          resolution?: string | null
+          resolved_at?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       crop_plans: {
         Row: {
           area_acres: number | null
@@ -113,6 +158,87 @@ export type Database = {
           id?: string
           metadata?: Json | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          is_read: boolean
+          message: string
+          metadata: Json | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message: string
+          metadata?: Json | null
+          title: string
+          type?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          metadata?: Json | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      orders: {
+        Row: {
+          created_at: string
+          crop_name: string
+          delivery_date: string | null
+          farmer_id: string | null
+          id: string
+          merchant_id: string
+          notes: string | null
+          payment_status: string | null
+          price_per_kg: number
+          quantity_kg: number
+          status: string
+          total_amount: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          crop_name: string
+          delivery_date?: string | null
+          farmer_id?: string | null
+          id?: string
+          merchant_id: string
+          notes?: string | null
+          payment_status?: string | null
+          price_per_kg?: number
+          quantity_kg?: number
+          status?: string
+          total_amount?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          crop_name?: string
+          delivery_date?: string | null
+          farmer_id?: string | null
+          id?: string
+          merchant_id?: string
+          notes?: string | null
+          payment_status?: string | null
+          price_per_kg?: number
+          quantity_kg?: number
+          status?: string
+          total_amount?: number | null
+          updated_at?: string
         }
         Relationships: []
       }
