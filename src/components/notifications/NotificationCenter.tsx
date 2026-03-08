@@ -49,9 +49,9 @@ export const NotificationCenter = () => {
     const channel = supabase
       .channel("notifications-realtime")
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications" }, (payload) => {
-        const newNotif = payload.new as Notification;
+        const newNotif = payload.new as any;
         if (newNotif.user_id === user?.id) {
-          setNotifications(prev => [newNotif, ...prev]);
+          setNotifications(prev => [newNotif as Notification, ...prev]);
         }
       })
       .subscribe();
