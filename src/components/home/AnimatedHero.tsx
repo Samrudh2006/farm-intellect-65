@@ -35,7 +35,9 @@ export const AnimatedHero = () => {
     const w = () => canvas.offsetWidth;
     const h = () => canvas.offsetHeight;
 
-    for (let i = 0; i < 60; i++) {
+    const isMobile = canvas.offsetWidth < 768;
+    const particleCount = isMobile ? 20 : 60;
+    for (let i = 0; i < particleCount; i++) {
       const type = i < 20 ? 'leaf' : i < 40 ? 'seed' : 'glow';
       particles.push({
         x: Math.random() * 1920,
