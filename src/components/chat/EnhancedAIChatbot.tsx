@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Send,
-  Bot,
   User,
   Volume2,
   VolumeX,
@@ -17,6 +16,7 @@ import {
   ThumbsDown,
   StopCircle
 } from "lucide-react";
+import krishiLogo from "@/assets/krishi-ai-logo.png";
 import { streamChat, type AiMessage } from "@/lib/aiStream";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
@@ -225,8 +225,8 @@ export const EnhancedAIChatbot = () => {
       <CardHeader className="border-b">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center animate-pulse-glow">
-              <Bot className="h-5 w-5 text-primary" />
+            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center animate-pulse-glow overflow-hidden">
+              <img src={krishiLogo} alt="Krishi AI" className="h-8 w-8 object-contain" />
             </div>
             <div>
               <CardTitle className="text-lg">{t('ai.title')}</CardTitle>
@@ -277,8 +277,8 @@ export const EnhancedAIChatbot = () => {
             >
               {message.type === "assistant" && (
                 <Avatar className="w-8 h-8">
-                  <AvatarFallback className="bg-primary/10">
-                    <Bot className="h-4 w-4 text-primary" />
+                  <AvatarFallback className="bg-primary/10 p-0.5">
+                    <img src={krishiLogo} alt="Krishi AI" className="h-6 w-6 object-contain" />
                   </AvatarFallback>
                 </Avatar>
               )}

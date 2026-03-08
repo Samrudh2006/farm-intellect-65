@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bot, X, Send, Sparkles } from "lucide-react";
+import { X, Send, Sparkles } from "lucide-react";
+import krishiLogo from "@/assets/krishi-ai-logo.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -226,7 +227,7 @@ export const FloatingAIAssistant = () => {
               </motion.div>
             ) : (
               <motion.div key="bot" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }}>
-                <Bot className="h-6 w-6" />
+                <img src={krishiLogo} alt="Krishi AI" className="h-6 w-6 object-contain" />
               </motion.div>
             )}
           </AnimatePresence>
