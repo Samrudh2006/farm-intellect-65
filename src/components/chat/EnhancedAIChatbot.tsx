@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Send,
-  Bot,
   User,
   Volume2,
   VolumeX,
@@ -17,6 +16,7 @@ import {
   ThumbsDown,
   StopCircle
 } from "lucide-react";
+import krishiLogo from "@/assets/krishi-ai-logo.png";
 import { streamChat, type AiMessage } from "@/lib/aiStream";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
