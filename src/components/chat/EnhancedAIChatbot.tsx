@@ -378,7 +378,7 @@ export const EnhancedAIChatbot = () => {
               </div>
             </div>
             <Button 
-              onClick={sendMessage} 
+              onClick={() => sendMessage()} 
               disabled={!inputMessage.trim() || isLoading} 
               size="sm"
               className="bg-primary hover:bg-primary/90 transition-all"
