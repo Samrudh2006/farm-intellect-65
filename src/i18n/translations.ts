@@ -82,11 +82,61 @@ const en: Record<string, string> = {
   'phase1.install': 'Install farmer app',
   'phase1.offline_ready': 'Offline-ready farmer mode',
   'phase1.crop_plans': 'Personalized crop plans',
-  'phase1.field_history': 'Field history timeline',
+  'phase1.field_history': 'Field history events',
   'phase1.scheme_matches': 'Scheme matches',
+  'phase1.online': 'Online',
+  'phase1.offline': 'Offline',
+  'phase1.installed_desc': 'Installed for quick home-screen access',
+  'phase1.can_install_desc': 'Ready to install for low-connectivity use',
+  'phase1.sw_desc': 'Service worker enabled for cached farmer flows',
+  'phase1.open_reminders': 'open reminders across your saved plans',
+  'phase1.timeline_entries': 'Timeline entries ready for field-by-field review',
+  'phase1.wizard_updated': 'Wizard last updated on',
+  'phase1.run_wizard': 'Run the eligibility wizard to get matched support',
+  'phase1.network_available': 'Network available',
+  'phase1.working_offline': 'Working offline',
+  'phase1.languages_badge': '22 farmer languages',
+  'phase1.rollout_desc': 'Multilingual, offline-first, planning, history, and schemes are now wired into the farmer journey.',
+  'phase1.open_planner': 'Open crop planner',
+  'phase1.review_history': 'Review field history',
+  'phase1.run_scheme': 'Run scheme wizard',
+  'phase1.open_features': 'Open smart features',
+  'sidebar.farmer_portal': 'Farmer Portal',
+  'sidebar.farmer_desc': 'Your farm management toolkit',
+  'sidebar.business_hub': 'Business Hub',
+  'sidebar.business_desc': 'Partner farmer connections',
+  'sidebar.expert_center': 'Expert Center',
+  'sidebar.expert_desc': 'AI-powered expertise',
+  'sidebar.admin_control': 'Admin Control',
+  'sidebar.admin_desc': 'Platform administration',
+  'nav.farm_hub': 'My Farm Hub',
+  'nav.my_crops': 'My Crops',
+  'nav.ai_advisory': 'AI Advisory',
+  'nav.smart_features': 'Smart Features',
+  'nav.ai_assistant': 'AI Assistant',
+  'nav.forum': 'Forum',
+  'nav.crop_calendar': 'Crop Calendar',
+  'nav.documents': 'Documents',
+  'nav.notifications': 'Notifications',
+  'nav.partner_farmers': 'Partner Farmers',
+  'nav.market_prices': 'Market Prices',
+  'nav.ai_crop_scanner': 'AI Crop Scanner',
+  'nav.users': 'Users',
+  'nav.analytics': 'Analytics',
+  'nav.settings': 'Settings',
+  'header.app_title': 'Smart Crop Advisory',
 };
 
-const hi: Record<string, string> = {
+// Helper: create full translation by merging with English fallback
+function full(partial: Record<string, string>): Record<string, string> {
+  const result: Record<string, string> = {};
+  for (const key of Object.keys(en)) {
+    result[key] = partial[key] || en[key];
+  }
+  return result;
+}
+
+const hi: Record<string, string> = full({
   'auth.welcome': 'स्मार्ट क्रॉप एडवाइजरी में आपका स्वागत है',
   'auth.signin_farmer': 'किसान के रूप में साइन इन करें',
   'auth.signin_merchant': 'व्यापारी के रूप में साइन इन करें',
@@ -167,11 +217,52 @@ const hi: Record<string, string> = {
   'phase1.install': 'किसान ऐप इंस्टॉल करें',
   'phase1.offline_ready': 'ऑफलाइन किसान मोड',
   'phase1.crop_plans': 'व्यक्तिगत फसल योजनाएँ',
-  'phase1.field_history': 'खेत इतिहास टाइमलाइन',
+  'phase1.field_history': 'खेत इतिहास घटनाएँ',
   'phase1.scheme_matches': 'योजना मिलान',
-};
+  'phase1.online': 'ऑनलाइन',
+  'phase1.offline': 'ऑफलाइन',
+  'phase1.installed_desc': 'होम स्क्रीन से तुरंत पहुंच के लिए इंस्टॉल किया गया',
+  'phase1.can_install_desc': 'कम कनेक्टिविटी उपयोग के लिए इंस्टॉल करने को तैयार',
+  'phase1.sw_desc': 'कैश्ड किसान प्रवाह के लिए सर्विस वर्कर सक्षम',
+  'phase1.open_reminders': 'आपकी सेव की गई योजनाओं में खुली रिमाइंडर',
+  'phase1.timeline_entries': 'खेत-दर-खेत समीक्षा के लिए तैयार टाइमलाइन प्रविष्टियाँ',
+  'phase1.wizard_updated': 'विज़ार्ड अंतिम बार अपडेट किया गया',
+  'phase1.run_wizard': 'मिलान सहायता पाने के लिए पात्रता विज़ार्ड चलाएं',
+  'phase1.network_available': 'नेटवर्क उपलब्ध',
+  'phase1.working_offline': 'ऑफलाइन काम कर रहा है',
+  'phase1.languages_badge': '22 किसान भाषाएं',
+  'phase1.rollout_desc': 'बहुभाषी, ऑफलाइन-प्रथम, योजना, इतिहास और योजनाएं अब किसान यात्रा में जुड़ी हैं।',
+  'phase1.open_planner': 'फसल प्लानर खोलें',
+  'phase1.review_history': 'खेत इतिहास देखें',
+  'phase1.run_scheme': 'योजना विज़ार्ड चलाएं',
+  'phase1.open_features': 'स्मार्ट सुविधाएं खोलें',
+  'sidebar.farmer_portal': '🚜 किसान पोर्टल',
+  'sidebar.farmer_desc': 'आपका कृषि प्रबंधन टूलकिट',
+  'sidebar.business_hub': '🤝 व्यापार केंद्र',
+  'sidebar.business_desc': 'साथी किसान कनेक्शन',
+  'sidebar.expert_center': '🎓 विशेषज्ञ केंद्र',
+  'sidebar.expert_desc': 'AI-संचालित विशेषज्ञता',
+  'sidebar.admin_control': '🛡 व्यवस्थापक नियंत्रण',
+  'sidebar.admin_desc': 'प्लेटफॉर्म प्रशासन',
+  'nav.farm_hub': '🏠 मेरा फार्म हब',
+  'nav.my_crops': '🌾 मेरी फसलें',
+  'nav.ai_advisory': '🧠 AI सलाह',
+  'nav.smart_features': '🚀 स्मार्ट सुविधाएं',
+  'nav.ai_assistant': '🤖 AI सहायक',
+  'nav.forum': '💬 मंच',
+  'nav.crop_calendar': '📅 फसल कैलेंडर',
+  'nav.documents': '📄 दस्तावेज़',
+  'nav.notifications': '🔔 सूचनाएं',
+  'nav.partner_farmers': '🤝 साथी किसान',
+  'nav.market_prices': '📈 बाज़ार भाव',
+  'nav.ai_crop_scanner': '🔬 AI फसल स्कैनर',
+  'nav.users': '👥 उपयोगकर्ता',
+  'nav.analytics': '📊 विश्लेषण',
+  'nav.settings': '⚙️ सेटिंग्स',
+  'header.app_title': 'स्मार्ट क्रॉप एडवाइजरी',
+});
 
-const bn: Record<string, string> = {
+const bn: Record<string, string> = full({
   'auth.welcome': 'স্মার্ট ক্রপ অ্যাডভাইজরিতে স্বাগতম',
   'auth.signin_farmer': 'কৃষক হিসেবে সাইন ইন করুন',
   'auth.signin_merchant': 'ব্যবসায়ী হিসেবে সাইন ইন করুন',
@@ -252,11 +343,52 @@ const bn: Record<string, string> = {
   'phase1.install': 'কৃষক অ্যাপ ইনস্টল করুন',
   'phase1.offline_ready': 'অফলাইন কৃষক মোড',
   'phase1.crop_plans': 'ব্যক্তিগত ফসল পরিকল্পনা',
-  'phase1.field_history': 'মাঠের ইতিহাস টাইমলাইন',
+  'phase1.field_history': 'মাঠের ইতিহাস ঘটনা',
   'phase1.scheme_matches': 'প্রকল্প মিলান',
-};
+  'phase1.online': 'অনলাইন',
+  'phase1.offline': 'অফলাইন',
+  'phase1.installed_desc': 'হোম স্ক্রিন থেকে দ্রুত অ্যাক্সেসের জন্য ইনস্টল করা হয়েছে',
+  'phase1.can_install_desc': 'কম সংযোগে ব্যবহারের জন্য ইনস্টল করতে প্রস্তুত',
+  'phase1.sw_desc': 'ক্যাশড কৃষক প্রবাহের জন্য সার্ভিস ওয়ার্কার সক্রিয়',
+  'phase1.open_reminders': 'আপনার সংরক্ষিত পরিকল্পনায় খোলা রিমাইন্ডার',
+  'phase1.timeline_entries': 'মাঠ-ভিত্তিক পর্যালোচনার জন্য প্রস্তুত টাইমলাইন এন্ট্রি',
+  'phase1.wizard_updated': 'উইজার্ড সর্বশেষ আপডেট হয়েছে',
+  'phase1.run_wizard': 'মিলিত সহায়তা পেতে যোগ্যতা উইজার্ড চালান',
+  'phase1.network_available': 'নেটওয়ার্ক উপলব্ধ',
+  'phase1.working_offline': 'অফলাইনে কাজ করছে',
+  'phase1.languages_badge': '২২টি কৃষক ভাষা',
+  'phase1.rollout_desc': 'বহুভাষী, অফলাইন-প্রথম, পরিকল্পনা, ইতিহাস এবং প্রকল্প এখন কৃষক যাত্রায় সংযুক্ত।',
+  'phase1.open_planner': 'ফসল পরিকল্পনাকারী খুলুন',
+  'phase1.review_history': 'মাঠের ইতিহাস দেখুন',
+  'phase1.run_scheme': 'প্রকল্প উইজার্ড চালান',
+  'phase1.open_features': 'স্মার্ট সুবিধা খুলুন',
+  'sidebar.farmer_portal': '🚜 কৃষক পোর্টাল',
+  'sidebar.farmer_desc': 'আপনার কৃষি ব্যবস্থাপনা টুলকিট',
+  'sidebar.business_hub': '🤝 ব্যবসা কেন্দ্র',
+  'sidebar.business_desc': 'অংশীদার কৃষক সংযোগ',
+  'sidebar.expert_center': '🎓 বিশেষজ্ঞ কেন্দ্র',
+  'sidebar.expert_desc': 'AI-চালিত দক্ষতা',
+  'sidebar.admin_control': '🛡 প্রশাসক নিয়ন্ত্রণ',
+  'sidebar.admin_desc': 'প্ল্যাটফর্ম প্রশাসন',
+  'nav.farm_hub': '🏠 আমার ফার্ম হাব',
+  'nav.my_crops': '🌾 আমার ফসল',
+  'nav.ai_advisory': '🧠 AI পরামর্শ',
+  'nav.smart_features': '🚀 স্মার্ট সুবিধা',
+  'nav.ai_assistant': '🤖 AI সহায়ক',
+  'nav.forum': '💬 ফোরাম',
+  'nav.crop_calendar': '📅 ফসল ক্যালেন্ডার',
+  'nav.documents': '📄 নথিপত্র',
+  'nav.notifications': '🔔 বিজ্ঞপ্তি',
+  'nav.partner_farmers': '🤝 অংশীদার কৃষক',
+  'nav.market_prices': '📈 বাজার দর',
+  'nav.ai_crop_scanner': '🔬 AI ফসল স্ক্যানার',
+  'nav.users': '👥 ব্যবহারকারী',
+  'nav.analytics': '📊 বিশ্লেষণ',
+  'nav.settings': '⚙️ সেটিংস',
+  'header.app_title': 'স্মার্ট ক্রপ অ্যাডভাইজরি',
+});
 
-const te: Record<string, string> = {
+const te: Record<string, string> = full({
   'auth.welcome': 'స్మార్ట్ క్రాప్ అడ్వైజరీకి స్వాగతం',
   'auth.signin_farmer': 'రైతుగా సైన్ ఇన్ చేయండి',
   'auth.signin_merchant': 'వ్యాపారిగా సైన్ ఇన్ చేయండి',
@@ -339,9 +471,9 @@ const te: Record<string, string> = {
   'phase1.crop_plans': 'వ్యక్తిగత పంట ప్రణాళికలు',
   'phase1.field_history': 'పొలం చరిత్ర టైమ్‌లైన్',
   'phase1.scheme_matches': 'పథక అనుసంధానం',
-};
+});
 
-const ta: Record<string, string> = {
+const ta: Record<string, string> = full({
   'auth.welcome': 'ஸ்மார்ட் க்ராப் அட்வைசரிக்கு வரவேற்கிறோம்',
   'auth.signin_farmer': 'விவசாயியாக உள்நுழைக',
   'auth.signin_merchant': 'வணிகராக உள்நுழைக',
@@ -424,9 +556,9 @@ const ta: Record<string, string> = {
   'phase1.crop_plans': 'தனிப்பயன் பயிர் திட்டங்கள்',
   'phase1.field_history': 'வயல் வரலாறு காலவரிசை',
   'phase1.scheme_matches': 'திட்ட பொருத்தம்',
-};
+});
 
-const mr: Record<string, string> = {
+const mr: Record<string, string> = full({
   'auth.welcome': 'स्मार्ट क्रॉप अॅडव्हायझरीमध्ये आपले स्वागत आहे',
   'auth.signin_farmer': 'शेतकरी म्हणून साइन इन करा',
   'auth.signin_merchant': 'व्यापारी म्हणून साइन इन करा',
@@ -509,9 +641,9 @@ const mr: Record<string, string> = {
   'phase1.crop_plans': 'वैयक्तिक पीक योजना',
   'phase1.field_history': 'शेत इतिहास टाइमलाइन',
   'phase1.scheme_matches': 'योजना जुळणी',
-};
+});
 
-const gu: Record<string, string> = {
+const gu: Record<string, string> = full({
   'auth.welcome': 'સ્માર્ટ ક્રોપ એડવાઈઝરીમાં આપનું સ્વાગત છે',
   'auth.signin_farmer': 'ખેડૂત તરીકે સાઈન ઇન કરો',
   'auth.signin_merchant': 'વેપારી તરીકે સાઈન ઇન કરો',
@@ -594,9 +726,9 @@ const gu: Record<string, string> = {
   'phase1.crop_plans': 'વ્યક્તિગત પાક યોજનાઓ',
   'phase1.field_history': 'ખેતર ઇતિહાસ ટાઇમલાઇન',
   'phase1.scheme_matches': 'યોજના મેચિંગ',
-};
+});
 
-const kn: Record<string, string> = {
+const kn: Record<string, string> = full({
   'auth.welcome': 'ಸ್ಮಾರ್ಟ್ ಕ್ರಾಪ್ ಅಡ್ವೈಸರಿಗೆ ಸ್ವಾಗತ',
   'auth.signin_farmer': 'ರೈತರಾಗಿ ಸೈನ್ ಇನ್ ಮಾಡಿ',
   'auth.signin_merchant': 'ವ್ಯಾಪಾರಿಯಾಗಿ ಸೈನ್ ಇನ್ ಮಾಡಿ',
@@ -679,16 +811,8 @@ const kn: Record<string, string> = {
   'phase1.crop_plans': 'ವೈಯಕ್ತಿಕ ಬೆಳೆ ಯೋಜನೆಗಳು',
   'phase1.field_history': 'ಹೊಲದ ಇತಿಹಾಸ ಟೈಮ್‌ಲೈನ್',
   'phase1.scheme_matches': 'ಯೋಜನೆ ಹೊಂದಾಣಿಕೆ',
-};
+});
 
-// Helper: create full translation by merging with English fallback
-function full(partial: Record<string, string>): Record<string, string> {
-  const result: Record<string, string> = {};
-  for (const key of Object.keys(en)) {
-    result[key] = partial[key] || en[key];
-  }
-  return result;
-}
 
 const ml: Record<string, string> = full({
   'auth.welcome': 'സ്മാർട്ട് ക്രോപ്പ് അഡ്വൈസറിയിലേക്ക് സ്വാഗതം',
