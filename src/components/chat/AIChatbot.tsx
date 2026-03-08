@@ -146,8 +146,8 @@ export const AIChatbot = () => {
       <CardHeader className="border-b">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center animate-pulse-glow">
-              <Bot className="h-5 w-5 text-primary" />
+            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center animate-pulse-glow overflow-hidden">
+              <img src={krishiLogo} alt="Krishi AI" className="h-8 w-8 object-contain" />
             </div>
             <div>
               <CardTitle className="text-lg">{t('ai.title')}</CardTitle>
