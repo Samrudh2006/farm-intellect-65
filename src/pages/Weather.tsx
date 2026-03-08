@@ -100,11 +100,11 @@ const Weather = () => {
     if (!city) return;
     setLoading(true);
     try {
-      const curRes = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&units=metric&appid=${OWM_API_KEY}`
-      );
-      if (!curRes.ok) throw new Error("Location not found");
-      const cur = await curRes.json();
+      const { data, error } = await supabase.functions.invoke("weather", { body: { city } });
+      if (error) throw new Error("Weather fetch failed");
+      if (!data?.current) throw new Error("Location not found");
+      const cur = data.current;
+      const fore = data.forecast;
 
       setCurrentWeather({
         temp: Math.round(cur.main.temp),
@@ -118,11 +118,6 @@ const Weather = () => {
         icon: cur.weather[0].icon,
         location: `${cur.name}, ${cur.sys.country}`,
       });
-
-      const foreRes = await fetch(
-        `https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(city)}&units=metric&appid=${OWM_API_KEY}`
-      );
-      const fore = await foreRes.json();
 
       const dailyMap = new Map<string, { temps: number[]; conditions: string[]; descriptions: string[]; rain: number; winds: number[]; humidities: number[] }>();
       for (const item of fore.list) {

@@ -1,24 +1,11 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Cloud, Sun, CloudRain, CloudSnow, CloudLightning, Wind, Droplets, TrendingUp, TrendingDown, RefreshCw, MapPin, Thermometer, Eye } from "lucide-react";
+import { Cloud, Sun, CloudRain, CloudSnow, CloudLightning, Wind, Droplets, TrendingUp, TrendingDown, RefreshCw, MapPin, Thermometer, Eye, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { LocationSelector } from "@/components/ui/location-selector";
-
-const OWM_API_KEY = import.meta.env.VITE_OWM_API_KEY as string;
-
-const mapCondition = (main: string) => {
-  switch (main.toLowerCase()) {
-    case "clear": return "sunny";
-    case "rain": case "drizzle": return "rain";
-    case "snow": return "snow";
-    case "thunderstorm": return "thunderstorm";
-    case "clouds": return "cloud";
-    default: return "cloud";
-  }
-};
+import { supabase } from "@/integrations/supabase/client";
 
 const dayName = (dt: number, idx: number) => {
   if (idx === 0) return "Today";
@@ -33,25 +20,17 @@ export const WeatherMarketAPI = () => {
   const [marketPrices, setMarketPrices] = useState<any[]>([]);
   const [location, setLocation] = useState("");
   const [loading, setLoading] = useState(false);
+  const [pricesLoading, setPricesLoading] = useState(false);
   const [initialized, setInitialized] = useState(false);
 
   const fetchWeather = async () => {
     setLoading(true);
     try {
-      // Current weather
-      const curRes = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(location)}&units=metric&appid=${OWM_API_KEY}`
-      );
-      if (!curRes.ok) throw new Error("Location not found");
-      const cur = await curRes.json();
+      const { data, error } = await supabase.functions.invoke("weather", { body: { city: location } });
+      if (error || !data?.current) throw new Error("Location not found");
+      const cur = data.current;
+      const fore = data.forecast;
 
-      // 5-day forecast
-      const foreRes = await fetch(
-        `https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(location)}&units=metric&appid=${OWM_API_KEY}`
-      );
-      const fore = await foreRes.json();
-
-      // Pick one forecast entry per day (around noon)
       const dailyMap = new Map<string, any>();
       for (const item of fore.list) {
         const date = item.dt_txt.split(" ")[0];
@@ -69,72 +48,37 @@ export const WeatherMarketAPI = () => {
         condition: cur.weather[0].main,
         description: cur.weather[0].description,
         humidity: cur.main.humidity,
-        windSpeed: Math.round(cur.wind.speed * 3.6), // m/s to km/h
+        windSpeed: Math.round(cur.wind.speed * 3.6),
         pressure: cur.main.pressure,
         visibility: cur.visibility ? (cur.visibility / 1000).toFixed(1) : "N/A",
-        icon: cur.weather[0].icon,
         forecast: dailyForecasts.map((item: any, idx: number) => ({
           day: dayName(item.dt, idx),
           temp: `${Math.round(item.main.temp)}°C`,
           condition: item.weather[0].main,
           description: item.weather[0].description,
-          icon: mapCondition(item.weather[0].main),
           humidity: item.main.humidity,
         })),
       });
     } catch (err: any) {
-      toast({
-        title: "Weather Error",
-        description: err.message || "Could not fetch weather data",
-        variant: "destructive",
-      });
+      toast({ title: "Weather Error", description: err.message || "Could not fetch weather data", variant: "destructive" });
     }
     setLoading(false);
   };
 
-  // Mock market prices data (replace with actual Agmarknet API)
   const fetchMarketPrices = async () => {
-    const mockPrices = [
-      { 
-        crop: "Wheat (गेहूं)", 
-        price: 2500, 
-        change: +50, 
-        market: "Chandigarh Mandi",
-        unit: "per quintal"
-      },
-      { 
-        crop: "Rice (धान)", 
-        price: 2800, 
-        change: -30, 
-        market: "Ludhiana Mandi",
-        unit: "per quintal"
-      },
-      { 
-        crop: "Cotton (कपास)", 
-        price: 6200, 
-        change: +120, 
-        market: "Bathinda Mandi",
-        unit: "per quintal"
-      },
-      { 
-        crop: "Mustard (सरसों)", 
-        price: 6800, 
-        change: +80, 
-        market: "Patiala Mandi",
-        unit: "per quintal"
-      },
-      { 
-        crop: "Sugarcane (गन्ना)", 
-        price: 380, 
-        change: +5, 
-        market: "Jalandhar Mandi",
-        unit: "per quintal"
+    setPricesLoading(true);
+    try {
+      const state = user?.location?.split(",").pop()?.trim() || "Punjab";
+      const { data, error } = await supabase.functions.invoke("market-prices", { body: { state, district: location } });
+      if (data?.prices && data.prices.length > 0) {
+        setMarketPrices(data.prices);
       }
-    ];
-    setMarketPrices(mockPrices);
+    } catch (err) {
+      console.error("Market prices error:", err);
+    }
+    setPricesLoading(false);
   };
 
-  // Auto-set location from user profile
   useEffect(() => {
     if (user?.location && !initialized) {
       setLocation(user.location);
@@ -145,7 +89,6 @@ export const WeatherMarketAPI = () => {
     }
   }, [user?.location, initialized]);
 
-  // Fetch weather when location is set
   useEffect(() => {
     if (location) {
       fetchWeather();
@@ -155,73 +98,42 @@ export const WeatherMarketAPI = () => {
 
   const getWeatherIcon = (condition: string) => {
     switch (condition.toLowerCase()) {
-      case 'sun':
-      case 'sunny':
-      case 'clear':
-        return <Sun className="h-8 w-8 text-yellow-500" />;
-      case 'rain':
-      case 'rainy':
-      case 'drizzle':
-        return <CloudRain className="h-8 w-8 text-blue-500" />;
-      case 'snow':
-        return <CloudSnow className="h-8 w-8 text-cyan-400" />;
-      case 'thunderstorm':
-        return <CloudLightning className="h-8 w-8 text-purple-500" />;
-      default:
-        return <Cloud className="h-8 w-8 text-gray-500" />;
+      case 'sun': case 'sunny': case 'clear': return <Sun className="h-8 w-8 text-yellow-500" />;
+      case 'rain': case 'rainy': case 'drizzle': return <CloudRain className="h-8 w-8 text-blue-500" />;
+      case 'snow': return <CloudSnow className="h-8 w-8 text-cyan-400" />;
+      case 'thunderstorm': return <CloudLightning className="h-8 w-8 text-purple-500" />;
+      default: return <Cloud className="h-8 w-8 text-gray-500" />;
     }
   };
 
   const refreshData = () => {
     fetchWeather();
     fetchMarketPrices();
-    toast({
-      title: "Data Refreshed",
-      description: "Weather and market data has been updated"
-    });
+    toast({ title: "Data Refreshed", description: "Weather and market data has been updated" });
   };
 
   return (
     <div className="space-y-6">
-      {/* Location and Refresh */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <MapPin className="h-5 w-5" />
-              Live Weather & Market Data
-            </div>
-            <Button onClick={refreshData} variant="outline" size="sm">
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Refresh
-            </Button>
+            <div className="flex items-center gap-2"><MapPin className="h-5 w-5" /> Live Weather & Market Data</div>
+            <Button onClick={refreshData} variant="outline" size="sm"><RefreshCw className="h-4 w-4 mr-2" /> Refresh</Button>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex gap-2">
             <div className="flex-1">
-              <LocationSelector
-                value={location}
-                onChange={(val) => setLocation(val)}
-                placeholder="Search your city..."
-              />
+              <LocationSelector value={location} onChange={(val) => setLocation(val)} placeholder="Search your city..." />
             </div>
-            <Button onClick={fetchWeather} disabled={loading}>
-              {loading ? "Loading..." : "Update"}
-            </Button>
+            <Button onClick={fetchWeather} disabled={loading}>{loading ? "Loading..." : "Update"}</Button>
           </div>
         </CardContent>
       </Card>
 
-      {/* Weather Section */}
       {weather && (
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Cloud className="h-5 w-5" />
-              Current Weather - {weather.location}
-            </CardTitle>
-          </CardHeader>
+          <CardHeader><CardTitle className="flex items-center gap-2"><Cloud className="h-5 w-5" /> Current Weather - {weather.location}</CardTitle></CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               <div className="text-center p-4 bg-blue-50 rounded-lg">
@@ -245,17 +157,13 @@ export const WeatherMarketAPI = () => {
                 <div className="text-sm text-muted-foreground">Visibility</div>
               </div>
             </div>
-
-            {/* 5-Day Forecast */}
             <div>
               <h4 className="font-semibold mb-3">5-Day Forecast</h4>
               <div className="grid grid-cols-5 gap-2">
                 {weather.forecast.map((day: any, index: number) => (
-                  <div key={index} className="text-center p-3 bg-gray-50 rounded-lg">
+                  <div key={index} className="text-center p-3 bg-muted/50 rounded-lg">
                     <div className="text-sm font-medium">{day.day}</div>
-                    <div className="my-2 flex justify-center">
-                      {getWeatherIcon(day.icon)}
-                    </div>
+                    <div className="my-2 flex justify-center">{getWeatherIcon(day.condition)}</div>
                     <div className="text-sm">{day.temp}</div>
                     <div className="text-xs text-muted-foreground">{day.condition}</div>
                   </div>
@@ -266,40 +174,39 @@ export const WeatherMarketAPI = () => {
         </Card>
       )}
 
-      {/* Market Prices Section */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5" />
             Live Mandi Prices (Today)
+            {pricesLoading && <Loader2 className="h-4 w-4 animate-spin" />}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
             {marketPrices.map((item, index) => (
-              <div key={index} className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+              <div key={index} className="flex justify-between items-center p-4 bg-muted/50 rounded-lg">
                 <div>
                   <div className="font-semibold">{item.crop}</div>
                   <div className="text-sm text-muted-foreground">{item.market}</div>
                 </div>
                 <div className="text-right">
-                  <div className="text-lg font-bold">₹{item.price}</div>
+                  <div className="text-lg font-bold">₹{item.modalPrice || item.maxPrice}</div>
                   <div className="text-sm text-muted-foreground">{item.unit}</div>
                 </div>
-                <div className={`flex items-center gap-1 ${item.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {item.change >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-                  <span className="text-sm font-medium">
-                    {item.change >= 0 ? '+' : ''}₹{item.change}
-                  </span>
+                <div className="text-right text-sm">
+                  <div className="text-muted-foreground">Min: ₹{item.minPrice}</div>
+                  <div className="text-muted-foreground">Max: ₹{item.maxPrice}</div>
                 </div>
               </div>
             ))}
+            {marketPrices.length === 0 && !pricesLoading && (
+              <p className="text-sm text-muted-foreground text-center py-4">No price data available</p>
+            )}
           </div>
-          
-          <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-            <p className="text-sm text-blue-700">
-              💡 <strong>Tip:</strong> Prices updated every hour from government mandis. 
-              Best selling time is usually morning hours.
+          <div className="mt-4 p-3 bg-primary/5 rounded-lg">
+            <p className="text-sm text-primary">
+              💡 <strong>Tip:</strong> Prices sourced from government mandis & AI analysis. Best selling time is usually morning hours.
             </p>
           </div>
         </CardContent>
