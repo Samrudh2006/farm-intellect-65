@@ -64,6 +64,7 @@ const ExpertAIAdvisory = lazy(() => import("./pages/expert/ExpertAIAdvisory"));
 const ExpertChat = lazy(() => import("./pages/expert/ExpertChat"));
 const ExpertNotifications = lazy(() => import("./pages/expert/ExpertNotifications"));
 const ExpertConsultations = lazy(() => import("./pages/expert/ExpertConsultations"));
+const ExpertKnowledgeHub = lazy(() => import("./pages/expert/ExpertKnowledgeHub"));
 
 const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
 const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
@@ -164,6 +165,7 @@ const AnimatedRoutes = () => {
         <Route path="/expert/ai-advisory" element={renderProtectedPage(ExpertAIAdvisory, ["expert"])} />
         <Route path="/expert/chat" element={renderProtectedPage(ExpertChat, ["expert"])} />
         <Route path="/expert/consultations" element={renderProtectedPage(ExpertConsultations, ["expert"])} />
+        <Route path="/expert/knowledge" element={renderProtectedPage(ExpertKnowledgeHub, ["expert"])} />
         <Route path="/expert/notifications" element={renderProtectedPage(ExpertNotifications, ["expert"])} />
         <Route path="/expert/profile" element={renderProtectedPage(Profile, ["expert"])} />
         

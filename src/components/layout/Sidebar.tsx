@@ -65,6 +65,7 @@ const getNavigationItems = (t: (key: string) => string) => ({
     { icon: Activity, label: t('nav.ai_crop_scanner'), href: "/expert/ai-crop-scanner" },
     { icon: Brain, label: t('nav.ai_advisory'), href: "/expert/ai-advisory" },
     { icon: MessageSquare, label: "🔬 Consultations", href: "/expert/consultations" },
+    { icon: BookOpen, label: "📚 Knowledge Hub", href: "/expert/knowledge" },
     { icon: Bot, label: t('nav.ai_assistant'), href: "/expert/chat" },
     { icon: Bell, label: t('nav.notifications'), href: "/expert/notifications" },
   ],

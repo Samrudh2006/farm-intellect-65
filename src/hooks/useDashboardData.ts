@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { withOfflineCache, setCache } from "@/lib/offline-cache";
 
 export interface CropPlan {
   id: string;
@@ -77,25 +78,43 @@ export const useDashboardData = (): DashboardData => {
     setError(null);
 
     try {
-      const [cropsRes, eventsRes, tasksRes, schemesRes, activityRes] = await Promise.all([
-        supabase.from("crop_plans").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
-        supabase.from("field_events").select("*").eq("user_id", user.id).order("event_date", { ascending: false }).limit(10),
-        supabase.from("user_tasks").select("*").eq("user_id", user.id).eq("status", "pending").order("due_date", { ascending: true }),
-        supabase.from("scheme_matches").select("*").eq("user_id", user.id).order("matched_at", { ascending: false }),
-        supabase.from("activity_log").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(10),
-      ]);
+      const cacheKey = `dashboard-${user.id}`;
+      const { data: result, fromCache } = await withOfflineCache(
+        cacheKey,
+        async () => {
+          const [cropsRes, eventsRes, tasksRes, schemesRes, activityRes] = await Promise.all([
+            supabase.from("crop_plans").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+            supabase.from("field_events").select("*").eq("user_id", user.id).order("event_date", { ascending: false }).limit(10),
+            supabase.from("user_tasks").select("*").eq("user_id", user.id).eq("status", "pending").order("due_date", { ascending: true }),
+            supabase.from("scheme_matches").select("*").eq("user_id", user.id).order("matched_at", { ascending: false }),
+            supabase.from("activity_log").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(10),
+          ]);
 
-      if (cropsRes.error) throw cropsRes.error;
-      if (eventsRes.error) throw eventsRes.error;
-      if (tasksRes.error) throw tasksRes.error;
-      if (schemesRes.error) throw schemesRes.error;
-      if (activityRes.error) throw activityRes.error;
+          if (cropsRes.error) throw cropsRes.error;
+          if (eventsRes.error) throw eventsRes.error;
+          if (tasksRes.error) throw tasksRes.error;
+          if (schemesRes.error) throw schemesRes.error;
+          if (activityRes.error) throw activityRes.error;
 
-      setCropPlans((cropsRes.data || []) as CropPlan[]);
-      setFieldEvents((eventsRes.data || []) as FieldEvent[]);
-      setTasks((tasksRes.data || []) as UserTask[]);
-      setSchemeMatches((schemesRes.data || []) as SchemeMatch[]);
-      setActivities((activityRes.data || []) as ActivityItem[]);
+          return {
+            cropPlans: (cropsRes.data || []) as CropPlan[],
+            fieldEvents: (eventsRes.data || []) as FieldEvent[],
+            tasks: (tasksRes.data || []) as UserTask[],
+            schemeMatches: (schemesRes.data || []) as SchemeMatch[],
+            activities: (activityRes.data || []) as ActivityItem[],
+          };
+        }
+      );
+
+      if (fromCache) {
+        console.info("[Offline] Using cached dashboard data");
+      }
+
+      setCropPlans(result.cropPlans);
+      setFieldEvents(result.fieldEvents);
+      setTasks(result.tasks);
+      setSchemeMatches(result.schemeMatches);
+      setActivities(result.activities);
     } catch (err: any) {
       console.error("Dashboard data error:", err);
       setError(err.message || "Failed to load dashboard data");
