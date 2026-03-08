@@ -719,7 +719,7 @@ const gu: Record<string, string> = full({
   'phase1.scheme_matches': 'યોજના મેચિંગ',
 });
 
-const kn: Record<string, string> = {
+const kn: Record<string, string> = full({
   'auth.welcome': 'ಸ್ಮಾರ್ಟ್ ಕ್ರಾಪ್ ಅಡ್ವೈಸರಿಗೆ ಸ್ವಾಗತ',
   'auth.signin_farmer': 'ರೈತರಾಗಿ ಸೈನ್ ಇನ್ ಮಾಡಿ',
   'auth.signin_merchant': 'ವ್ಯಾಪಾರಿಯಾಗಿ ಸೈನ್ ಇನ್ ಮಾಡಿ',
