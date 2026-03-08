@@ -26,7 +26,35 @@
 
 ---
 
-## 📋 Table of Contents
+## 📸 Screenshots
+
+<details>
+<summary><strong>🧑‍🌾 Farmer Dashboard</strong> — Crop status, weather, offline mode, scheme matcher</summary>
+<br/>
+<img src="docs/screenshots/farmer-dashboard.png" alt="Farmer Dashboard" width="100%" />
+</details>
+
+<details>
+<summary><strong>👨‍🔬 Expert Dashboard</strong> — Consultation queue, knowledge hub, AI scanner</summary>
+<br/>
+<img src="docs/screenshots/expert-dashboard.png" alt="Expert Dashboard" width="100%" />
+</details>
+
+<details>
+<summary><strong>🏪 Merchant Dashboard</strong> — Orders, partner farmers, market price charts</summary>
+<br/>
+<img src="docs/screenshots/merchant-dashboard.png" alt="Merchant Dashboard" width="100%" />
+</details>
+
+<details>
+<summary><strong>🔧 Admin Dashboard</strong> — Analytics, user management, audit logs, settings</summary>
+<br/>
+<img src="docs/screenshots/admin-dashboard.png" alt="Admin Dashboard" width="100%" />
+</details>
+
+---
+
+
 
 - [🎯 Problem Statement](#-problem-statement)
 - [✨ Key Features](#-key-features)
