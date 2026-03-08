@@ -6,6 +6,7 @@ import { StatCard } from "@/components/ui/stat-card";
 import { WeatherWidget } from "@/components/dashboard/WeatherWidget";
 import { CropStatusWidget } from "@/components/dashboard/CropStatusWidget";
 import { AIRecommendations } from "@/components/dashboard/AIRecommendations";
+import { SmartInsights } from "@/components/dashboard/SmartInsights";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
