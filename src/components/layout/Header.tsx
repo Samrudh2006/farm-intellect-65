@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { AshokaChakra } from "@/components/ui/ashoka-chakra";
+import appLogo from "@/assets/krishi-app-logo.png";
 import { LanguageSelector } from "@/components/ui/language-selector";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
