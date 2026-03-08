@@ -206,7 +206,7 @@ export const EnhancedAIChatbot = () => {
   
   const copyMessage = (content: string) => {
     navigator.clipboard.writeText(content);
-    toast.success("Copied!");
+    toast.success(t('ai.copied'));
   };
 
   const speakMessage = (content: string) => {
@@ -214,11 +214,11 @@ export const EnhancedAIChatbot = () => {
   };
 
   const quickQuestions = [
-    t('ai.quick_crop_season') || "Best crops for Rabi season in Punjab?",
-    t('ai.quick_pest_control') || "How to control aphids in mustard crop?",
-    t('ai.quick_fertilizer') || "NPK dosage for wheat PBW 725?",
-    t('ai.quick_msp') || "Current MSP for paddy 2025?",
-    t('ai.quick_soil') || "How to improve soil organic carbon?",
+    t('ai.quick_crop_season'),
+    t('ai.quick_pest_control'),
+    t('ai.quick_fertilizer'),
+    t('ai.quick_msp'),
+    t('ai.quick_soil'),
   ];
 
   return (
@@ -232,8 +232,8 @@ export const EnhancedAIChatbot = () => {
             <div>
               <CardTitle className="text-lg">{t('ai.title')}</CardTitle>
               <CardDescription className="flex items-center gap-2">
-                Real-time AI farming advice
-                {voiceEnabled && <Badge variant="outline" className="text-xs">🔊 Voice On</Badge>}
+                {t('ai.realtime_advice')}
+                {voiceEnabled && <Badge variant="outline" className="text-xs">🔊 {t('ai.voice_on')}</Badge>}
               </CardDescription>
             </div>
           </div>
@@ -245,8 +245,8 @@ export const EnhancedAIChatbot = () => {
                 onClick={stopSpeaking}
                 className="h-8 px-3 animate-pulse"
               >
-                <StopCircle className="h-4 w-4 mr-1" />
-                Stop
+               <StopCircle className="h-4 w-4 mr-1" />
+                {t('ai.stop')}
               </Button>
             )}
             <Button 
@@ -257,11 +257,11 @@ export const EnhancedAIChatbot = () => {
                 setVoiceEnabled(!voiceEnabled);
               }} 
               className="h-8 w-8 p-0"
-              title={voiceEnabled ? "Disable voice responses" : "Enable voice responses"}
+              title={voiceEnabled ? t('ai.disable_voice') : t('ai.enable_voice')}
             >
               {voiceEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
             </Button>
-            <Button variant="ghost" size="sm" onClick={clearChat} className="h-8 w-8 p-0 hover:bg-destructive/10">
+            <Button variant="ghost" size="sm" onClick={clearChat} className="h-8 w-8 p-0 hover:bg-destructive/10" title={t('ai.clear_chat')}>
               <Trash2 className="h-4 w-4" />
             </Button>
           </div>
@@ -306,7 +306,7 @@ export const EnhancedAIChatbot = () => {
                           size="sm" 
                           onClick={() => speakMessage(message.content)} 
                           className="h-6 w-6 p-0 hover:bg-primary/10"
-                          title="Listen to this message"
+                          title={t('ai.listen_message')}
                         >
                           <Volume2 className="h-3 w-3" />
                         </Button>
@@ -332,7 +332,7 @@ export const EnhancedAIChatbot = () => {
 
         {messages.length === 1 && (
           <div className="p-4 border-t bg-muted/30">
-            <h4 className="text-sm font-medium mb-2">{t('ai.quick_questions') || "Quick Questions"}:</h4>
+            <h4 className="text-sm font-medium mb-2">{t('ai.quick_questions')}:</h4>
             <div className="flex flex-wrap gap-2">
               {quickQuestions.map((q, i) => (
                 <Button 
@@ -381,11 +381,11 @@ export const EnhancedAIChatbot = () => {
           </div>
           <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
             <span className="flex items-center gap-2">
-              {t('ai.press_enter') || "Press Enter to send"}
-              {isListening && <Badge variant="secondary" className="animate-pulse">🎤 {t('ai.listening') || "Listening..."}</Badge>}
-              {isSpeaking && <Badge variant="default" className="animate-pulse">🔊 {t('ai.speaking') || "Speaking..."}</Badge>}
+              {t('ai.press_enter')}
+              {isListening && <Badge variant="secondary" className="animate-pulse">🎤 {t('ai.listening')}</Badge>}
+              {isSpeaking && <Badge variant="default" className="animate-pulse">🔊 {t('ai.speaking')}</Badge>}
             </span>
-            <Badge variant="secondary" className="text-xs">Powered by Krishi AI</Badge>
+            <Badge variant="secondary" className="text-xs">{t('ai.powered_by')}</Badge>
           </div>
         </div>
       </CardContent>
