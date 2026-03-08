@@ -64,6 +64,7 @@ const ExpertAIAdvisory = lazy(() => import("./pages/expert/ExpertAIAdvisory"));
 const ExpertChat = lazy(() => import("./pages/expert/ExpertChat"));
 const ExpertNotifications = lazy(() => import("./pages/expert/ExpertNotifications"));
 const ExpertConsultations = lazy(() => import("./pages/expert/ExpertConsultations"));
+const ExpertKnowledgeHub = lazy(() => import("./pages/expert/ExpertKnowledgeHub"));
 
 const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
 const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
