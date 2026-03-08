@@ -490,13 +490,26 @@ npm run lint
 
 ---
 
-## 📄 License
+## 📄 License & Copyright
 
-This project is open source. Curated agricultural datasets retain source attribution when reused.
+```
+© 2025 Samrudh. All Rights Reserved.
+```
+
+This project is **proprietary software**. No part of this software — including source code,
+documentation, datasets, AI prompts, designs, or any other materials — may be copied,
+modified, distributed, or used without **prior written authorization** from the Author.
+
+This repository is publicly visible for **demonstration and portfolio purposes only**.
+Public visibility does **NOT** grant any rights to use, copy, or create derivative works.
+
+See [LICENSE](LICENSE) for full terms and conditions.
+See [AUTHORS.md](AUTHORS.md) for authorship and intellectual property details.
 
 ---
 
 <p align="center">
+  <strong>© 2025 Samrudh. All Rights Reserved.</strong><br/>
   <strong>Made with 🇮🇳 for Indian Agriculture</strong><br/>
-  <em>Empowering farmers with AI-driven insights in their own language</em>
+  <em>Krishi AI — Farm Intellect | Empowering farmers with AI-driven insights in their own language 🌾</em>
 </p>
