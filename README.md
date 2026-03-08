@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://farm-intellect-65.lovable.app"><img src="https://img.shields.io/badge/🚀_Live_Demo-farm--intellect-16a34a?style=for-the-badge" alt="Live Demo" /></a>
+  <a href="https://farming-gamma.vercel.app/"><img src="https://img.shields.io/badge/🚀_Live_Demo-farm--intellect-16a34a?style=for-the-badge" alt="Live Demo" /></a>
   <img src="https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=white" alt="React 18" />
   <img src="https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/badge/Supabase-Backend-3FCF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase" />
