@@ -363,7 +363,7 @@ export const EnhancedAIChatbot = () => {
               <Input
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
-                onKeyPress={handleKeyPress}
+                onKeyDown={handleKeyDown}
                 placeholder={t('ai.placeholder')}
                 disabled={isLoading}
                 className="pr-12 transition-all focus:ring-2 focus:ring-primary"
