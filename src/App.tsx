@@ -205,6 +205,7 @@ const App = () => (
             <BrowserRouter>
               <AnimatedRoutes />
               <AmbientMusic />
+              <InstallPrompt />
             </BrowserRouter>
           </TooltipProvider>
         </AuthProvider>
