@@ -99,58 +99,12 @@ const Index = () => {
         </div>
 
         <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-4xl mx-auto text-center space-y-6">
-            {/* Animated Ashoka Chakra */}
-            <motion.div
-              initial={{ scale: 0, rotate: -180 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ duration: 1, type: "spring", stiffness: 100 }}
-              className="flex justify-center mb-6"
-            >
-              <div className="relative">
-                <AshokaChakra size={80} className="drop-shadow-lg" />
-                <div className="absolute -inset-4 rounded-full border-2 border-dashed border-navy/30 animate-[chakra-spin_20s_linear_infinite_reverse]" />
-                <div className="absolute -inset-8 rounded-full border border-accent/20 animate-[chakra-spin_30s_linear_infinite]" />
-              </div>
-            </motion.div>
-
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-              <Badge className="mb-4 bg-accent/15 text-accent border-accent/30 text-sm px-4 py-1.5 backdrop-blur-sm" variant="outline">
-                🇮🇳 Proudly Indian — Next-Generation Farm Management
-              </Badge>
-            </motion.div>
-
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.6 }}
-              className="text-4xl lg:text-7xl font-extrabold text-foreground leading-tight font-heading drop-shadow-sm"
-            >
-              {t('hero.title')}
-              <motion.span
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.8, duration: 0.5 }}
-                className="block text-gradient-tricolor mt-2"
-              >
-                {t('hero.subtitle')}
-              </motion.span>
-            </motion.h1>
-
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1 }}
-              className="text-xl text-muted-foreground max-w-2xl mx-auto backdrop-blur-sm bg-background/30 rounded-xl px-4 py-2"
-            >
-              {t('hero.description')}
-            </motion.p>
-
+          <div className="max-w-4xl mx-auto text-center flex flex-col items-center justify-end h-[60vh]">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.2 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center pt-6"
+              transition={{ delay: 0.5 }}
+              className="flex flex-col sm:flex-row gap-4 justify-center"
             >
               <Link to="/login">
                 <Button size="lg" className="w-full sm:w-auto bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg glow-saffron text-base px-8 group font-semibold">
