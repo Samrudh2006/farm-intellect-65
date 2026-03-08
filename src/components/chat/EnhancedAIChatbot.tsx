@@ -332,7 +332,7 @@ export const EnhancedAIChatbot = () => {
 
         {messages.length === 1 && (
           <div className="p-4 border-t bg-muted/30">
-            <h4 className="text-sm font-medium mb-2">{t('ai.quick_questions') || "Quick Questions"}:</h4>
+            <h4 className="text-sm font-medium mb-2">{t('ai.quick_questions')}:</h4>
             <div className="flex flex-wrap gap-2">
               {quickQuestions.map((q, i) => (
                 <Button 
