@@ -28,31 +28,31 @@
 
 ## 📸 Screenshots
 
-<details>
-<summary><strong>🧑‍🌾 Farmer Dashboard</strong> — Crop status, weather, offline mode, scheme matcher</summary>
-<br/>
+> All screenshots are captured from the **live application**.
+
+### 🔐 Login — 4-Role Selector
+<img src="docs/screenshots/login-page.png" alt="Login Page with 4 Role Selection" width="100%" />
+
+### 🧑‍🌾 Farmer Dashboard
 <img src="docs/screenshots/farmer-dashboard.png" alt="Farmer Dashboard" width="100%" />
-</details>
 
-<details>
-<summary><strong>👨‍🔬 Expert Dashboard</strong> — Consultation queue, knowledge hub, AI scanner</summary>
-<br/>
+### 🌤️ Weather Station
+<img src="docs/screenshots/weather-station.png" alt="Weather Station" width="100%" />
+
+### 🤖 AI-Powered Advisory
+<img src="docs/screenshots/ai-advisory.png" alt="AI Advisory" width="100%" />
+
+### 👨‍🔬 Expert Dashboard
 <img src="docs/screenshots/expert-dashboard.png" alt="Expert Dashboard" width="100%" />
-</details>
 
-<details>
-<summary><strong>🏪 Merchant Dashboard</strong> — Orders, partner farmers, market price charts</summary>
-<br/>
+### 🏪 Merchant Dashboard
 <img src="docs/screenshots/merchant-dashboard.png" alt="Merchant Dashboard" width="100%" />
-</details>
 
-<details>
-<summary><strong>🔧 Admin Dashboard</strong> — Analytics, user management, audit logs, settings</summary>
-<br/>
+### 🔧 Admin Dashboard
 <img src="docs/screenshots/admin-dashboard.png" alt="Admin Dashboard" width="100%" />
-</details>
 
 ---
+
 
 
 
