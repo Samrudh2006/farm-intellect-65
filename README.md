@@ -33,10 +33,8 @@
 ### 🔐 Login — 4-Role Selector
 <img src="docs/screenshots/login-page.png" alt="Login Page with 4 Role Selection" width="100%" />
 
-### 🔐 Login — 4-Role Selector
-<img src="docs/screenshots/login-page.png" alt="Login Page with 4 Role Selection" width="100%" />
-
----
+### 🏠 Landing Page — Hero Section
+<img src="docs/screenshots/login-page.png" alt="Landing Page Hero with AI Features" width="100%" />
 
 
 
