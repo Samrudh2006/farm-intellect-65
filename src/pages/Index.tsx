@@ -264,35 +264,31 @@ const Index = () => {
               </motion.div>
             </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, x: 40 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
+            <ScrollReveal direction="right">
               <Card className="p-8 border-border shadow-lg tricolor-card">
                 <div className="space-y-6">
                   {stats.map((stat, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, x: 20 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: index * 0.15, duration: 0.4 }}
-                      className="flex items-center gap-4"
-                    >
-                      <div className={`p-3 rounded-lg ${stat.bg}`}>
-                        <stat.icon className={`h-8 w-8 ${stat.color}`} />
+                    <ScrollReveal key={index} delay={index * 0.15} direction="right">
+                      <div className="flex items-center gap-4">
+                        <ParallaxFloat>
+                          <div className={`p-3 rounded-lg ${stat.bg}`}>
+                            <stat.icon className={`h-8 w-8 ${stat.color}`} />
+                          </div>
+                        </ParallaxFloat>
+                        <div>
+                          <CountUp
+                            target={stat.value}
+                            suffix={stat.suffix}
+                            className="text-3xl font-bold text-foreground"
+                          />
+                          <div className="text-muted-foreground">{stat.label}</div>
+                        </div>
                       </div>
-                      <div>
-                        <div className="text-3xl font-bold text-foreground">{stat.value}</div>
-                        <div className="text-muted-foreground">{stat.label}</div>
-                      </div>
-                    </motion.div>
+                    </ScrollReveal>
                   ))}
                 </div>
               </Card>
-            </motion.div>
+            </ScrollReveal>
           </div>
         </div>
       </section>
