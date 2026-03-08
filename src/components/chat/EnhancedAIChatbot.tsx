@@ -245,8 +245,8 @@ export const EnhancedAIChatbot = () => {
                 onClick={stopSpeaking}
                 className="h-8 px-3 animate-pulse"
               >
-                <StopCircle className="h-4 w-4 mr-1" />
-                Stop
+               <StopCircle className="h-4 w-4 mr-1" />
+                {t('ai.stop')}
               </Button>
             )}
             <Button 
