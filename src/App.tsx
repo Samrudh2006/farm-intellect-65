@@ -194,6 +194,7 @@ const App = () => (
             <Sonner />
             <BrowserRouter>
               <AnimatedRoutes />
+              <AmbientMusic />
             </BrowserRouter>
           </TooltipProvider>
         </AuthProvider>
