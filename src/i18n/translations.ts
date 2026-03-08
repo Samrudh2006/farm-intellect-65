@@ -717,7 +717,7 @@ const gu: Record<string, string> = full({
   'phase1.crop_plans': 'વ્યક્તિગત પાક યોજનાઓ',
   'phase1.field_history': 'ખેતર ઇતિહાસ ટાઇમલાઇન',
   'phase1.scheme_matches': 'યોજના મેચિંગ',
-};
+});
 
 const kn: Record<string, string> = {
   'auth.welcome': 'ಸ್ಮಾರ್ಟ್ ಕ್ರಾಪ್ ಅಡ್ವೈಸರಿಗೆ ಸ್ವಾಗತ',
