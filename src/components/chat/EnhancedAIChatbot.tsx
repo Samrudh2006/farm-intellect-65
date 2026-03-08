@@ -306,7 +306,7 @@ export const EnhancedAIChatbot = () => {
                           size="sm" 
                           onClick={() => speakMessage(message.content)} 
                           className="h-6 w-6 p-0 hover:bg-primary/10"
-                          title="Listen to this message"
+                          title={t('ai.listen_message')}
                         >
                           <Volume2 className="h-3 w-3" />
                         </Button>
