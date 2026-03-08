@@ -549,7 +549,7 @@ const ta: Record<string, string> = full({
   'phase1.scheme_matches': 'திட்ட பொருத்தம்',
 });
 
-const mr: Record<string, string> = {
+const mr: Record<string, string> = full({
   'auth.welcome': 'स्मार्ट क्रॉप अॅडव्हायझरीमध्ये आपले स्वागत आहे',
   'auth.signin_farmer': 'शेतकरी म्हणून साइन इन करा',
   'auth.signin_merchant': 'व्यापारी म्हणून साइन इन करा',
