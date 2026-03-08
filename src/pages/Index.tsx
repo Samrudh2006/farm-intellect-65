@@ -9,8 +9,7 @@ import { FloatingAIAssistant } from "@/components/home/FloatingAIAssistant";
 import { ScrollReveal, CountUp, ParallaxFloat } from "@/components/home/ScrollReveal";
 import { LanguageSelector } from "@/components/ui/language-selector";
 import { useLanguage } from "@/contexts/LanguageContext";
-import heroImage from "@/assets/hero-farming.jpg";
-import { 
+import {
   Wheat, Brain, CloudSun, TrendingUp, Shield, Users,
   ArrowRight, CheckCircle, Sparkles, Zap, BarChart3, Leaf
 } from "lucide-react";
