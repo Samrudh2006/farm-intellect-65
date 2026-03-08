@@ -277,7 +277,21 @@ const Login = () => {
             <Button variant="ghost" onClick={() => setSelectedRole(null)} className="gap-2">
               <ArrowLeft className="h-4 w-4" /> {t("common.back")}
             </Button>
-            <LanguageSelector />
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  const isDark = document.documentElement.classList.toggle("dark");
+                  localStorage.setItem("theme", isDark ? "dark" : "light");
+                }}
+                aria-label="Toggle dark mode"
+              >
+                <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+              </Button>
+              <LanguageSelector />
+            </div>
           </div>
           <div className="flex items-center justify-center gap-3 mb-6">
             <AshokaChakra size={32} />
