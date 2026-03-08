@@ -1,0 +1,39 @@
+cff-version: 1.2.0
+title: "Krishi AI — Farm Intellect"
+message: >-
+  If you use or reference this software in academic work,
+  please cite it using the metadata below.
+type: software
+authors:
+  - given-names: Samrudh
+    alias: samrudh
+version: "1.0.0"
+date-released: "2025-03-06"
+url: "https://farm-intellect-65.lovable.app"
+repository-code: "https://github.com/samrudh/farm-intellect-65"
+license: LicenseRef-Proprietary
+keywords:
+  - smart-agriculture
+  - artificial-intelligence
+  - crop-disease-detection
+  - indian-farming
+  - multilingual
+  - progressive-web-app
+  - react
+  - typescript
+  - machine-learning
+  - precision-agriculture
+  - mandi-prices
+  - government-schemes
+  - kisan
+abstract: >-
+  Krishi AI — Farm Intellect is an AI-powered smart agriculture platform
+  designed for Indian farmers. It provides crop disease scanning via image
+  recognition, AI-driven crop recommendations based on soil, season, and
+  region, real-time weather intelligence with farming advisories, mandi
+  (market) price tracking, government scheme eligibility matching, a
+  multilingual voice assistant, and a personalized crop calendar. The
+  platform supports 22 Indian languages, four user roles (Farmer, Expert,
+  Merchant, Admin), and works offline as a Progressive Web App. It is
+  built with React, TypeScript, Tailwind CSS, and a cloud backend with
+  Row-Level Security and role-based access control.
