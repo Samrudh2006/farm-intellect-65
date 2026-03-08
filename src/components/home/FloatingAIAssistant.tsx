@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Send, Sparkles } from "lucide-react";
+import { X, Send, Sparkles, Mic, MicOff, Volume2 } from "lucide-react";
 import krishiLogo from "@/assets/krishi-ai-logo.png";
 import krishiAvatar from "@/assets/krishi-ai-avatar.png";
 import { Button } from "@/components/ui/button";
