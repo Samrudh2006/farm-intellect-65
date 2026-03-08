@@ -131,12 +131,13 @@ export const EnhancedAIChatbot = () => {
     setInputMessage(prev => prev + (prev ? " " : "") + text);
   };
 
-  const sendMessage = async () => {
-    if (!inputMessage.trim() || isLoading) return;
+  const sendMessage = async (forcedText?: string) => {
+    const messageText = (forcedText ?? inputMessage).trim();
+    if (!messageText || isLoading) return;
 
     const userMsg: Message = {
       id: Date.now().toString(),
-      content: inputMessage.trim(),
+      content: messageText,
       type: "user",
       timestamp: new Date(),
     };
@@ -169,25 +170,32 @@ export const EnhancedAIChatbot = () => {
       mode: "chat",
       onDelta: upsertAssistant,
       onDone: () => {
-        // Replace streaming id with permanent id
         setMessages((prev) =>
           prev.map((m) => (m.id === "streaming" ? { ...m, id: Date.now().toString() } : m))
         );
         setIsLoading(false);
-        
-        // Auto-speak response if voice is enabled
+
         if (voiceEnabled && assistantSoFar) {
           setTimeout(() => speakText(assistantSoFar), 300);
         }
       },
       onError: (err) => {
-        toast.error(err);
+        toast.error(err || t('ai.error_chat_failed'));
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `err-${Date.now()}`,
+            content: t('ai.error_chat_failed'),
+            type: "assistant",
+            timestamp: new Date(),
+          },
+        ]);
         setIsLoading(false);
       },
     });
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
