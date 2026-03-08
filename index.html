@@ -10,18 +10,23 @@
     <link rel="manifest" href="/manifest.json" />
     <link rel="icon" href="/favicon.png" type="image/png" />
 
-    <!-- Indian fonts: Poppins + Noto Sans for all 22 scheduled languages -->
+    <!-- Core fonts: Poppins (render-blocking, critical for FCP) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <!-- Hero image preloaded via fetchpriority="high" in React component -->
-    <!-- Core Latin + Devanagari -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet" />
-    <!-- Bengali, Tamil, Telugu, Kannada, Malayalam, Gujarati, Odia -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700&family=Noto+Sans+Tamil:wght@400;600;700&family=Noto+Sans+Telugu:wght@400;600;700&family=Noto+Sans+Kannada:wght@400;600;700&family=Noto+Sans+Malayalam:wght@400;600;700&family=Noto+Sans+Gujarati:wght@400;600;700&family=Noto+Sans+Oriya:wght@400;600;700&display=swap" rel="stylesheet" />
-    <!-- Punjabi (Gurmukhi), Arabic script (Urdu, Sindhi, Kashmiri) -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gurmukhi:wght@400;600;700&family=Noto+Nastaliq+Urdu:wght@400;700&family=Noto+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet" />
-    <!-- Assamese, Ol Chiki (Santali), Meetei Mayek (Manipuri) -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ol+Chiki:wght@400;600;700&family=Noto+Sans+Meetei+Mayek:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet" />
+
+    <!-- Deferred regional fonts (non-render-blocking) -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'" />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700&family=Noto+Sans+Tamil:wght@400;600;700&family=Noto+Sans+Telugu:wght@400;600;700&family=Noto+Sans+Kannada:wght@400;600;700&family=Noto+Sans+Malayalam:wght@400;600;700&family=Noto+Sans+Gujarati:wght@400;600;700&family=Noto+Sans+Oriya:wght@400;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'" />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gurmukhi:wght@400;600;700&family=Noto+Nastaliq+Urdu:wght@400;700&family=Noto+Sans+Arabic:wght@400;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'" />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ol+Chiki:wght@400;600;700&family=Noto+Sans+Meetei+Mayek:wght@400;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'" />
+    <!-- Fallback for no-JS -->
+    <noscript>
+      <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet" />
+      <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700&family=Noto+Sans+Tamil:wght@400;600;700&family=Noto+Sans+Telugu:wght@400;600;700&family=Noto+Sans+Kannada:wght@400;600;700&family=Noto+Sans+Malayalam:wght@400;600;700&family=Noto+Sans+Gujarati:wght@400;600;700&family=Noto+Sans+Oriya:wght@400;600;700&display=swap" rel="stylesheet" />
+      <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gurmukhi:wght@400;600;700&family=Noto+Nastaliq+Urdu:wght@400;700&family=Noto+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet" />
+      <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ol+Chiki:wght@400;600;700&family=Noto+Sans+Meetei+Mayek:wght@400;600;700&display=swap" rel="stylesheet" />
+    </noscript>
 
     <meta property="og:title" content="Smart Crop Advisory — AI-Powered Farming for India" />
     <meta property="og:description" content="AI crop recommendations, weather, pest detection, market prices & government schemes." />
