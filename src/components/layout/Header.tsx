@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { AshokaChakra } from "@/components/ui/ashoka-chakra";
+import appLogo from "@/assets/krishi-app-logo.png";
 import { LanguageSelector } from "@/components/ui/language-selector";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -54,7 +54,7 @@ export const Header = ({ user, onMenuClick, notificationCount = 0 }: HeaderProps
               <Menu className="h-5 w-5" />
             </Button>
             <div className="flex items-center gap-3">
-              <AshokaChakra size={32} />
+              <img src={appLogo} alt="Krishi AI" className="h-9 w-9 object-contain" />
               <h1 className="text-xl font-bold text-foreground">{t('header.app_title')}</h1>
             </div>
           </div>
