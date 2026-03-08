@@ -867,7 +867,7 @@ const as_: Record<string, string> = {
   'common.save': 'সংৰক্ষণ কৰক',
   'common.loading': 'অনুগ্ৰহ কৰি অপেক্ষা কৰক...',
   'common.signout': 'ছাইন আউট',
-  'common.profile': 'প্ৰ\'ফাইল',
+  'common.profile': 'প্ৰফাইল',
   'dashboard.title': 'ডেশ্ববৰ্ড',
   'dashboard.welcome': 'পুনৰ আপোনাক স্বাগতম',
   'nav.dashboard': 'ডেশ্ববৰ্ড',
