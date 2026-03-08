@@ -632,7 +632,7 @@ const mr: Record<string, string> = full({
   'phase1.crop_plans': 'वैयक्तिक पीक योजना',
   'phase1.field_history': 'शेत इतिहास टाइमलाइन',
   'phase1.scheme_matches': 'योजना जुळणी',
-};
+});
 
 const gu: Record<string, string> = {
   'auth.welcome': 'સ્માર્ટ ક્રોપ એડવાઈઝરીમાં આપનું સ્વાગત છે',
