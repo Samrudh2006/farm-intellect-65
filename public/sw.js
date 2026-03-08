@@ -1,5 +1,5 @@
-const STATIC_CACHE = "farm-intellect-static-v2";
-const RUNTIME_CACHE = "farm-intellect-runtime-v2";
+const STATIC_CACHE = "farm-intellect-static-v3";
+const RUNTIME_CACHE = "farm-intellect-runtime-v3";
 const APP_SHELL = ["/", "/manifest.json", "/robots.txt"];
 
 self.addEventListener("install", (event) => {
@@ -21,13 +21,17 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-  if (event.request.method !== "GET") {
-    return;
-  }
+  if (event.request.method !== "GET") return;
 
   const requestUrl = new URL(event.request.url);
   const isSameOrigin = requestUrl.origin === self.location.origin;
+  const isSupabaseRequest = requestUrl.hostname.includes("supabase.co");
+  const isFunctionRequest = requestUrl.pathname.includes("/functions/v1/");
 
+  // Never cache API/AI requests.
+  if (isSupabaseRequest || isFunctionRequest) return;
+
+  // Always prefer fresh HTML when online.
   if (event.request.mode === "navigate") {
     event.respondWith(
       fetch(event.request)
@@ -44,19 +48,20 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // Same-origin assets: network-first to avoid stale bundles.
   if (isSameOrigin) {
     event.respondWith(
-      caches.match(event.request).then((cachedResponse) => {
-        if (cachedResponse) {
-          return cachedResponse;
-        }
-
-        return fetch(event.request).then((response) => {
+      fetch(event.request)
+        .then((response) => {
           const responseClone = response.clone();
           caches.open(RUNTIME_CACHE).then((cache) => cache.put(event.request, responseClone));
           return response;
-        });
-      }),
+        })
+        .catch(async () => {
+          const cached = await caches.match(event.request);
+          if (cached) return cached;
+          throw new Error("Resource unavailable offline");
+        }),
     );
   }
 });
