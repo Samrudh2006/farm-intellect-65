@@ -462,7 +462,7 @@ const te: Record<string, string> = full({
   'phase1.crop_plans': 'వ్యక్తిగత పంట ప్రణాళికలు',
   'phase1.field_history': 'పొలం చరిత్ర టైమ్‌లైన్',
   'phase1.scheme_matches': 'పథక అనుసంధానం',
-};
+});
 
 const ta: Record<string, string> = {
   'auth.welcome': 'ஸ்மார்ட் க்ராப் அட்வைசரிக்கு வரவேற்கிறோம்',
