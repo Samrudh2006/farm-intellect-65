@@ -166,6 +166,7 @@ const AnimatedRoutes = () => {
         <Route path="/admin/dashboard" element={renderProtectedPage(AdminDashboardPage, ["admin"])} />
         <Route path="/admin/users" element={renderProtectedPage(AdminUsers, ["admin"])} />
         <Route path="/admin/analytics" element={renderProtectedPage(AdminAnalytics, ["admin"])} />
+        <Route path="/admin/chat" element={renderProtectedPage(AdminChat, ["admin"])} />
         <Route path="/admin/settings" element={renderProtectedPage(AdminSettings, ["admin"])} />
         <Route path="/admin/notifications" element={renderProtectedPage(AdminNotifications, ["admin"])} />
         <Route path="/admin/profile" element={renderProtectedPage(Profile, ["admin"])} />
