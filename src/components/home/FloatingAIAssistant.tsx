@@ -383,14 +383,28 @@ export const FloatingAIAssistant = () => {
                 onSubmit={(e) => { e.preventDefault(); handleSend(); }}
                 className="flex gap-2"
               >
+                <Button
+                  type="button"
+                  size="icon"
+                  variant={isListening ? "destructive" : "outline"}
+                  onClick={toggleListening}
+                  className={`flex-shrink-0 rounded-full h-9 w-9 ${isListening ? "animate-pulse" : ""}`}
+                  title={isListening ? "Stop listening" : "Voice input"}
+                >
+                  {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                </Button>
                 <Input
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder={t("ai.placeholder")}
+                  placeholder={isListening ? "🎙️ Listening..." : t("ai.placeholder")}
                   className="flex-1 text-sm"
                   disabled={isTyping}
                 />
-                <Button type="submit" size="icon" disabled={!input.trim() || isTyping} className="bg-accent text-accent-foreground hover:bg-accent/90">
+                <Button type="submit" size="icon" disabled={!input.trim() || isTyping} className="bg-accent text-accent-foreground hover:bg-accent/90 h-9 w-9">
+                  <Send className="h-4 w-4" />
+                </Button>
+              </form>
+            </div>
                   <Send className="h-4 w-4" />
                 </Button>
               </form>
