@@ -64,6 +64,20 @@ export const Header = ({ user, onMenuClick, notificationCount = 0 }: HeaderProps
               <LanguageSelector />
             </div>
 
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                const html = document.documentElement;
+                const isDark = html.classList.toggle("dark");
+                localStorage.setItem("theme", isDark ? "dark" : "light");
+              }}
+              aria-label="Toggle dark mode"
+            >
+              <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+              <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            </Button>
+
             <Button variant="ghost" size="icon" className="relative" onClick={() => navigate(`/${user?.role || "farmer"}/notifications`)}>
               <Bell className="h-5 w-5" />
               {notificationCount > 0 && (
