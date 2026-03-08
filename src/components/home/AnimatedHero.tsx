@@ -13,9 +13,14 @@ export const AnimatedHero = () => {
     let time = 0;
 
     const resize = () => {
-      canvas.width = canvas.offsetWidth * window.devicePixelRatio;
-      canvas.height = canvas.offsetHeight * window.devicePixelRatio;
-      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+      const dpr = window.devicePixelRatio || 1;
+      const w = canvas.offsetWidth;
+      const h = canvas.offsetHeight;
+      if (canvas.width !== w * dpr || canvas.height !== h * dpr) {
+        canvas.width = w * dpr;
+        canvas.height = h * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
     };
     resize();
     window.addEventListener("resize", resize);
@@ -30,7 +35,9 @@ export const AnimatedHero = () => {
     const w = () => canvas.offsetWidth;
     const h = () => canvas.offsetHeight;
 
-    for (let i = 0; i < 60; i++) {
+    const isMobile = canvas.offsetWidth < 768;
+    const particleCount = isMobile ? 20 : 60;
+    for (let i = 0; i < particleCount; i++) {
       const type = i < 20 ? 'leaf' : i < 40 ? 'seed' : 'glow';
       particles.push({
         x: Math.random() * 1920,
@@ -173,7 +180,7 @@ export const AnimatedHero = () => {
     <canvas
       ref={canvasRef}
       className="absolute inset-0 w-full h-full"
-      style={{ pointerEvents: "none" }}
+      style={{ pointerEvents: "none", willChange: "contents" }}
     />
   );
 };
