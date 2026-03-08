@@ -12,81 +12,87 @@
 
 @layer base {
   :root {
-    /* White background */
-    --background: 0 0% 100%;
-    --foreground: 220 25% 12%;
+    /* Warm ivory/cream background — distinct from pure white */
+    --background: 35 30% 97%;
+    --foreground: 220 30% 10%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 25% 12%;
+    --card: 38 25% 99%;
+    --card-foreground: 220 30% 10%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 25% 12%;
+    --popover: 38 25% 99%;
+    --popover-foreground: 220 30% 10%;
 
-    /* India Green - primary color for buttons/actions */
-    --primary: 145 63% 32%;
-    --primary-foreground: 0 0% 100%;
+    /* India Green — rich deep green for buttons/actions */
+    --primary: 145 63% 30%;
+    --primary-foreground: 40 30% 98%;
 
-    /* Light saffron tinted secondary */
-    --secondary: 25 60% 96%;
-    --secondary-foreground: 220 25% 12%;
+    /* Warm saffron-tinted secondary */
+    --secondary: 28 50% 94%;
+    --secondary-foreground: 220 30% 10%;
 
-    /* Light green muted */
-    --muted: 145 15% 95%;
-    --muted-foreground: 220 10% 42%;
+    /* Warm muted with ivory undertone */
+    --muted: 35 18% 93%;
+    --muted-foreground: 220 12% 40%;
 
-    /* Saffron accent — for highlights, badges, CTAs */
-    --accent: 24 90% 50%;
-    --accent-foreground: 0 0% 100%;
+    /* Saffron accent — vibrant for highlights, badges, CTAs */
+    --accent: 24 95% 48%;
+    --accent-foreground: 40 30% 98%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive-foreground: 40 30% 98%;
 
-    /* Subtle green border */
-    --border: 145 12% 89%;
-    --input: 145 12% 89%;
-    --ring: 145 63% 32%;
+    /* Warm green-tinted border */
+    --border: 35 15% 87%;
+    --input: 35 15% 87%;
+    --ring: 145 63% 30%;
 
-    /* Tricolor palette tokens */
-    --saffron: 24 90% 50%;
-    --saffron-foreground: 0 0% 100%;
+    /* Tricolor palette tokens — vivid flag colors */
+    --saffron: 24 95% 48%;
+    --saffron-foreground: 40 30% 98%;
+    --saffron-light: 28 80% 92%;
 
-    --india-green: 145 63% 32%;
-    --india-green-foreground: 0 0% 100%;
+    --india-green: 145 63% 30%;
+    --india-green-foreground: 40 30% 98%;
+    --india-green-light: 145 30% 92%;
 
-    --navy: 220 70% 28%;
-    --navy-foreground: 0 0% 100%;
+    --navy: 220 72% 25%;
+    --navy-foreground: 40 30% 98%;
+
+    /* Tricolor white — visible off-white that contrasts with cream background */
+    --tricolor-white: 0 0% 100%;
 
     /* Keep legacy tokens mapped */
-    --earth: 24 80% 55%;
-    --earth-foreground: 0 0% 100%;
-    --harvest: 40 95% 55%;
-    --harvest-foreground: 220 25% 12%;
-    --water: 220 70% 28%;
-    --water-foreground: 0 0% 100%;
-    --soil: 145 50% 25%;
-    --soil-foreground: 0 0% 100%;
+    --earth: 24 80% 52%;
+    --earth-foreground: 40 30% 98%;
+    --harvest: 40 95% 52%;
+    --harvest-foreground: 220 30% 10%;
+    --water: 220 72% 25%;
+    --water-foreground: 40 30% 98%;
+    --soil: 145 50% 22%;
+    --soil-foreground: 40 30% 98%;
 
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(24 90% 50%), hsl(145 63% 32%));
-    --gradient-earth: linear-gradient(135deg, hsl(24 80% 55%), hsl(40 95% 55%));
-    --gradient-sky: linear-gradient(135deg, hsl(220 70% 28%), hsl(145 63% 42%));
+    --gradient-primary: linear-gradient(135deg, hsl(24 95% 48%), hsl(145 63% 30%));
+    --gradient-earth: linear-gradient(135deg, hsl(24 80% 52%), hsl(40 95% 52%));
+    --gradient-sky: linear-gradient(135deg, hsl(220 72% 25%), hsl(145 63% 40%));
+    --gradient-tricolor-bg: linear-gradient(180deg, hsl(24 95% 48% / 0.04) 0%, hsl(35 30% 97%) 35%, hsl(35 30% 97%) 65%, hsl(145 63% 30% / 0.04) 100%);
 
     /* Shadows */
-    --shadow-soft: 0 2px 10px hsl(145 63% 32% / 0.1);
-    --shadow-glow: 0 0 20px hsl(24 90% 50% / 0.2);
-    --shadow-tricolor: 0 4px 20px hsl(145 63% 32% / 0.12), 0 0 40px hsl(24 90% 50% / 0.06);
+    --shadow-soft: 0 2px 10px hsl(145 63% 30% / 0.1);
+    --shadow-glow: 0 0 20px hsl(24 95% 48% / 0.2);
+    --shadow-tricolor: 0 4px 20px hsl(145 63% 30% / 0.12), 0 0 40px hsl(24 95% 48% / 0.06);
 
     --radius: 0.5rem;
 
-    /* Sidebar — soft green tint */
-    --sidebar-background: 145 18% 97%;
-    --sidebar-foreground: 220 25% 12%;
-    --sidebar-primary: 145 63% 32%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 24 80% 94%;
-    --sidebar-accent-foreground: 220 25% 12%;
-    --sidebar-border: 145 12% 90%;
-    --sidebar-ring: 145 63% 32%;
+    /* Sidebar — warm green tint */
+    --sidebar-background: 145 15% 95%;
+    --sidebar-foreground: 220 30% 10%;
+    --sidebar-primary: 145 63% 30%;
+    --sidebar-primary-foreground: 40 30% 98%;
+    --sidebar-accent: 28 50% 93%;
+    --sidebar-accent-foreground: 220 30% 10%;
+    --sidebar-border: 35 15% 88%;
+    --sidebar-ring: 145 63% 30%;
   }
 
   .dark {
@@ -144,6 +150,9 @@
   body {
     @apply bg-background text-foreground;
     font-family: 'Poppins', 'Noto Sans Devanagari', sans-serif;
+    background-image: var(--gradient-tricolor-bg);
+    background-attachment: fixed;
+    min-height: 100vh;
   }
 
   /* RTL support for Urdu, Sindhi, Kashmiri */
@@ -203,14 +212,14 @@
 
 /* Saffron pulse glow */
 @keyframes saffron-glow {
-  0%, 100% { box-shadow: 0 0 5px hsl(24 90% 50% / 0.2); }
-  50% { box-shadow: 0 0 20px hsl(24 90% 50% / 0.4), 0 0 40px hsl(24 90% 50% / 0.1); }
+  0%, 100% { box-shadow: 0 0 5px hsl(24 95% 48% / 0.3); }
+  50% { box-shadow: 0 0 20px hsl(24 95% 48% / 0.5), 0 0 40px hsl(24 95% 48% / 0.15); }
 }
 
 /* Green pulse glow */
 @keyframes green-glow {
-  0%, 100% { box-shadow: 0 0 5px hsl(145 63% 32% / 0.2); }
-  50% { box-shadow: 0 0 20px hsl(145 63% 32% / 0.4), 0 0 40px hsl(145 63% 32% / 0.1); }
+  0%, 100% { box-shadow: 0 0 5px hsl(145 63% 30% / 0.3); }
+  50% { box-shadow: 0 0 20px hsl(145 63% 30% / 0.5), 0 0 40px hsl(145 63% 30% / 0.15); }
 }
 
 /* 🇮🇳 Tricolor utility classes */
@@ -220,26 +229,26 @@
   }
 
   .tricolor-bar {
-    background: linear-gradient(90deg, hsl(24 90% 50%) 33.33%, hsl(0 0% 100%) 33.33%, hsl(0 0% 100%) 66.66%, hsl(145 63% 32%) 66.66%);
+    background: linear-gradient(90deg, hsl(24 95% 48%) 33.33%, hsl(var(--tricolor-white)) 33.33%, hsl(var(--tricolor-white)) 66.66%, hsl(145 63% 30%) 66.66%);
   }
   .tricolor-bar-vertical {
-    background: linear-gradient(180deg, hsl(24 90% 50%) 33.33%, hsl(0 0% 100%) 33.33%, hsl(0 0% 100%) 66.66%, hsl(145 63% 32%) 66.66%);
+    background: linear-gradient(180deg, hsl(24 95% 48%) 33.33%, hsl(var(--tricolor-white)) 33.33%, hsl(var(--tricolor-white)) 66.66%, hsl(145 63% 30%) 66.66%);
   }
   .tricolor-bar-top {
     border-top: 3px solid transparent;
-    border-image: linear-gradient(90deg, hsl(24 90% 50%) 33.33%, hsl(0 0% 100%) 33.33%, hsl(0 0% 100%) 66.66%, hsl(145 63% 32%) 66.66%) 1;
+    border-image: linear-gradient(90deg, hsl(24 95% 48%) 33.33%, hsl(var(--tricolor-white)) 33.33%, hsl(var(--tricolor-white)) 66.66%, hsl(145 63% 30%) 66.66%) 1;
   }
   .gradient-tricolor {
-    background: linear-gradient(135deg, hsl(24 90% 50%), hsl(220 70% 28%), hsl(145 63% 32%));
+    background: linear-gradient(135deg, hsl(24 95% 48%), hsl(220 72% 25%), hsl(145 63% 30%));
   }
   .text-gradient-tricolor {
-    background: linear-gradient(135deg, hsl(24 90% 50%), hsl(145 63% 32%));
+    background: linear-gradient(135deg, hsl(24 95% 48%), hsl(145 63% 30%));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
   .text-gradient-saffron-navy {
-    background: linear-gradient(135deg, hsl(24 90% 50%), hsl(220 70% 28%));
+    background: linear-gradient(135deg, hsl(24 95% 48%), hsl(220 72% 25%));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -247,19 +256,21 @@
 
   /* Tricolor card hover — saffron top-border + green bottom glow */
   .tricolor-card {
-    @apply relative overflow-hidden rounded-lg border border-border bg-card transition-all duration-300;
+    @apply relative overflow-hidden rounded-lg border border-border transition-all duration-300;
+    background: hsl(var(--card));
     border-top: 3px solid transparent;
+    box-shadow: 0 1px 3px hsl(220 30% 10% / 0.06);
   }
   .tricolor-card:hover {
-    border-top-color: hsl(24 90% 50%);
-    border-bottom-color: hsl(145 63% 32%);
-    box-shadow: 0 4px 20px hsl(145 63% 32% / 0.12), 0 -2px 10px hsl(24 90% 50% / 0.08), inset 0 -2px 0 hsl(145 63% 32%);
+    border-top-color: hsl(24 95% 48%);
+    border-bottom-color: hsl(145 63% 30%);
+    box-shadow: 0 8px 30px hsl(145 63% 30% / 0.14), 0 -2px 10px hsl(24 95% 48% / 0.1), inset 0 -2px 0 hsl(145 63% 30%);
     transform: translateY(-2px);
   }
 
   /* Tricolor shimmer hover on buttons / badges */
   .tricolor-shimmer {
-    background: linear-gradient(90deg, hsl(24 90% 50%), hsl(0 0% 100%), hsl(145 63% 32%), hsl(24 90% 50%));
+    background: linear-gradient(90deg, hsl(24 95% 48%), hsl(var(--tricolor-white)), hsl(145 63% 30%), hsl(24 95% 48%));
     background-size: 300% 100%;
   }
   .tricolor-shimmer:hover {
@@ -277,13 +288,13 @@
   /* Tricolor left border accent */
   .tricolor-left-border {
     border-left: 4px solid transparent;
-    border-image: linear-gradient(180deg, hsl(24 90% 50%), hsl(0 0% 100%), hsl(145 63% 32%)) 1;
+    border-image: linear-gradient(180deg, hsl(24 95% 48%), hsl(var(--tricolor-white)), hsl(145 63% 30%)) 1;
   }
 
   /* Tricolor bottom border */
   .tricolor-bottom {
     border-bottom: 3px solid transparent;
-    border-image: linear-gradient(90deg, hsl(24 90% 50%) 33%, hsl(0 0% 100%) 33%, hsl(0 0% 100%) 66%, hsl(145 63% 32%) 66%) 1;
+    border-image: linear-gradient(90deg, hsl(24 95% 48%) 33%, hsl(var(--tricolor-white)) 33%, hsl(var(--tricolor-white)) 66%, hsl(145 63% 30%) 66%) 1;
   }
 
   /* Magnetic hover for cards */
@@ -292,7 +303,7 @@
   }
   .hover-lift:hover {
     transform: translateY(-4px) scale(1.01);
-    box-shadow: 0 12px 40px hsl(145 63% 32% / 0.12), 0 4px 12px hsl(24 90% 50% / 0.08);
+    box-shadow: 0 12px 40px hsl(145 63% 30% / 0.14), 0 4px 12px hsl(24 95% 48% / 0.1);
   }
 
   /* Stagger children animation */
