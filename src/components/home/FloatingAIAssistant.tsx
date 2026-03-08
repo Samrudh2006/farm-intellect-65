@@ -248,7 +248,9 @@ export const FloatingAIAssistant = () => {
           >
             {/* Header */}
             <div className="p-4 bg-gradient-to-r from-accent to-primary text-white flex items-center gap-3">
-              <AshokaChakra size={28} className="[&_circle]:fill-white [&_line]:stroke-white" />
+              <div className="w-8 h-8 rounded-full bg-white overflow-hidden flex-shrink-0">
+                <img src={krishiAvatar} alt="Krishi AI" className="h-full w-full object-cover scale-110" />
+              </div>
               <div>
                 <h3 className="font-bold text-sm font-heading">{t("ai.title")}</h3>
                 <p className="text-xs opacity-80 flex items-center gap-1">
