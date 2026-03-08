@@ -127,6 +127,15 @@ const en: Record<string, string> = {
   'header.app_title': 'Smart Crop Advisory',
 };
 
+// Helper: create full translation by merging with English fallback
+function full(partial: Record<string, string>): Record<string, string> {
+  const result: Record<string, string> = {};
+  for (const key of Object.keys(en)) {
+    result[key] = partial[key] || en[key];
+  }
+  return result;
+}
+
 const hi: Record<string, string> = full({
   'auth.welcome': 'स्मार्ट क्रॉप एडवाइजरी में आपका स्वागत है',
   'auth.signin_farmer': 'किसान के रूप में साइन इन करें',
