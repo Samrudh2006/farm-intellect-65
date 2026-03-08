@@ -17,6 +17,7 @@ import heroImage from "@/assets/hero-farming.jpg";
 import farmerImg from "@/assets/roles/farmer-role.jpg";
 import merchantImg from "@/assets/roles/merchant-role.jpg";
 import expertImg from "@/assets/roles/expert-role.jpg";
+import adminImg from "@/assets/roles/admin-role.jpg";
 
 const Login = () => {
   const { t } = useLanguage();
