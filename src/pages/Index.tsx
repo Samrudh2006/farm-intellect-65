@@ -89,6 +89,7 @@ const Index = () => {
             alt="Indian farming landscape with golden wheat fields"
             className="w-full h-full object-cover"
             loading="eager"
+            fetchPriority="high"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background/90" />
           <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-accent/10" />
