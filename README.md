@@ -33,23 +33,8 @@
 ### 🔐 Login — 4-Role Selector
 <img src="docs/screenshots/login-page.png" alt="Login Page with 4 Role Selection" width="100%" />
 
-### 🧑‍🌾 Farmer Dashboard
-<img src="docs/screenshots/farmer-dashboard.png" alt="Farmer Dashboard" width="100%" />
-
-### 🌤️ Weather Station
-<img src="docs/screenshots/weather-station.png" alt="Weather Station" width="100%" />
-
-### 🤖 AI-Powered Advisory
-<img src="docs/screenshots/ai-advisory.png" alt="AI Advisory" width="100%" />
-
-### 👨‍🔬 Expert Dashboard
-<img src="docs/screenshots/expert-dashboard.png" alt="Expert Dashboard" width="100%" />
-
-### 🏪 Merchant Dashboard
-<img src="docs/screenshots/merchant-dashboard.png" alt="Merchant Dashboard" width="100%" />
-
-### 🔧 Admin Dashboard
-<img src="docs/screenshots/admin-dashboard.png" alt="Admin Dashboard" width="100%" />
+### 🔐 Login — 4-Role Selector
+<img src="docs/screenshots/login-page.png" alt="Login Page with 4 Role Selection" width="100%" />
 
 ---
 
