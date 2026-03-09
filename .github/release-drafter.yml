@@ -1,0 +1,73 @@
+# Release Drafter — auto-generates release notes from PR titles
+name-template: 'v$RESOLVED_VERSION 🌾'
+tag-template: 'v$RESOLVED_VERSION'
+
+categories:
+  - title: '🚀 New Features'
+    labels:
+      - 'enhancement'
+      - 'feature'
+  - title: '🤖 AI & ML'
+    labels:
+      - 'ai-features'
+  - title: '🧑‍🌾 Farmer Features'
+    labels:
+      - 'farmer-features'
+  - title: '🏪 Merchant Features'
+    labels:
+      - 'merchant-features'
+  - title: '👨‍🔬 Expert Features'
+    labels:
+      - 'expert-features'
+  - title: '🌍 Translations'
+    labels:
+      - 'translations'
+      - 'i18n'
+  - title: '🐛 Bug Fixes'
+    labels:
+      - 'bug'
+      - 'fix'
+  - title: '📖 Documentation'
+    labels:
+      - 'documentation'
+  - title: '🔒 Security'
+    labels:
+      - 'security'
+  - title: '🧹 Maintenance'
+    labels:
+      - 'chore'
+      - 'dependencies'
+      - 'ci-cd'
+
+change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
+change-title-escapes: '\<*_&'
+
+version-resolver:
+  major:
+    labels:
+      - 'major'
+  minor:
+    labels:
+      - 'enhancement'
+      - 'feature'
+  patch:
+    labels:
+      - 'bug'
+      - 'fix'
+      - 'documentation'
+      - 'chore'
+  default: patch
+
+template: |
+  # 🌾 Krishi AI — Farm Intellect $RESOLVED_VERSION
+
+  ## What's Changed
+
+  $CHANGES
+
+  **Full Changelog**: https://github.com/samrudh/farm-intellect-65/compare/$PREVIOUS_TAG...v$RESOLVED_VERSION
+
+  ---
+  <p align="center">
+    <em>Every update helps Indian farmers 🇮🇳🧑‍🌾</em>
+  </p>

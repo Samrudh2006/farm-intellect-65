@@ -1,0 +1,48 @@
+name: Welcome New Contributors
+
+on:
+  issues:
+    types: [opened]
+  pull_request_target:
+    types: [opened]
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  welcome:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/first-interaction@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          issue-message: |
+            🌾 **Welcome to Krishi AI — Farm Intellect!** 🇮🇳
+
+            Thank you for opening your first issue! We appreciate your interest in helping Indian farmers through technology.
+
+            Here's what happens next:
+            - 🏷️ A maintainer will label and triage this issue
+            - 💬 We may ask clarifying questions
+            - 🚀 Once confirmed, it'll be ready for work
+
+            **Helpful links:**
+            - 📖 [Contributing Guide](CONTRIBUTING.md)
+            - 🔒 [Security Policy](SECURITY.md)
+            - 🌐 [Live App](https://farm-intellect-65.lovable.app)
+
+            Every contribution helps Indian farmers! 🧑‍🌾💚
+          pr-message: |
+            🎉 **Thank you for your first Pull Request!** 🌾
+
+            Welcome to the Krishi AI community! A maintainer will review your PR soon.
+
+            **PR Checklist Reminder:**
+            - ✅ Code follows our style guide (TypeScript strict, Tailwind tokens)
+            - ✅ Added translations for user-facing strings
+            - ✅ Added RLS policies for new database tables
+            - ✅ No hardcoded API keys or secrets
+            - ✅ Tests pass (`npm run test && npm run lint`)
+
+            Thank you for helping build technology for Indian agriculture! 🇮🇳🧑‍🌾

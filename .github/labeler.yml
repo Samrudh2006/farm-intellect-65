@@ -1,0 +1,53 @@
+# Auto-label PRs based on changed files
+
+frontend:
+  - changed-files:
+    - any-glob-to-any-file: 'src/**'
+
+backend:
+  - changed-files:
+    - any-glob-to-any-file: ['supabase/**', 'backend/**']
+
+documentation:
+  - changed-files:
+    - any-glob-to-any-file: ['docs/**', '*.md']
+
+ai-features:
+  - changed-files:
+    - any-glob-to-any-file: ['src/components/ai/**', 'src/lib/aiStream.ts']
+
+translations:
+  - changed-files:
+    - any-glob-to-any-file: 'src/i18n/**'
+
+ui-components:
+  - changed-files:
+    - any-glob-to-any-file: 'src/components/ui/**'
+
+ci-cd:
+  - changed-files:
+    - any-glob-to-any-file: '.github/**'
+
+dependencies:
+  - changed-files:
+    - any-glob-to-any-file: ['package.json', 'package-lock.json']
+
+farmer-features:
+  - changed-files:
+    - any-glob-to-any-file: ['src/pages/farmer/**', 'src/components/crops/**', 'src/components/calendar/**']
+
+expert-features:
+  - changed-files:
+    - any-glob-to-any-file: ['src/pages/expert/**', 'src/components/consultations/**']
+
+merchant-features:
+  - changed-files:
+    - any-glob-to-any-file: 'src/pages/merchant/**'
+
+admin-features:
+  - changed-files:
+    - any-glob-to-any-file: 'src/pages/admin/**'
+
+knowledge-hub:
+  - changed-files:
+    - any-glob-to-any-file: ['src/components/features/KnowledgeHub.tsx', 'public/knowledge/**']
