@@ -148,6 +148,7 @@ const AnimatedRoutes = () => {
         <Route path="/farmer/documents" element={renderProtectedPage(Documents, ["farmer"])} />
         <Route path="/farmer/notifications" element={renderProtectedPage(Notifications, ["farmer"])} />
         <Route path="/farmer/features" element={renderProtectedPage(FarmFeatures, ["farmer"])} />
+        <Route path="/farmer/knowledge" element={renderProtectedPage(FarmerKnowledgeHub, ["farmer"])} />
         <Route path="/farmer/profile" element={renderProtectedPage(Profile, ["farmer"])} />
         
         {/* Merchant Routes */}
