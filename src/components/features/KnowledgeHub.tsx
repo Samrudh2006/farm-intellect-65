@@ -1,8 +1,53 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlayCircle, BookOpen, Video, ExternalLink } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PlayCircle, BookOpen, Video, ExternalLink, Headphones, Image, FileText, Pause, Download } from "lucide-react";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 export const KnowledgeHub = () => {
+  const [playingPodcast, setPlayingPodcast] = useState<string | null>(null);
+
+  const podcasts = [
+    {
+      id: "podcast-1",
+      title: "Smart Crop Advisory Boosts Yields",
+      description: "Learn how AI-powered advisory systems help farmers increase crop yields through data-driven decisions",
+      src: "/knowledge/podcasts/smart-crop-advisory-yields.m4a",
+      duration: "~5 min",
+      category: "AI Advisory"
+    },
+    {
+      id: "podcast-2",
+      title: "AI Plant Diagnosis & Market Alerts",
+      description: "Discover how machine learning identifies plant diseases and provides real-time market intelligence",
+      src: "/knowledge/podcasts/ai-plant-diagnosis-market.m4a",
+      duration: "~5 min",
+      category: "Disease Detection"
+    }
+  ];
+
+  const infographics = [
+    {
+      id: "infographic-1",
+      title: "Smart Crop Advisory: Revolutionizing Agriculture",
+      description: "Complete overview of AI-powered farming - from challenges to solutions, technology architecture, and future roadmap",
+      src: "/knowledge/infographics/smart-crop-advisory.png",
+      category: "Platform Overview"
+    }
+  ];
+
+  const slides = [
+    {
+      id: "slides-1",
+      title: "Smart Crop Intelligence - Executive Explainer",
+      description: "Comprehensive presentation covering platform concept, features, architecture, and implementation roadmap",
+      src: "/knowledge/slides/smart-crop-intelligence.pdf",
+      pages: 12,
+      category: "Project Overview"
+    }
+  ];
+
   const videos = [
     {
       id: 1,
@@ -30,140 +75,264 @@ export const KnowledgeHub = () => {
       url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
       duration: "15:20",
       category: "Irrigation"
-    },
-    {
-      id: 4,
-      title: "Soil Testing Methods (मिट्टी परीक्षण)",
-      description: "Simple ways to test your soil quality at home",
-      thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
-      url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-      duration: "10:15",
-      category: "Soil Health"
-    },
-    {
-      id: 5,
-      title: "Weather Prediction for Farmers (मौसम की भविष्यवाणी)",
-      description: "Traditional and modern weather forecasting methods",
-      thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
-      url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-      duration: "9:30",
-      category: "Weather"
-    },
-    {
-      id: 6,
-      title: "Government Schemes for Farmers (सरकारी योजनाएं)",
-      description: "Latest government schemes and how to apply",
-      thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
-      url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-      duration: "18:45",
-      category: "Schemes"
     }
   ];
 
-  const articles = [
-    {
-      title: "10 Tips for Better Crop Yield",
-      description: "Proven strategies to increase your farm productivity",
-      readTime: "5 min read"
-    },
-    {
-      title: "Water Conservation Techniques",
-      description: "Save water and reduce irrigation costs",
-      readTime: "7 min read"
-    },
-    {
-      title: "Market Price Analysis 2024",
-      description: "Understanding market trends for better profits",
-      readTime: "10 min read"
+  const togglePodcast = (podcastId: string, audioSrc: string) => {
+    const audio = document.getElementById(podcastId) as HTMLAudioElement;
+    if (playingPodcast === podcastId) {
+      audio?.pause();
+      setPlayingPodcast(null);
+    } else {
+      // Pause any currently playing podcast
+      if (playingPodcast) {
+        const currentAudio = document.getElementById(playingPodcast) as HTMLAudioElement;
+        currentAudio?.pause();
+      }
+      audio?.play();
+      setPlayingPodcast(podcastId);
     }
-  ];
+  };
 
   return (
     <div className="space-y-6">
-      <Card>
+      <Card className="bg-gradient-to-r from-primary/5 via-background to-accent/5">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <BookOpen className="h-5 w-5" />
+            <BookOpen className="h-5 w-5 text-primary" />
             Knowledge Hub (ज्ञान केंद्र)
           </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground">
-            Learn from expert farmers and agricultural scientists through videos and articles
+            Learn from expert farmers and agricultural scientists through podcasts, infographics, slides, and videos
           </p>
         </CardContent>
       </Card>
 
-      {/* Video Section */}
-      <div>
-        <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-          <Video className="h-5 w-5" />
-          Educational Videos
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {videos.map((video) => (
-            <Card key={video.id} className="group hover:shadow-lg transition-shadow">
-              <div className="relative">
-                <img 
-                  src={video.thumbnail} 
-                  alt={video.title}
-                  className="w-full h-48 object-cover rounded-t-lg"
-                />
-                <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Button
-                    size="lg"
-                    className="bg-white text-black hover:bg-gray-100"
+      <Tabs defaultValue="podcasts" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="podcasts" className="flex items-center gap-2">
+            <Headphones className="h-4 w-4" />
+            <span className="hidden sm:inline">Podcasts</span>
+          </TabsTrigger>
+          <TabsTrigger value="infographics" className="flex items-center gap-2">
+            <Image className="h-4 w-4" />
+            <span className="hidden sm:inline">Infographics</span>
+          </TabsTrigger>
+          <TabsTrigger value="slides" className="flex items-center gap-2">
+            <FileText className="h-4 w-4" />
+            <span className="hidden sm:inline">Slides</span>
+          </TabsTrigger>
+          <TabsTrigger value="videos" className="flex items-center gap-2">
+            <Video className="h-4 w-4" />
+            <span className="hidden sm:inline">Videos</span>
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Podcasts Tab */}
+        <TabsContent value="podcasts" className="space-y-4">
+          <h3 className="text-xl font-semibold flex items-center gap-2">
+            <Headphones className="h-5 w-5 text-primary" />
+            AI-Generated Podcasts
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {podcasts.map((podcast) => (
+              <Card key={podcast.id} className="group hover:shadow-lg transition-all border-2 hover:border-primary/30">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-4">
+                    <div 
+                      className={`p-4 rounded-full cursor-pointer transition-all ${
+                        playingPodcast === podcast.id 
+                          ? 'bg-primary text-primary-foreground animate-pulse' 
+                          : 'bg-primary/10 hover:bg-primary/20'
+                      }`}
+                      onClick={() => togglePodcast(podcast.id, podcast.src)}
+                    >
+                      {playingPodcast === podcast.id ? (
+                        <Pause className="h-8 w-8" />
+                      ) : (
+                        <PlayCircle className="h-8 w-8 text-primary" />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xs bg-accent/20 text-accent-foreground px-2 py-0.5 rounded-full">
+                          {podcast.category}
+                        </span>
+                        <span className="text-xs text-muted-foreground">{podcast.duration}</span>
+                      </div>
+                      <h4 className="font-semibold mb-2">{podcast.title}</h4>
+                      <p className="text-sm text-muted-foreground">{podcast.description}</p>
+                    </div>
+                  </div>
+                  <audio id={podcast.id} src={podcast.src} onEnded={() => setPlayingPodcast(null)} />
+                  <div className="mt-4">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full"
+                      onClick={() => togglePodcast(podcast.id, podcast.src)}
+                    >
+                      {playingPodcast === podcast.id ? (
+                        <>
+                          <Pause className="h-4 w-4 mr-2" />
+                          Pause
+                        </>
+                      ) : (
+                        <>
+                          <PlayCircle className="h-4 w-4 mr-2" />
+                          Listen Now
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        {/* Infographics Tab */}
+        <TabsContent value="infographics" className="space-y-4">
+          <h3 className="text-xl font-semibold flex items-center gap-2">
+            <Image className="h-5 w-5 text-primary" />
+            Visual Guides & Infographics
+          </h3>
+          <div className="grid grid-cols-1 gap-6">
+            {infographics.map((item) => (
+              <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                <div className="relative">
+                  <img 
+                    src={item.src} 
+                    alt={item.title}
+                    className="w-full h-auto object-contain cursor-pointer"
+                    onClick={() => window.open(item.src, '_blank')}
+                  />
+                  <div className="absolute top-2 left-2 bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-medium">
+                    {item.category}
+                  </div>
+                </div>
+                <CardContent className="p-4">
+                  <h4 className="font-semibold mb-2">{item.title}</h4>
+                  <p className="text-sm text-muted-foreground mb-3">{item.description}</p>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => window.open(item.src, '_blank')}
+                  >
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    View Full Size
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        {/* Slides Tab */}
+        <TabsContent value="slides" className="space-y-4">
+          <h3 className="text-xl font-semibold flex items-center gap-2">
+            <FileText className="h-5 w-5 text-primary" />
+            Presentation Slides
+          </h3>
+          <div className="grid grid-cols-1 gap-6">
+            {slides.map((item) => (
+              <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-4">
+                    <div className="p-4 rounded-lg bg-red-500/10">
+                      <FileText className="h-12 w-12 text-red-500" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">
+                          {item.category}
+                        </span>
+                        <span className="text-xs text-muted-foreground">{item.pages} pages</span>
+                      </div>
+                      <h4 className="font-semibold text-lg mb-2">{item.title}</h4>
+                      <p className="text-sm text-muted-foreground mb-4">{item.description}</p>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="default"
+                          size="sm"
+                          onClick={() => window.open(item.src, '_blank')}
+                        >
+                          <ExternalLink className="h-4 w-4 mr-2" />
+                          View PDF
+                        </Button>
+                        <Button 
+                          variant="outline"
+                          size="sm"
+                          asChild
+                        >
+                          <a href={item.src} download>
+                            <Download className="h-4 w-4 mr-2" />
+                            Download
+                          </a>
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        {/* Videos Tab */}
+        <TabsContent value="videos" className="space-y-4">
+          <h3 className="text-xl font-semibold flex items-center gap-2">
+            <Video className="h-5 w-5 text-primary" />
+            Educational Videos
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {videos.map((video) => (
+              <Card key={video.id} className="group hover:shadow-lg transition-shadow">
+                <div className="relative">
+                  <AspectRatio ratio={16 / 9}>
+                    <img 
+                      src={video.thumbnail} 
+                      alt={video.title}
+                      className="w-full h-full object-cover rounded-t-lg"
+                    />
+                  </AspectRatio>
+                  <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-t-lg">
+                    <Button
+                      size="lg"
+                      className="bg-white text-black hover:bg-gray-100"
+                      onClick={() => window.open(video.url, '_blank')}
+                    >
+                      <PlayCircle className="h-6 w-6 mr-2" />
+                      Watch Now
+                    </Button>
+                  </div>
+                  <div className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white px-2 py-1 rounded text-sm">
+                    {video.duration}
+                  </div>
+                  <div className="absolute top-2 left-2 bg-primary text-primary-foreground px-2 py-1 rounded text-sm">
+                    {video.category}
+                  </div>
+                </div>
+                <CardContent className="p-4">
+                  <h4 className="font-semibold mb-2 line-clamp-2">{video.title}</h4>
+                  <p className="text-sm text-muted-foreground line-clamp-2">{video.description}</p>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="mt-3 w-full"
                     onClick={() => window.open(video.url, '_blank')}
                   >
-                    <PlayCircle className="h-6 w-6 mr-2" />
-                    Watch Now
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    Watch on YouTube
                   </Button>
-                </div>
-                <div className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white px-2 py-1 rounded text-sm">
-                  {video.duration}
-                </div>
-                <div className="absolute top-2 left-2 bg-green-600 text-white px-2 py-1 rounded text-sm">
-                  {video.category}
-                </div>
-              </div>
-              <CardContent className="p-4">
-                <h4 className="font-semibold mb-2 line-clamp-2">{video.title}</h4>
-                <p className="text-sm text-muted-foreground line-clamp-2">{video.description}</p>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="mt-3 w-full"
-                  onClick={() => window.open(video.url, '_blank')}
-                >
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  Watch on YouTube
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-
-      {/* Articles Section */}
-      <div>
-        <h3 className="text-xl font-semibold mb-4">Latest Articles</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {articles.map((article, index) => (
-            <Card key={index} className="hover:shadow-md transition-shadow cursor-pointer">
-              <CardContent className="p-4">
-                <h4 className="font-semibold mb-2">{article.title}</h4>
-                <p className="text-sm text-muted-foreground mb-3">{article.description}</p>
-                <div className="flex justify-between items-center">
-                  <span className="text-xs text-muted-foreground">{article.readTime}</span>
-                  <Button variant="ghost" size="sm">
-                    Read More
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+      </Tabs>
 
       {/* Community Links */}
       <Card>
