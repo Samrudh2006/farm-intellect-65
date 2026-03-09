@@ -59,6 +59,7 @@ const MerchantNotifications = lazy(() => import("./pages/merchant/MerchantNotifi
 const MerchantChat = lazy(() => import("./pages/merchant/MerchantChat"));
 const MerchantOrders = lazy(() => import("./pages/merchant/MerchantOrders"));
 
+const FarmerKnowledgeHub = lazy(() => import("./pages/farmer/FarmerKnowledgeHub"));
 const ExpertAICropScanner = lazy(() => import("./pages/expert/ExpertAICropScanner"));
 const ExpertAIAdvisory = lazy(() => import("./pages/expert/ExpertAIAdvisory"));
 const ExpertChat = lazy(() => import("./pages/expert/ExpertChat"));
