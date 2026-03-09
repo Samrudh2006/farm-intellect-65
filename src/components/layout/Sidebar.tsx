@@ -48,6 +48,7 @@ const getNavigationItems = (t: (key: string) => string) => ({
     { icon: Bot, label: t('nav.ai_assistant'), href: "/farmer/chat" },
     { icon: MessageSquare, label: t('nav.forum'), href: "/farmer/forum" },
     { icon: Calendar, label: t('nav.crop_calendar'), href: "/farmer/calendar" },
+    { icon: BookOpen, label: "📚 Knowledge Hub", href: "/farmer/knowledge" },
     { icon: FileText, label: t('nav.documents'), href: "/farmer/documents" },
     { icon: Bell, label: t('nav.notifications'), href: "/farmer/notifications" },
   ],
