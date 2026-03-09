@@ -5,511 +5,233 @@
 <h1 align="center">🌾 Krishi AI — Farm Intellect</h1>
 
 <p align="center">
-  <strong>AI-Powered Smart Agriculture Platform for Indian Farmers</strong>
+  <strong>A Smart Helper App for Indian Farmers — Powered by Artificial Intelligence</strong><br/>
+  <em>Any age. Any language. Any device. 🇮🇳</em>
 </p>
 
 <p align="center">
-  <a href="https://farming-gamma.vercel.app/"><img src="https://img.shields.io/badge/🚀_Live_Demo-farm--intellect-16a34a?style=for-the-badge" alt="Live Demo" /></a>
-  <img src="https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=white" alt="React 18" />
-  <img src="https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
-  <img src="https://img.shields.io/badge/Supabase-Backend-3FCF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase" />
-  <img src="https://img.shields.io/badge/PWA-Installable-FF6F00?style=for-the-badge&logo=pwa&logoColor=white" alt="PWA" />
-  <img src="https://img.shields.io/badge/Capacitor-Android_&_iOS-119EFF?style=for-the-badge&logo=capacitor&logoColor=white" alt="Capacitor" />
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/22_Languages-Supported-FF9933?style=flat-square" alt="Languages" />
-  <img src="https://img.shields.io/badge/4_Roles-Farmer_•_Expert_•_Merchant_•_Admin-138808?style=flat-square" alt="Roles" />
-  <img src="https://img.shields.io/badge/Rating-9.4/10-gold?style=flat-square" alt="Rating" />
-  <img src="https://img.shields.io/badge/License-All_Rights_Reserved-red?style=flat-square" alt="License" />
+  <a href="https://farm-intellect-65.lovable.app/"><img src="https://img.shields.io/badge/🚀_Try_the_App-Live_Demo-16a34a?style=for-the-badge" alt="Live Demo" /></a>
+  <img src="https://img.shields.io/badge/22_Languages-Supported-FF9933?style=for-the-badge" alt="Languages" />
+  <img src="https://img.shields.io/badge/Works_Offline-Yes-138808?style=for-the-badge" alt="Offline" />
+  <img src="https://img.shields.io/badge/Free_to_Use-Open_Platform-blue?style=for-the-badge" alt="Free" />
 </p>
 
 ---
 
-## 📸 Screenshots
+## 🤔 What is Krishi AI?
 
-> All screenshots are captured from the **live application**.
+**Krishi AI** is a free app designed to help **Indian farmers make better decisions every day.**
 
-### 🔐 Login — 4-Role Selector
-<img src="docs/screenshots/login-page.png" alt="Login Page with 4 Role Selection" width="100%" />
-
-### 🏠 Landing Page — Hero Section
-<img src="docs/screenshots/login-page.png" alt="Landing Page Hero with AI Features" width="100%" />
-
-
-
-
-- [🎯 Problem Statement](#-problem-statement)
-- [✨ Key Features](#-key-features)
-- [🏗️ Architecture](#️-architecture)
-- [👥 User Roles](#-user-roles)
-- [🛠️ Tech Stack](#️-tech-stack)
-- [📁 Project Structure](#-project-structure)
-- [🚀 Getting Started](#-getting-started)
-- [📱 Mobile App (APK/IPA)](#-mobile-app-apkipa)
-- [🌐 PWA Installation](#-pwa-installation)
-- [🗄️ Database Schema](#️-database-schema)
-- [🤖 AI Capabilities](#-ai-capabilities)
-- [📊 Datasets & Knowledge Base](#-datasets--knowledge-base)
-- [🔒 Security](#-security)
-- [🧪 Testing](#-testing)
-- [🚢 Deployment](#-deployment)
-- [📖 Documentation Index](#-documentation-index)
-- [🗺️ Roadmap](#️-roadmap)
-- [📄 License](#-license)
+Think of it as a **smart farming assistant** that:
+- 📱 Works on your phone, tablet, or computer
+- 🌐 Speaks your local language (22 languages!)
+- 🤖 Uses AI to answer farming questions instantly
+- 📶 Even works **without internet** (offline mode)
+- 🌾 Covers everything — crops, diseases, weather, prices, and more
 
 ---
 
-## 🎯 Problem Statement
+## 😟 Problems Farmers Face (That This App Solves)
 
-Indian farmers juggle **multiple disconnected tools** for everyday decisions:
-
-| Challenge | Current Pain Point |
+| Problem | How Krishi AI Helps |
 |---|---|
-| 🌱 What crop to grow? | No soil + season + market integrated recommendation |
-| 🦠 Is this a disease? | No instant AI-powered crop disease scanner |
-| 💰 What's the mandi price? | Scattered price data across portals |
-| 📅 When to sow/irrigate/harvest? | No personalized crop calendar |
-| 📋 Which govt schemes apply to me? | Complex eligibility across 100+ schemes |
-| 🗣️ Language barrier | Most tools are English-only |
-
-**Krishi AI** solves this by unifying all agricultural workflows into **one role-aware, multilingual, offline-capable platform**.
-
----
-
-## ✨ Key Features
-
-### 🧑‍🌾 For Farmers
-- **AI Crop Recommendation Engine** — Soil + season + region-based suggestions
-- **AI Crop Disease Scanner** — Upload leaf photo, get instant diagnosis
-- **Smart Chatbot** — Powered by Kisan Call Centre knowledge base
-- **Personalized Crop Calendar** — ICAR-CRIDA advisory schedules
-- **Government Scheme Matcher** — Eligibility wizard for PM-KISAN, PMFBY, etc.
-- **Weather Intelligence** — Real-time weather with farming advisories
-- **Mandi Price Tracker** — Live market prices with trends
-- **Digital Farm Diary** — Field history, irrigation logs, harvest records
-- **Voice Assistant** — Multilingual voice input/output
-
-### 👨‍🔬 For Agricultural Experts
-- **Consultation Queue** — Manage farmer queries with priority triage
-- **Knowledge Hub** — Publish articles, guides, and best practices (full CRUD)
-- **AI Advisory Tools** — Enhanced AI tools for expert-level analysis
-- **Expert Chat** — Direct communication with farmers
-
-### 🏪 For Merchants
-- **Order Management** — Track crop orders with payment status
-- **Farmer Network** — Connect with local farmers
-- **Market Price Analytics** — Price trends and predictions
-- **Document Management** — Invoices, contracts, certifications
-
-### 🔧 For Administrators
-- **User Management** — RBAC with role assignment
-- **Analytics Dashboard** — Platform-wide metrics and insights
-- **Audit Logs** — Complete activity trail
-- **System Settings** — Configurable platform settings (persisted to DB)
-
-### 🌍 Platform-Wide
-- **22 Languages** — Hindi, Punjabi, Tamil, Telugu, Bengali, Marathi, Gujarati, Kannada, Malayalam, Odia, Assamese, Urdu, and more
-- **Offline Mode** — IndexedDB caching with service worker
-- **Dark/Light Theme** — Fully themed with Indian tricolor accents
-- **PWA + Native App** — Install from browser OR build APK/IPA
+| 🌱 "Which crop should I grow?" | AI suggests the best crop based on your soil, season, and location |
+| 🦠 "My plant looks sick — what's wrong?" | Take a photo → AI identifies the disease + gives treatment advice |
+| 💰 "What's the mandi price today?" | Live market prices shown in the app |
+| 📅 "When should I sow / water / harvest?" | Personalized crop calendar with reminders |
+| 📋 "Which government schemes can I get?" | Eligibility checker for PM-KISAN, PMFBY, and 100+ schemes |
+| 🗣️ "I don't understand English" | Use the app in Hindi, Punjabi, Tamil, Telugu, and 18 more languages |
+| 📵 "I have no internet in my village" | App stores data offline so you can use it anywhere |
 
 ---
 
-## 🏗️ Architecture
+## ✨ What Can You Do in the App?
 
-```mermaid
-flowchart TB
-    subgraph Client["📱 Client Layer"]
-        PWA["PWA (React + Vite)"]
-        CAP["Capacitor (Android/iOS)"]
-    end
+### 🧑‍🌾 Farmers Get:
+| Feature | What It Does |
+|---|---|
+| 🤖 **AI Chat Assistant** | Ask any farming question — get instant answers in your language |
+| 📸 **Crop Disease Scanner** | Upload a photo of your plant → get disease name + cure |
+| 🌤 **Weather Alerts** | Get farming-specific weather warnings (rain, frost, heat) |
+| 🗺 **Field Map** | View and plan your fields visually |
+| 📅 **Crop Calendar** | Day-by-day farming schedule for your crop |
+| 💬 **Talk to an Expert** | Request a call or chat with an agricultural expert |
+| 📚 **Knowledge Hub** | Watch videos, listen to podcasts, read guides, view infographics |
+| 🏛 **Scheme Checker** | Find government subsidies you qualify for |
+| 📖 **Farm Diary** | Record what you do in your field every day |
+| 🎙 **Voice Assistant** | Speak instead of type — ask questions with your voice |
 
-    subgraph Auth["🔐 Auth & Security"]
-        SA["Supabase Auth"]
-        RLS["Row-Level Security"]
-        RBAC["4-Role RBAC"]
-    end
+### 👨‍🔬 Agricultural Experts Get:
+- Answer farmer questions from a consultation queue
+- Publish farming guides and articles
+- Use AI tools for advanced crop analysis
 
-    subgraph Backend["⚡ Backend Services"]
-        EF["Edge Functions"]
-        DB["PostgreSQL (12 Tables)"]
-        ST["File Storage"]
-    end
+### 🏪 Merchants Get:
+- See which farmers have which crops for sale
+- Track orders and payments
+- Monitor market price trends
 
-    subgraph AI["🤖 AI Layer"]
-        CHAT["AI Chatbot"]
-        SCAN["Crop Disease Scanner"]
-        REC["Crop Recommender"]
-        VOICE["Voice Assistant"]
-    end
+### 🔧 Administrators Get:
+- Manage all users and roles
+- View platform analytics
+- Monitor system activity
 
-    subgraph Data["📊 Knowledge Base"]
-        KCC["Kisan Call Centre QA"]
-        CROP["Crop Disease DB"]
-        MANDI["Mandi Prices"]
-        SAT["Satellite/NDVI Data"]
-        CAL["ICAR Crop Calendar"]
-    end
+---
 
-    Client --> Auth --> Backend
-    Client --> AI
-    AI --> Data
-    Backend --> Data
+## 📚 Knowledge Hub — Where Is It?
+
+> The **Knowledge Hub** is your learning center inside the app.
+
+**How to find it (for Farmers):**
+1. Log in as a **Farmer**
+2. Click the **menu icon** (☰) on the top left to open the sidebar
+3. Scroll down and click **"📚 Knowledge Hub"**
+4. Choose a tab:
+   - 🎧 **Podcasts** — Listen to audio episodes about farming
+   - 🖼 **Infographics** — Easy-to-understand visual guides
+   - 📄 **Slides** — Download presentation files
+   - 🎬 **Videos** — Watch educational farming videos
+
+**Direct link:** [/farmer/knowledge](https://farm-intellect-65.lovable.app/farmer/knowledge)
+
+---
+
+## 🏗️ How the App is Built (Technical Overview)
+
+> *(This section is for developers. Skip it if you just want to use the app!)*
+
+```
+Your Phone/Computer
+       ↓
+  Krishi AI App (React + TypeScript)
+       ↓                    ↓
+  AI Features          Your Data (Secure Database)
+  - Chat               - Crop plans
+  - Disease scanner    - Field diary
+  - Voice assistant    - Notifications
+       ↓                    ↓
+  Indian Farming Data    Role-Based Access
+  - 50+ crop diseases    - Farmer view
+  - Mandi prices         - Expert view
+  - ICAR crop calendar   - Merchant view
+  - Kisan Call Centre    - Admin view
 ```
 
+**Tech used:**
+
+| What | Tool |
+|---|---|
+| App framework | React 18 + TypeScript |
+| Styling | Tailwind CSS |
+| Database | Supabase (PostgreSQL) |
+| AI Models | Google Gemini 2.5 |
+| Mobile app | Capacitor (Android + iOS) |
+| Hosting | Vercel |
+| Languages | 22 Indian + international languages |
+
 ---
 
-## 👥 User Roles
+## 👥 4 Types of Users (Roles)
 
-| Role | Dashboard | Key Capabilities |
+| Role | Who Is It? | What They Can Do |
 |---|---|---|
-| 🧑‍🌾 **Farmer** | Crop status, weather, tasks, AI chat | Full farming toolkit, scheme matcher, field diary |
-| 👨‍🔬 **Expert** | Consultation queue, knowledge hub | Publish articles, resolve farmer queries, AI tools |
-| 🏪 **Merchant** | Orders, farmer network, prices | Order CRUD, market analytics, documents |
-| 🔧 **Admin** | Platform analytics, user mgmt | Role assignment, audit logs, settings |
-
-> Roles stored in dedicated `user_roles` table with `app_role` enum — **never on profiles** (prevents privilege escalation).
+| 🧑‍🌾 **Farmer** | Any farmer | Full farming toolkit — crops, AI, calendar, schemes |
+| 👨‍🔬 **Expert** | Agricultural scientists | Answer questions, publish guides, use advanced AI |
+| 🏪 **Merchant** | Crop buyers / traders | Track orders, find farmers, monitor prices |
+| 🔧 **Admin** | Platform manager | Manage users, analytics, settings |
 
 ---
 
-## 🛠️ Tech Stack
+## 🚀 Try the App Right Now
 
-### Frontend
-| Technology | Purpose |
-|---|---|
-| **React 18** | UI framework |
-| **TypeScript 5** | Type safety |
-| **Vite 5** | Build tool & dev server |
-| **Tailwind CSS** | Utility-first styling |
-| **shadcn/ui + Radix** | Component library |
-| **React Router 6** | Client-side routing |
-| **TanStack Query** | Server state management |
-| **Framer Motion** | Animations |
-| **Recharts** | Data visualization |
-| **Capacitor** | Native mobile (Android/iOS) |
+👉 **[Click here to open the app](https://farm-intellect-65.lovable.app)**
 
-### Backend
-| Technology | Purpose |
-|---|---|
-| **Supabase** | Auth, PostgreSQL, Edge Functions, Storage |
-| **Row-Level Security** | Data access control |
-| **Edge Functions (Deno)** | Serverless API (weather, chat, market) |
-| **IndexedDB** | Offline data caching |
+- No download needed — works in any web browser
+- Or install it like an app on your phone (PWA)
 
-### Infrastructure
-| Technology | Purpose |
-|---|---|
-| **Vercel** | Frontend hosting (SPA) |
-| **PWA + Service Worker** | Offline support & installability |
-| **GitHub Actions** | CI/CD pipeline |
+### Install on Android:
+1. Open Chrome browser → go to the app link
+2. Tap the 3-dot menu → "Add to Home Screen"
+3. Done! It works like a regular app now
+
+### Install on iPhone:
+1. Open Safari → go to the app link
+2. Tap the Share icon (📤) → "Add to Home Screen"
+3. Done!
 
 ---
 
-## 📁 Project Structure
+## 🔒 Is My Data Safe?
 
-```
-krishi-ai/
-├── 📂 src/
-│   ├── 📂 components/
-│   │   ├── ai/              # AI chatbot, crop scanner, voice query
-│   │   ├── analytics/       # Charts, yield predictor
-│   │   ├── auth/            # Profile setup, login flows
-│   │   ├── calendar/        # Crop calendar, planner
-│   │   ├── chat/            # AI chatbot variants
-│   │   ├── consultations/   # Farmer-expert consultations
-│   │   ├── crops/           # Seasonal crop guide
-│   │   ├── dashboard/       # Role dashboards, widgets
-│   │   ├── documents/       # Document upload
-│   │   ├── features/        # 15+ advanced feature modules
-│   │   ├── forum/           # Community forum
-│   │   ├── home/            # Landing page hero, animations
-│   │   ├── layout/          # Header, sidebar, page transitions
-│   │   ├── notifications/   # Notification center
-│   │   ├── pwa/             # Install prompt
-│   │   └── ui/              # 50+ shadcn/ui components
-│   ├── 📂 contexts/         # Auth, Language providers
-│   ├── 📂 data/             # 10+ curated agri datasets
-│   ├── 📂 hooks/            # Custom React hooks
-│   ├── 📂 i18n/             # 22-language translations
-│   ├── 📂 lib/              # Utils, API, offline cache
-│   ├── 📂 pages/            # 30+ route pages
-│   │   ├── admin/           # Admin sub-pages
-│   │   ├── expert/          # Expert sub-pages
-│   │   └── merchant/        # Merchant sub-pages
-│   └── 📂 types/            # TypeScript types
-├── 📂 supabase/
-│   ├── config.toml          # Supabase configuration
-│   ├── 📂 functions/        # Edge functions (chat, weather, market)
-│   └── 📂 migrations/       # Database migrations
-├── 📂 public/
-│   ├── 📂 icons/            # PWA icons (192x192, 512x512)
-│   ├── sw.js                # Service worker
-│   ├── manifest.json        # PWA manifest
-│   └── 📂 audio/            # Ambient sounds
-├── 📂 docs/                 # 20+ documentation files
-├── capacitor.config.ts      # Native mobile config
-├── vercel.json              # Vercel deployment config
-└── .github/workflows/       # CI pipeline
-```
+Yes! Here's what we do to protect your information:
+
+- 🔐 Password-protected login with email verification
+- 🛡 Your data is only visible to you (row-level security)
+- 🚫 Farmers cannot see admin or expert data (and vice versa)
+- 🔑 No passwords or secret keys are ever stored in the code
+- ✅ Every user action is securely logged
 
 ---
 
-## 🚀 Getting Started
+## 📊 Data Sources We Use
 
-### Prerequisites
-- Node.js 18+
-- npm or bun
+All farming data comes from **trusted Indian government and research sources**:
 
-### Installation
+| Data | Source |
+|---|---|
+| Crop diseases | ICAR (Indian Council of Agricultural Research) |
+| Pest information | NCIPM (National Centre for IPM) |
+| Crop calendar | ICAR-CRIDA |
+| Market prices | Agmarknet (Government of India) |
+| Farming FAQs | Kisan Call Centre (KCC) |
+| Soil health | Soil Health Card scheme |
+| Satellite data | Sentinel Hub |
+
+---
+
+## 🗺️ What's Coming Next
+
+- [x] ✅ AI chatbot with farming knowledge
+- [x] ✅ Crop disease photo scanner
+- [x] ✅ 22 languages supported
+- [x] ✅ Works offline
+- [x] ✅ Knowledge Hub (podcasts, videos, infographics, slides)
+- [x] ✅ Expert consultation system
+- [ ] 🔜 Push notifications on your phone
+- [ ] 🔜 Drone / IoT sensor integration
+- [ ] 🔜 WhatsApp bot for farmers without smartphones
+- [ ] 🔜 Blockchain crop traceability
+
+---
+
+## 🤝 Want to Contribute?
+
+If you're a developer and want to help improve this app:
 
 ```bash
-# Clone the repository
+# 1. Copy the project to your computer
 git clone https://github.com/your-username/farm-intellect-65.git
 cd farm-intellect-65
 
-# Install dependencies
+# 2. Install required tools
 npm install
 
-# Start development server
+# 3. Start the app on your computer
 npm run dev
 ```
 
-### Environment Variables
-
-Create `.env` from `.env.example`:
-
-```env
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_PUBLISHABLE_KEY=your_anon_key
-VITE_SUPABASE_PROJECT_ID=your_project_id
-```
+Then open your browser at `http://localhost:8080`
 
 ---
 
-## 📱 Mobile App (APK/IPA)
+## 📄 License
 
-This project supports **native Android & iOS builds** via Capacitor:
+© 2025 Samrudh Hegde. All Rights Reserved.
 
-```bash
-# Add platforms
-npx cap add android
-npx cap add ios
-
-# Build and sync
-npm run build
-npx cap sync
-
-# Open in IDE
-npx cap open android    # → Android Studio
-npx cap open ios        # → Xcode (Mac only)
-```
-
-> Build APK: Android Studio → Build → Build Bundle/APK → Build APK
-
----
-
-## 🌐 PWA Installation
-
-The app is a fully installable **Progressive Web App**:
-
-- **Android**: Chrome → Menu → "Add to Home Screen"
-- **iOS**: Safari → Share → "Add to Home Screen"
-- **Desktop**: Address bar install icon or in-app prompt
-
-Features: Offline mode, push-ready, native-like experience.
-
----
-
-## 🗄️ Database Schema
-
-12 tables with Row-Level Security on every table:
-
-```mermaid
-erDiagram
-    profiles ||--o{ crop_plans : creates
-    profiles ||--o{ field_events : logs
-    profiles ||--o{ user_tasks : has
-    profiles ||--o{ scheme_matches : matched
-    profiles ||--o{ notifications : receives
-    profiles ||--o{ activity_log : generates
-    profiles ||--o{ consultations : requests
-    profiles ||--o{ orders : places
-    profiles ||--o{ knowledge_articles : authors
-    user_roles ||--|| profiles : "role for"
-    admin_settings }|--|| profiles : "managed by"
-```
-
-| Table | Purpose | RLS |
-|---|---|---|
-| `profiles` | User profiles linked to auth | ✅ Own data |
-| `user_roles` | RBAC roles (enum: farmer/expert/merchant/admin) | ✅ Security definer |
-| `crop_plans` | Farmer crop planning | ✅ Own data |
-| `field_events` | Field history timeline | ✅ Own data |
-| `user_tasks` | Task/reminder management | ✅ Own data |
-| `scheme_matches` | Government scheme eligibility | ✅ Own data |
-| `consultations` | Expert-farmer consultations | ✅ Role-based |
-| `orders` | Merchant-farmer orders | ✅ Role-based |
-| `knowledge_articles` | Expert-published articles | ✅ Author + public read |
-| `notifications` | System notifications | ✅ Own data |
-| `activity_log` | Audit trail | ✅ Own data |
-| `admin_settings` | Platform configuration | ✅ Admin only |
-
----
-
-## 🤖 AI Capabilities
-
-| Feature | Model | Description |
-|---|---|---|
-| **Smart Chatbot** | Gemini 2.5 Flash | Agricultural Q&A with Kisan Call Centre knowledge |
-| **Crop Disease Scanner** | Gemini 2.5 Pro | Upload leaf photo → disease diagnosis + treatment |
-| **Crop Recommender** | Rule-based + AI | Soil + season + region → optimal crop suggestions |
-| **Voice Assistant** | Web Speech API | Multilingual voice input/output |
-| **Yield Predictor** | Statistical | Historical data-based yield estimation |
-| **Market Predictor** | Trend analysis | Mandi price trend forecasting |
-
----
-
-## 📊 Datasets & Knowledge Base
-
-All datasets are **curated from verified Indian agricultural sources**:
-
-| Dataset | Source | Records |
-|---|---|---|
-| Crop Diseases | ICAR, CABI | 50+ diseases with symptoms & treatment |
-| Pest Database | NCIPM, IPM guides | 40+ pests with IPM strategies |
-| Crop Calendar | ICAR-CRIDA | Season-wise schedules for 15+ crops |
-| Mandi Prices | Agmarknet | Real-time + historical price data |
-| Kisan Call Centre | KCC transcripts | 100+ FAQ entries |
-| Soil Health | Soil Health Card scheme | Reference parameters |
-| Satellite/NDVI | Sentinel Hub references | Vegetation health thresholds |
-| Crop Production | DES, MoAFW | State-wise production statistics |
-
-> Full citations in [`docs/datasets.md`](docs/datasets.md)
-
----
-
-## 🔒 Security
-
-| Layer | Implementation |
-|---|---|
-| **Authentication** | Supabase Auth with email verification |
-| **Authorization** | 4-role RBAC via `user_roles` table + `has_role()` security definer |
-| **Data Protection** | Row-Level Security on all 12 tables |
-| **API Security** | JWT verification on Edge Functions |
-| **Input Validation** | Zod schemas + Express Validator |
-| **Password Safety** | HIBP leaked password check (configurable) |
-| **Cross-role Protection** | Farmers can't access admin routes; merchants can't access expert data |
-| **Secrets Management** | Environment variables, never hardcoded |
-
----
-
-## 🧪 Testing
-
-```bash
-# Frontend unit tests
-npm run test
-
-# Backend tests
-cd backend && npm run test
-
-# Linting
-npm run lint
-```
-
-- CI: GitHub Actions (`.github/workflows/ci.yml`)
-- See [`docs/testing.md`](docs/testing.md)
-
----
-
-## 🚢 Deployment
-
-### Frontend (Vercel)
-- Auto-deploys from GitHub
-- SPA rewrites configured in `vercel.json`
-- Immutable asset caching (1 year)
-
-### Backend (Supabase)
-- Edge Functions auto-deploy
-- Database migrations managed via Supabase CLI
-- RLS policies applied via migrations
-
-### Live URLs
-- **Production**: [farm-intellect-65.lovable.app](https://farm-intellect-65.lovable.app)
-- **Preview**: [id-preview--2871fc76.lovable.app](https://id-preview--2871fc76-04d4-4429-976b-62885e5f683c.lovable.app)
-
----
-
-## 📖 Documentation Index
-
-| Document | Description |
-|---|---|
-| [`docs/architecture.md`](docs/architecture.md) | System architecture & diagrams |
-| [`docs/system-design.md`](docs/system-design.md) | Detailed system design |
-| [`docs/app-structure.md`](docs/app-structure.md) | Component & page structure |
-| [`docs/service-boundaries.md`](docs/service-boundaries.md) | Service boundary definitions |
-| [`docs/database.md`](docs/database.md) | Database schema & relationships |
-| [`docs/api.md`](docs/api.md) | API endpoints reference |
-| [`docs/security.md`](docs/security.md) | Security audit & practices |
-| [`docs/datasets.md`](docs/datasets.md) | Dataset sources & citations |
-| [`docs/deployment.md`](docs/deployment.md) | Deployment guide |
-| [`docs/testing.md`](docs/testing.md) | Testing strategy |
-| [`docs/user-flows.md`](docs/user-flows.md) | User journey maps |
-| [`docs/roadmap.md`](docs/roadmap.md) | Feature roadmap |
-| [`docs/viva-script.md`](docs/viva-script.md) | Presentation/viva guide |
-| [`docs/future-capabilities.md`](docs/future-capabilities.md) | Planned enhancements |
-
----
-
-## 🗺️ Roadmap
-
-- [x] 4-role RBAC with Supabase Auth
-- [x] AI Chatbot with Kisan Call Centre knowledge
-- [x] Crop Disease Scanner
-- [x] 22-language support
-- [x] PWA with offline caching
-- [x] Native mobile via Capacitor
-- [x] Expert Knowledge Hub (CRUD)
-- [x] IndexedDB offline data sync
-- [x] Demo data seeding for all roles
-- [ ] Push notifications via FCM
-- [ ] Drone/IoT sensor integration
-- [ ] Blockchain-based crop traceability
-- [ ] WhatsApp bot integration
-- [ ] Regional weather SMS alerts
-
----
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
----
-
-## 📄 License & Copyright
-
-```
-© 2025 Samrudh. All Rights Reserved.
-```
-
-This project is **proprietary software**. No part of this software — including source code,
-documentation, datasets, AI prompts, designs, or any other materials — may be copied,
-modified, distributed, or used without **prior written authorization** from the Author.
-
-This repository is publicly visible for **demonstration and portfolio purposes only**.
-Public visibility does **NOT** grant any rights to use, copy, or create derivative works.
-
-See [LICENSE](LICENSE) for full terms and conditions.
-See [AUTHORS.md](AUTHORS.md) for authorship and intellectual property details.
+This project is created for educational and agricultural empowerment purposes.
 
 ---
 
 <p align="center">
-  <strong>© 2025 Samrudh. All Rights Reserved.</strong><br/>
-  <strong>Made with 🇮🇳 for Indian Agriculture</strong><br/>
-  <em>Krishi AI — Farm Intellect | Empowering farmers with AI-driven insights in their own language 🌾</em>
+  Made with ❤️ for Indian Farmers 🌾🇮🇳
 </p>
