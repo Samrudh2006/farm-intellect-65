@@ -554,9 +554,30 @@ erDiagram
 
 ---
 
+## ⭐ Support This Project
+
+<div align="center">
+
+> **No money needed!** Just give us a ⭐ star — it helps Indian farmers discover this free tool!
+
+<a href="https://github.com/samrudh/farm-intellect-65/stargazers">
+  <img src="https://img.shields.io/badge/⭐_STAR_THIS_REPO-Support_Indian_Farmers-FFD700?style=for-the-badge&logo=github&logoColor=black" alt="Star" />
+</a>
+
+**Why star?**
+- 🔍 Helps other farmers & developers find this project
+- 📈 Shows the community believes in digital agriculture
+- 💚 Motivates continued development — 100% free forever
+
+</div>
+
+---
+
 ## 🤝 Contributing
 
 <div align="center">
+
+We welcome contributions! See our detailed [CONTRIBUTING.md](CONTRIBUTING.md) guide.
 
 1. 🍴 Fork the repository
 2. 🌿 Create feature branch (`git checkout -b feature/amazing-feature`)
@@ -572,7 +593,7 @@ erDiagram
 
 <div align="center">
 
-**© 2025 Samrudh Hegde. All Rights Reserved.**
+**© 2025 Samrudh. All Rights Reserved.**
 
 This project is created for educational and agricultural empowerment purposes.
 
@@ -587,6 +608,10 @@ This project is created for educational and agricultural empowerment purposes.
 <p>
   <a href="https://farm-intellect-65.lovable.app/">
     <img src="https://img.shields.io/badge/🚀_TRY_THE_APP-Live_Demo-16a34a?style=for-the-badge" alt="Live Demo" />
+  </a>
+  &nbsp;
+  <a href="https://github.com/samrudh/farm-intellect-65/stargazers">
+    <img src="https://img.shields.io/badge/⭐_STAR-Support_Us-FFD700?style=for-the-badge&logo=github&logoColor=black" alt="Star" />
   </a>
 </p>
 
