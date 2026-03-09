@@ -1,0 +1,34 @@
+# Code Owners for Krishi AI — Farm Intellect
+# These users will be automatically requested for review on PRs
+
+# Global owner — all files
+* @samrudh
+
+# Frontend core
+/src/components/ @samrudh
+/src/pages/ @samrudh
+/src/contexts/ @samrudh
+
+# AI & ML features
+/src/components/ai/ @samrudh
+/src/lib/aiStream.ts @samrudh
+
+# Backend & Edge Functions
+/supabase/ @samrudh
+/backend/ @samrudh
+
+# Translations (22 languages)
+/src/i18n/ @samrudh
+
+# Security-critical files
+/SECURITY.md @samrudh
+/src/contexts/AuthContext.tsx @samrudh
+/src/middleware/ @samrudh
+
+# Documentation
+/docs/ @samrudh
+/README.md @samrudh
+/CONTRIBUTING.md @samrudh
+
+# CI/CD & Config
+/.github/ @samrudh

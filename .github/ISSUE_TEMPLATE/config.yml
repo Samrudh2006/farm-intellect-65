@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Ask a Question
+    url: https://github.com/samrudh/farm-intellect-65/discussions/new?category=q-a
+    about: Ask questions and get help from the community
+  - name: 💡 Share an Idea
+    url: https://github.com/samrudh/farm-intellect-65/discussions/new?category=ideas
+    about: Share ideas for new features or improvements
+  - name: 🔒 Report Security Vulnerability
+    url: https://github.com/samrudh/farm-intellect-65/security/advisories/new
+    about: Report security issues privately (DO NOT open a public issue)
+  - name: 📖 Read the Docs
+    url: https://farm-intellect-65.lovable.app
+    about: Check the live app and documentation first

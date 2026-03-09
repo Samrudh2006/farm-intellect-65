@@ -1,0 +1,44 @@
+title: "[Idea] "
+labels:
+  - idea
+body:
+  - type: markdown
+    attributes:
+      value: |
+        🌾 **Share your idea for Krishi AI!**
+        We love hearing from the community — especially ideas that help Indian farmers.
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: 💡 Your Idea
+      description: Describe your idea clearly
+      placeholder: "I think Krishi AI should..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: benefit
+    attributes:
+      label: 🧑‍🌾 Who Benefits?
+      description: Which users and regions would this help?
+      placeholder: "This would help farmers in Punjab who grow wheat because..."
+
+  - type: dropdown
+    id: role
+    attributes:
+      label: 👤 Which role is this for?
+      options:
+        - 🧑‍🌾 Farmer
+        - 🏪 Merchant
+        - 👨‍🔬 Expert
+        - 🔧 Admin
+        - 🌐 All Users
+    validations:
+      required: true
+
+  - type: textarea
+    id: mockup
+    attributes:
+      label: 🎨 Visual / Mockup (optional)
+      description: Any sketches, screenshots, or mockups?
