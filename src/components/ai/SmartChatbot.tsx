@@ -19,6 +19,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { searchKCCQueries, getQueriesByCategory } from "@/data/kisanCallCenter";
 import { searchDiseases, getDiseasesByCrop } from "@/data/cropDiseases";
+import { streamChat, type AiMessage } from "@/lib/aiStream";
 
 interface Message {
   id: string;
@@ -200,40 +201,105 @@ export const SmartChatbot = () => {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = input;
+    setInput("");
     setIsLoading(true);
 
-    // Simulate processing delay
-    setTimeout(() => {
-      let responseData;
-      
-      if (selectedImage) {
-        // Mock image analysis response
-        responseData = {
-          content: "I've analyzed your crop image. I can see signs of **leaf blight** with 92% confidence. The yellowing and brown spots on the leaves are characteristic symptoms.\n\n**Immediate Actions:**\n1. Remove affected leaves immediately\n2. Apply copper-based fungicide\n3. Improve drainage around plants\n4. Increase air circulation\n\n**Prevention:**\n- Water at soil level, not on leaves\n- Apply preventive fungicide spray\n- Use disease-resistant varieties next season",
-          metadata: { 
-            confidence: 92, 
-            suggestions: ["Show treatment products", "Connect with expert", "Prevention guide"],
-            imageAnalysis: true
+    // First: check local KCC/disease knowledge base for instant response
+    const localResponse = !selectedImage ? generateResponse(currentInput) : null;
+
+    // Determine chat mode from query
+    const q = currentInput.toLowerCase();
+    const mode = selectedImage ? 'disease' as const
+      : (q.includes('disease') || q.includes('blight') || q.includes('rust') || q.includes('wilt') || q.includes('rot')) ? 'disease' as const
+      : (q.includes('recommend') || q.includes('which crop') || q.includes('best crop') || q.includes('kya ugau')) ? 'recommendation' as const
+      : (q.includes('yield') || q.includes('harvest') || q.includes('production') || q.includes('kitna hoga')) ? 'yield' as const
+      : 'chat' as const;
+
+    // Build conversation history for AI
+    const aiMessages: AiMessage[] = messages
+      .filter(m => m.id !== '1') // skip welcome message
+      .slice(-10) // keep last 10 for context
+      .map(m => ({ role: m.type === 'user' ? 'user' as const : 'assistant' as const, content: m.content }));
+    aiMessages.push({ role: 'user', content: currentInput });
+
+    // Try streaming AI response
+    const botMessageId = (Date.now() + 1).toString();
+    let aiContent = '';
+    let aiSucceeded = false;
+
+    // Add placeholder bot message for streaming
+    setMessages(prev => [...prev, {
+      id: botMessageId,
+      type: 'bot',
+      content: '',
+      timestamp: new Date(),
+      metadata: { confidence: 0, suggestions: [] }
+    }]);
+
+    try {
+      await streamChat({
+        messages: aiMessages,
+        mode,
+        onDelta: (text) => {
+          aiContent += text;
+          aiSucceeded = true;
+          setMessages(prev => prev.map(m =>
+            m.id === botMessageId ? { ...m, content: aiContent, metadata: { confidence: 95, suggestions: [] } } : m
+          ));
+        },
+        onDone: () => {
+          if (!aiSucceeded && localResponse) {
+            // AI failed/empty — use local knowledge base
+            setMessages(prev => prev.map(m =>
+              m.id === botMessageId ? {
+                ...m,
+                content: localResponse.content,
+                metadata: localResponse.metadata,
+              } : m
+            ));
+          } else if (!aiSucceeded) {
+            setMessages(prev => prev.map(m =>
+              m.id === botMessageId ? {
+                ...m,
+                content: "I'm having trouble connecting to the AI service. Here's what I can help with from my local knowledge base:\n\n" + (localResponse?.content || "Please try again in a moment."),
+                metadata: { confidence: 70, suggestions: ["Try again", "Ask about diseases", "Government schemes"] },
+              } : m
+            ));
           }
-        };
-      } else {
-        responseData = generateResponse(input);
-      }
-
-      const botMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        type: 'bot',
-        content: responseData.content,
-        timestamp: new Date(),
-        metadata: responseData.metadata
-      };
-
-      setMessages(prev => [...prev, botMessage]);
+          setIsLoading(false);
+          setSelectedImage(null);
+          if (fileInputRef.current) fileInputRef.current.value = "";
+        },
+        onError: (errMsg) => {
+          // Fallback to local knowledge base on error
+          const fallback = localResponse || generateResponse(currentInput);
+          setMessages(prev => prev.map(m =>
+            m.id === botMessageId ? {
+              ...m,
+              content: fallback.content,
+              metadata: fallback.metadata,
+            } : m
+          ));
+          setIsLoading(false);
+          setSelectedImage(null);
+          if (fileInputRef.current) fileInputRef.current.value = "";
+        },
+      });
+    } catch {
+      // Hard fallback
+      const fallback = localResponse || generateResponse(currentInput);
+      setMessages(prev => prev.map(m =>
+        m.id === botMessageId ? {
+          ...m,
+          content: fallback.content,
+          metadata: fallback.metadata,
+        } : m
+      ));
       setIsLoading(false);
-      setInput("");
       setSelectedImage(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
-    }, 1000);
+    }
   };
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {

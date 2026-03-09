@@ -6,6 +6,9 @@ import { authenticate } from '../middleware/auth.js';
 import { logActivity } from '../middleware/activity.js';
 import prisma from '../config/database.js';
 import { logger } from '../utils/logger.js';
+import { predictYield, forecastPrice, assessPestRisk, recommendCrops, analyzeSoilHealth } from '../services/ml.js';
+import { detectDiseaseFromImage, diagnoseDiseaseFromText } from '../services/cv.js';
+import { classifyForumPost, analyzeSentiment, summarizeAdvisory, matchGovernmentSchemes, generateCropCalendar } from '../services/nlp.js';
 
 const router = express.Router();
 
@@ -40,16 +43,20 @@ const upload = multer({
 // Crop recommendation based on location and soil data
 router.post('/recommend-crops', authenticate, logActivity, async (req, res) => {
   try {
-    const { location, soilType, season, farmSize, experience } = req.body;
+    const { location, soilType, season, farmSize, experience, nitrogen, phosphorus, potassium, ph, temperature, humidity, rainfall } = req.body;
 
-    // Mock AI recommendation logic
-    const recommendations = generateCropRecommendations({
-      location,
-      soilType,
-      season,
+    // Real ML-powered crop recommendation
+    const recommendations = recommendCrops({
+      nitrogen: nitrogen || 280,
+      phosphorus: phosphorus || 45,
+      potassium: potassium || 320,
+      ph: ph || 7.0,
+      temperature: temperature || 28,
+      humidity: humidity || 65,
+      rainfall: rainfall || 800,
+      season: season === 'winter' ? 'Rabi' : season === 'monsoon' ? 'Kharif' : season === 'summer' ? 'Zaid' : season,
       farmSize,
       experience,
-      userRole: req.user.role
     });
 
     // Save recommendation to database
@@ -82,8 +89,8 @@ router.post('/detect-disease', authenticate, upload.single('image'), logActivity
 
     const { cropType } = req.body;
 
-    // Mock disease detection (in real app, would use ML model)
-    const detection = detectCropDisease(req.file.filename, cropType);
+    // Real CV-powered disease detection (Sarvam vision + knowledge base)
+    const detection = await detectDiseaseFromImage(req.file.path, cropType);
 
     // Clean up uploaded file after processing
     setTimeout(() => {
@@ -129,16 +136,20 @@ router.get('/suggestions', authenticate, async (req, res) => {
 // Generate yield prediction
 router.post('/predict-yield', authenticate, logActivity, async (req, res) => {
   try {
-    const { cropType, farmSize, soilQuality, irrigation, fertilizer, weather } = req.body;
+    const { cropType, farmSize, soilQuality, soilParams, irrigation, irrigationMethod, fertilizer, fertilizerTiming, weather, pestPressure } = req.body;
 
-    // Mock yield prediction
-    const prediction = predictCropYield({
+    // Real ML-powered yield prediction
+    const prediction = predictYield({
       cropType,
       farmSize,
       soilQuality,
+      soilParams,
       irrigation,
+      irrigationMethod,
       fertilizer,
-      weather
+      fertilizerTiming,
+      weather,
+      pestPressure,
     });
 
     res.json({ prediction });
@@ -166,111 +177,171 @@ router.get('/preventive-tips', authenticate, async (req, res) => {
   }
 });
 
-// Helper functions for AI logic (mock implementations)
-const generateCropRecommendations = (params) => {
-  const { location, soilType, season, farmSize, experience } = params;
+// ─── New ML/NLP/CV Routes ──────────────────────────────────────────────────
 
-  const crops = {
-    'winter': ['wheat', 'barley', 'peas', 'mustard'],
-    'summer': ['rice', 'cotton', 'sugarcane', 'maize'],
-    'monsoon': ['rice', 'cotton', 'pulses', 'vegetables']
-  };
+// Price forecasting
+router.post('/forecast-price', authenticate, logActivity, async (req, res) => {
+  try {
+    const { commodity, months, currentPrice } = req.body;
+    const forecast = forecastPrice({ commodity, months, currentPrice });
+    res.json({ forecast });
+  } catch (error) {
+    logger.error('Price forecast error:', error);
+    res.status(500).json({ error: 'Failed to forecast prices' });
+  }
+});
 
-  const seasonCrops = crops[season] || crops['summer'];
-  
-  return seasonCrops.map(crop => ({
-    crop,
-    suitability: Math.random() * 40 + 60, // 60-100%
-    confidence: Math.random() * 30 + 70,  // 70-100%
-    reason: `${crop} is well-suited for ${season} season in ${location} with ${soilType} soil.`,
-    expectedYield: `${Math.floor(Math.random() * 20 + 10)} quintals per acre`,
-    growthPeriod: `${Math.floor(Math.random() * 60 + 90)} days`,
-    investmentRequired: `₹${Math.floor(Math.random() * 50000 + 25000)} per acre`
-  }));
-};
+// Pest risk assessment
+router.post('/pest-risk', authenticate, logActivity, async (req, res) => {
+  try {
+    const { cropType, temperature, humidity, season, region, previousPestHistory } = req.body;
+    const assessment = assessPestRisk({ cropType, temperature, humidity, season, region, previousPestHistory });
+    res.json({ assessment });
+  } catch (error) {
+    logger.error('Pest risk assessment error:', error);
+    res.status(500).json({ error: 'Failed to assess pest risk' });
+  }
+});
 
-const detectCropDisease = (imageFilename, cropType) => {
-  // Mock disease detection results
-  const diseases = [
-    {
-      disease: 'Late Blight',
-      confidence: 85,
-      severity: 'high',
-      description: 'Fungal infection affecting leaves and stems',
-      treatment: 'Apply copper-based fungicide immediately',
-      prevention: 'Ensure proper spacing and ventilation'
-    },
-    {
-      disease: 'Powdery Mildew',
-      confidence: 72,
-      severity: 'medium',
-      description: 'White powdery growth on leaf surfaces',
-      treatment: 'Spray with neem oil or sulfur-based fungicide',
-      prevention: 'Avoid overhead watering and improve air circulation'
+// Soil health analysis
+router.post('/soil-analysis', authenticate, logActivity, async (req, res) => {
+  try {
+    const { ph, nitrogen, phosphorus, potassium, organicCarbon, moisture, ec } = req.body;
+    const analysis = analyzeSoilHealth({ ph, nitrogen, phosphorus, potassium, organicCarbon, moisture, ec });
+    res.json({ analysis });
+  } catch (error) {
+    logger.error('Soil analysis error:', error);
+    res.status(500).json({ error: 'Failed to analyze soil' });
+  }
+});
+
+// Text-based disease diagnosis (NLP)
+router.post('/diagnose-disease', authenticate, logActivity, async (req, res) => {
+  try {
+    const { description, cropType } = req.body;
+    if (!description) return res.status(400).json({ error: 'Symptom description is required' });
+    const diagnosis = await diagnoseDiseaseFromText(description, cropType);
+    res.json({ diagnosis });
+  } catch (error) {
+    logger.error('Disease diagnosis error:', error);
+    res.status(500).json({ error: 'Failed to diagnose disease' });
+  }
+});
+
+// Forum post auto-tagging (NLP)
+router.post('/classify-post', authenticate, async (req, res) => {
+  try {
+    const { title, body } = req.body;
+    const classification = await classifyForumPost(title, body);
+    res.json({ classification });
+  } catch (error) {
+    logger.error('Post classification error:', error);
+    res.status(500).json({ error: 'Failed to classify post' });
+  }
+});
+
+// Sentiment analysis (NLP)
+router.post('/sentiment', authenticate, async (req, res) => {
+  try {
+    const { text } = req.body;
+    if (!text) return res.status(400).json({ error: 'Text is required' });
+    const sentiment = await analyzeSentiment(text);
+    res.json({ sentiment });
+  } catch (error) {
+    logger.error('Sentiment analysis error:', error);
+    res.status(500).json({ error: 'Failed to analyze sentiment' });
+  }
+});
+
+// Advisory summarization (NLP)
+router.post('/summarize', authenticate, async (req, res) => {
+  try {
+    const { text, targetLanguage } = req.body;
+    if (!text) return res.status(400).json({ error: 'Text is required' });
+    const summary = await summarizeAdvisory(text, targetLanguage);
+    res.json({ summary });
+  } catch (error) {
+    logger.error('Summarization error:', error);
+    res.status(500).json({ error: 'Failed to summarize' });
+  }
+});
+
+// Government scheme matching (NLP)
+router.post('/match-schemes', authenticate, logActivity, async (req, res) => {
+  try {
+    const { landHolding, cropType, state, category, income } = req.body;
+    const schemes = await matchGovernmentSchemes({ landHolding, cropType, state, category, income });
+    res.json({ schemes });
+  } catch (error) {
+    logger.error('Scheme matching error:', error);
+    res.status(500).json({ error: 'Failed to match schemes' });
+  }
+});
+
+// Crop calendar generation (NLP)
+router.post('/crop-calendar', authenticate, logActivity, async (req, res) => {
+  try {
+    const { cropType, location, soilType, sowingDate } = req.body;
+    const calendar = await generateCropCalendar({ cropType, location, soilType, sowingDate });
+    res.json({ calendar });
+  } catch (error) {
+    logger.error('Crop calendar error:', error);
+    res.status(500).json({ error: 'Failed to generate crop calendar' });
+  }
+});
+
+// Get preventive tips for experts dashboard
+router.get('/preventive-tips', authenticate, async (req, res) => {
+  try {
+    if (!['EXPERT', 'ADMIN'].includes(req.user.role)) {
+      return res.status(403).json({ error: 'Access denied' });
     }
-  ];
 
-  return diseases[Math.floor(Math.random() * diseases.length)];
-};
+    const { category, season } = req.query;
 
-const predictCropYield = (params) => {
-  const { cropType, farmSize, soilQuality, irrigation, fertilizer } = params;
-  
-  const baseYield = {
-    'rice': 25,
-    'wheat': 30,
-    'cotton': 20,
-    'sugarcane': 60,
-    'maize': 35
-  };
+    const tips = getPreventiveTips(category, season);
 
-  const base = baseYield[cropType] || 25;
-  const qualityMultiplier = soilQuality === 'good' ? 1.2 : soilQuality === 'fair' ? 1.0 : 0.8;
-  const irrigationMultiplier = irrigation === 'adequate' ? 1.1 : 0.9;
-  const fertilizerMultiplier = fertilizer === 'optimal' ? 1.15 : 1.0;
+    res.json({ tips });
+  } catch (error) {
+    logger.error('Get preventive tips error:', error);
+    res.status(500).json({ error: 'Failed to fetch preventive tips' });
+  }
+});
 
-  const predictedYield = base * qualityMultiplier * irrigationMultiplier * fertilizerMultiplier;
-  const totalYield = predictedYield * farmSize;
-
-  return {
-    yieldPerAcre: Math.round(predictedYield * 10) / 10,
-    totalYield: Math.round(totalYield * 10) / 10,
-    unit: 'quintals',
-    confidence: 78,
-    factors: {
-      soilQuality: qualityMultiplier,
-      irrigation: irrigationMultiplier,
-      fertilizer: fertilizerMultiplier
-    }
-  };
-};
+// ─── Helper: Preventive tips (kept as static knowledge base) ──────────────────
 
 const getPreventiveTips = (category, season) => {
   const tipsByCategory = {
     'pest-control': [
-      'Regular field monitoring for early pest detection',
-      'Use pheromone traps for specific pests',
-      'Encourage beneficial insects through habitat creation',
-      'Rotate crops to break pest cycles'
+      'Regular field monitoring for early pest detection — scout every 3-5 days during critical stages',
+      'Install pheromone traps (5-10/hectare) for targeted pest monitoring',
+      'Encourage beneficial insects through border crop plantings (marigold, sunflower)',
+      'Rotate crops to break pest cycles — follow cereal-pulse-oilseed rotation',
+      'Apply neem-based biopesticide (Azadirachtin 0.03%) as preventive spray at 5ml/L',
     ],
     'disease-prevention': [
-      'Maintain proper plant spacing for air circulation',
-      'Use disease-resistant varieties when available',
-      'Practice crop rotation to reduce soil-borne diseases',
-      'Remove and destroy infected plant debris'
+      'Maintain plant spacing per ICAR guidelines for adequate air circulation',
+      'Use disease-resistant varieties — check latest PAU/IARI recommendations',
+      'Practice 3-year crop rotation to reduce soil-borne pathogen buildup',
+      'Apply Trichoderma viride (5g/L) as preventive foliar spray at 15-day intervals',
+      'Remove and destroy infected plant debris — do not compost diseased material',
+      'Treat seeds with Carbendazim (2g/kg) or Thiram (2.5g/kg) before sowing',
     ],
     'soil-health': [
-      'Regular soil testing for nutrient levels',
-      'Apply organic matter to improve soil structure',
-      'Practice minimum tillage to preserve soil health',
-      'Use cover crops to prevent soil erosion'
+      'Get Soil Health Card — free testing at nearest KVK (soilhealth.dac.gov.in)',
+      'Apply FYM/compost at 10-15 tonnes/hectare before sowing',
+      'Practice green manuring with Dhaincha/Sesbania — 45 days before main crop',
+      'Use biofertilizers: Rhizobium (pulses), Azotobacter (cereals), PSB (all crops)',
+      'Minimum tillage to preserve soil structure and microbial activity',
+      'Maintain organic carbon above 0.5% — add vermicompost 5 tonnes/ha annually',
     ],
     'irrigation': [
-      'Monitor soil moisture levels regularly',
-      'Use drip irrigation for water efficiency',
-      'Avoid overwatering to prevent root diseases',
-      'Time irrigation based on crop growth stages'
-    ]
+      'Monitor soil moisture with tensiometer or hand-feel method before irrigating',
+      'Drip irrigation saves 30-50% water — PMKSY subsidy available (55-75%)',
+      'Irrigate at critical growth stages: crown root initiation, flowering, grain filling',
+      'Avoid waterlogging — ensure proper field drainage channels',
+      'Mulching reduces evaporation by 25-35% — use crop residue or plastic mulch',
+    ],
   };
 
   return tipsByCategory[category] || tipsByCategory['pest-control'];

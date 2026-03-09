@@ -1,0 +1,7 @@
+tensorflow>=2.15.0,<2.18.0
+tensorflowjs>=4.17.0
+numpy>=1.24.0
+Pillow>=10.0.0
+scikit-learn>=1.3.0
+matplotlib>=3.8.0
+kagglehub>=0.2.0

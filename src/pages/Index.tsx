@@ -1,9 +1,11 @@
+import { useState, useRef } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { AshokaChakra } from "@/components/ui/ashoka-chakra";
 import { FloatingAIAssistant } from "@/components/home/FloatingAIAssistant";
 import { ScrollReveal, CountUp, ParallaxFloat } from "@/components/home/ScrollReveal";
@@ -11,7 +13,7 @@ import { LanguageSelector } from "@/components/ui/language-selector";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   Wheat, Brain, CloudSun, TrendingUp, Shield, Users,
-  ArrowRight, CheckCircle, Sparkles, Zap, BarChart3, Leaf
+  ArrowRight, CheckCircle, Sparkles, Zap, BarChart3, Leaf, Play
 } from "lucide-react";
 
 const fadeUp = {
@@ -33,6 +35,8 @@ const scaleIn = {
 const Index = () => {
   const { t } = useLanguage();
   const { user, profile, loading } = useAuth();
+  const [demoOpen, setDemoOpen] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   // Auto-redirect authenticated users to their role dashboard
   if (!loading && user && profile) {
@@ -171,11 +175,15 @@ const Index = () => {
                   <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
-              <Link to="/login">
-                <Button size="lg" variant="outline" className="w-full sm:w-auto border-primary text-primary hover:bg-primary hover:text-primary-foreground text-base px-8 backdrop-blur-sm bg-background/50 font-semibold">
-                  {t('hero.demo')}
-                </Button>
-              </Link>
+              <Button
+                size="lg"
+                variant="outline"
+                className="w-full sm:w-auto border-primary text-primary hover:bg-primary hover:text-primary-foreground text-base px-8 backdrop-blur-sm bg-background/50 font-semibold"
+                onClick={() => setDemoOpen(true)}
+              >
+                <Play className="mr-2 h-5 w-5" />
+                {t('hero.demo')}
+              </Button>
             </motion.div>
           </div>
         </div>
@@ -333,6 +341,27 @@ const Index = () => {
 
       {/* Floating AI Assistant */}
       <FloatingAIAssistant />
+
+      {/* Demo Video Modal */}
+      <Dialog open={demoOpen} onOpenChange={(open) => {
+        setDemoOpen(open);
+        if (!open && videoRef.current) {
+          videoRef.current.pause();
+          videoRef.current.currentTime = 0;
+        }
+      }}>
+        <DialogContent className="max-w-4xl w-[95vw] p-0 overflow-hidden bg-black border-0">
+          <video
+            ref={videoRef}
+            src="/videos/krishi-ai-demo.mp4"
+            controls
+            autoPlay
+            className="w-full h-auto max-h-[80vh] object-contain"
+          >
+            Your browser does not support the video tag.
+          </video>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

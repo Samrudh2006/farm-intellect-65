@@ -463,6 +463,58 @@ export const priceTrends: PriceTrend[] = [
   }
 ];
 
+// ============ LIVE API INTEGRATION ============
+
+import { supabase } from "@/integrations/supabase/client";
+
+export interface LiveMarketPrice {
+  crop: string;
+  market: string;
+  minPrice: number;
+  maxPrice: number;
+  modalPrice: number;
+  unit: string;
+  date?: string;
+}
+
+/**
+ * Fetch live mandi prices from data.gov.in via Supabase Edge Function.
+ * Falls back to static dataset if the API is unavailable.
+ */
+export async function fetchLiveMandiPrices(
+  state = "Punjab",
+  district?: string
+): Promise<{ prices: LiveMarketPrice[]; source: "live" | "static" }> {
+  try {
+    const { data, error } = await supabase.functions.invoke("market-prices", {
+      body: { state, district },
+    });
+    if (!error && data?.prices?.length > 0) {
+      return { prices: data.prices, source: "live" };
+    }
+  } catch {
+    // Edge function unavailable — fall through to static data
+  }
+
+  // Fallback: convert static dataset to LiveMarketPrice format
+  const staticPrices: LiveMarketPrice[] = getMandiPricesByState(state).map((entry) => {
+    const parent = mandiPrices.find((m) =>
+      m.marketPrices.some((p) => p.market === entry.market && p.state === entry.state)
+    );
+    return {
+      crop: parent?.commodity ?? "Unknown",
+      market: `${entry.market}, ${entry.district}`,
+      minPrice: entry.minPrice,
+      maxPrice: entry.maxPrice,
+      modalPrice: entry.modalPrice,
+      unit: "per quintal",
+      date: entry.date,
+    };
+  });
+
+  return { prices: staticPrices, source: "static" };
+}
+
 // ============ HELPER FUNCTIONS ============
 
 export const getMandiPricesByCommodity = (commodity: string): MandiPrice | undefined =>
