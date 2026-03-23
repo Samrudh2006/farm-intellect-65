@@ -193,7 +193,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signInWithPhone = async (phone: string) => {
     try {
-      const result = await FirebaseAuth.sendOTP(phone);
+      const result = await FirebaseAuth.sendOTP(phone, "recaptcha-container");
       return { confirmationResult: result, error: null };
     } catch (error: any) {
       return { confirmationResult: null, error: error as Error | null };
