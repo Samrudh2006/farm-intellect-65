@@ -74,18 +74,6 @@ export const sendOTP = async (
       body: JSON.stringify({ phone, channel }),
     });
 
-    // Handle non-JSON responses (e.g., HTML error pages)
-    const contentType = response.headers.get('content-type');
-    if (!contentType || !contentType.includes('application/json')) {
-      console.error('[v0] Non-JSON response from API:', response.status);
-      return {
-        success: false,
-        message: 'Server error. Please ensure the backend is running.',
-        channel,
-        error: `Server returned non-JSON response (${response.status})`,
-      };
-    }
-
     const data = await response.json();
 
     if (!response.ok) {
@@ -135,17 +123,6 @@ export const verifyOTP = async (
       body: JSON.stringify({ phone, code, name, role }),
     });
 
-    // Handle non-JSON responses
-    const contentType = response.headers.get('content-type');
-    if (!contentType || !contentType.includes('application/json')) {
-      console.error('[v0] Non-JSON response from API:', response.status);
-      return {
-        success: false,
-        message: 'Server error. Please ensure the backend is running.',
-        error: `Server returned non-JSON response (${response.status})`,
-      };
-    }
-
     const data = await response.json();
 
     if (!response.ok) {
@@ -190,18 +167,6 @@ export const resendOTP = async (
       },
       body: JSON.stringify({ phone, channel }),
     });
-
-    // Handle non-JSON responses
-    const contentType = response.headers.get('content-type');
-    if (!contentType || !contentType.includes('application/json')) {
-      console.error('[v0] Non-JSON response from API:', response.status);
-      return {
-        success: false,
-        message: 'Server error. Please ensure the backend is running.',
-        channel,
-        error: `Server returned non-JSON response (${response.status})`,
-      };
-    }
 
     const data = await response.json();
 
