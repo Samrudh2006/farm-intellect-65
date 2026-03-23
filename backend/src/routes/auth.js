@@ -2,7 +2,7 @@ import express from 'express';
 import { body, validationResult } from 'express-validator';
 import prisma from '../config/database.js';
 import { generateToken, hashPassword, comparePassword } from '../utils/auth.js';
-import { sendOTP, verifyOTP } from '../utils/otp.js';
+import { sendOTP, verifyOTP, sendPhoneOTP, verifyPhoneOTP } from '../utils/otp.js';
 import { logActivity } from '../middleware/activity.js';
 import { logger } from '../utils/logger.js';
 
@@ -270,6 +270,158 @@ router.post('/reset-password', async (req, res) => {
   } catch (error) {
     logger.error('Reset password error:', error);
     res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ===========================================
+// PHONE OTP AUTHENTICATION (Twilio Verify)
+// ===========================================
+
+// Send OTP via SMS or WhatsApp
+router.post('/phone/send-otp', async (req, res) => {
+  try {
+    const { phone, channel = 'sms' } = req.body;
+
+    if (!phone) {
+      return res.status(400).json({ error: 'Phone number is required' });
+    }
+
+    // Validate phone format (E.164)
+    const phoneRegex = /^\+[1-9]\d{6,14}$/;
+    if (!phoneRegex.test(phone)) {
+      return res.status(400).json({ 
+        error: 'Invalid phone format. Use E.164 format (e.g., +919876543210)' 
+      });
+    }
+
+    // Validate channel
+    if (!['sms', 'whatsapp'].includes(channel)) {
+      return res.status(400).json({ error: 'Invalid channel. Use "sms" or "whatsapp"' });
+    }
+
+    const result = await sendPhoneOTP(phone, channel);
+
+    res.json({ 
+      success: true,
+      message: `OTP sent via ${channel}`,
+      channel: result.channel
+    });
+  } catch (error) {
+    logger.error('Phone send OTP error:', error);
+    res.status(500).json({ error: error.message || 'Failed to send OTP' });
+  }
+});
+
+// Verify OTP and authenticate/register user
+router.post('/phone/verify-otp', async (req, res) => {
+  try {
+    const { phone, code, name, role = 'FARMER' } = req.body;
+
+    if (!phone || !code) {
+      return res.status(400).json({ error: 'Phone and OTP code are required' });
+    }
+
+    // Verify OTP via Twilio
+    const verifyResult = await verifyPhoneOTP(phone, code);
+
+    if (!verifyResult.success) {
+      return res.status(400).json({ error: verifyResult.error || 'Invalid OTP' });
+    }
+
+    // Check if user exists with this phone
+    let user = await prisma.user.findFirst({
+      where: { phone },
+      include: {
+        farmerProfile: true,
+        merchantProfile: true,
+        expertProfile: true
+      }
+    });
+
+    let isNewUser = false;
+
+    if (!user) {
+      // Create new user with phone
+      isNewUser = true;
+      
+      user = await prisma.user.create({
+        data: {
+          phone,
+          name: name || `User ${phone.slice(-4)}`,
+          role,
+          isVerified: true,
+          phoneVerified: true
+        }
+      });
+
+      // Create role-specific profile
+      if (role === 'FARMER') {
+        await prisma.farmerProfile.create({
+          data: { userId: user.id }
+        });
+      } else if (role === 'MERCHANT') {
+        await prisma.merchantProfile.create({
+          data: { userId: user.id }
+        });
+      } else if (role === 'EXPERT') {
+        await prisma.expertProfile.create({
+          data: { userId: user.id }
+        });
+      }
+
+      // Refetch with profile
+      user = await prisma.user.findUnique({
+        where: { id: user.id },
+        include: {
+          farmerProfile: true,
+          merchantProfile: true,
+          expertProfile: true
+        }
+      });
+    } else {
+      // Update phone verification status
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { phoneVerified: true }
+      });
+    }
+
+    // Generate JWT token
+    const token = generateToken({ userId: user.id, role: user.role });
+    const { password: _, ...userWithoutPassword } = user;
+
+    res.json({
+      success: true,
+      token,
+      user: userWithoutPassword,
+      isNewUser,
+      message: isNewUser ? 'Account created successfully' : 'Login successful'
+    });
+  } catch (error) {
+    logger.error('Phone verify OTP error:', error);
+    res.status(500).json({ error: error.message || 'Verification failed' });
+  }
+});
+
+// Resend phone OTP
+router.post('/phone/resend-otp', async (req, res) => {
+  try {
+    const { phone, channel = 'sms' } = req.body;
+
+    if (!phone) {
+      return res.status(400).json({ error: 'Phone number is required' });
+    }
+
+    const result = await sendPhoneOTP(phone, channel);
+
+    res.json({ 
+      success: true,
+      message: `OTP resent via ${channel}`,
+      channel: result.channel
+    });
+  } catch (error) {
+    logger.error('Phone resend OTP error:', error);
+    res.status(500).json({ error: error.message || 'Failed to resend OTP' });
   }
 });
 

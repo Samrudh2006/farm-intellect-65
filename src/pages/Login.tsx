@@ -9,7 +9,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSelector } from "@/components/ui/language-selector";
 import { AshokaChakra } from "@/components/ui/ashoka-chakra";
 import { useToast } from "@/hooks/use-toast";
-import { FirebaseAuth } from "@/integrations/firebase/client";
+import { TwilioAuth, type OTPChannel } from "@/services/twilioAuth";
 import heroImage from "@/assets/hero-farming.jpg";
 import farmerImg from "@/assets/roles/farmer-role.jpg";
 import merchantImg from "@/assets/roles/merchant-role.jpg";
@@ -26,14 +26,14 @@ const Login = () => {
   const [otpSent, setOtpSent] = useState(false);
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [resendTimer, setResendTimer] = useState(0);
-  const [loginMethod, setLoginMethod] = useState<"sms" | "whatsapp">("sms");
+  const [loginMethod, setLoginMethod] = useState<OTPChannel>("sms");
+  const [formattedPhone, setFormattedPhone] = useState<string>("");
   const [formData, setFormData] = useState({
     phone: "",
     name: "",
     location: "",
     aadhaar: "",
   });
-  const [confirmationResult, setConfirmationResult] = useState<any>(null);
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
@@ -49,39 +49,36 @@ const Login = () => {
     setOtpSent(false);
     setFormData({ phone: "", name: "", location: "", aadhaar: "" });
     setOtp(["", "", "", "", "", ""]);
-    setConfirmationResult(null);
+    setFormattedPhone("");
   };
 
-  const sendOTP = async () => {
+  const sendOTP = async (channel: OTPChannel = loginMethod) => {
     if (!formData.phone || formData.phone.length < 10) {
       toast({ title: t("auth.invalid_phone"), description: "Please enter a valid 10-digit phone number", variant: "destructive" });
       return;
     }
 
-    const phoneNumber = `+91${formData.phone}`;
+    const phoneNumber = TwilioAuth.formatPhoneE164(formData.phone, "+91");
+    setFormattedPhone(phoneNumber);
+    setLoginMethod(channel);
     setLoading(true);
 
     try {
-      await FirebaseAuth.sendOTP(phoneNumber, "recaptcha-container");
-      setOtpSent(true);
-      setResendTimer(30);
-      toast({ 
-        title: t("auth.otp_sent"), 
-        description: loginMethod === "whatsapp" ? "OTP sent via WhatsApp" : "OTP sent via SMS" 
-      });
+      const result = await TwilioAuth.sendOTP(phoneNumber, channel);
+      
+      if (result.success) {
+        setOtpSent(true);
+        setResendTimer(30);
+        toast({ 
+          title: t("auth.otp_sent"), 
+          description: channel === "whatsapp" ? "OTP sent via WhatsApp" : "OTP sent via SMS" 
+        });
+      } else {
+        toast({ title: t("auth.error"), description: result.error || "Failed to send OTP", variant: "destructive" });
+      }
     } catch (error: any) {
       console.error("OTP Error:", error);
-      let errorMessage = "Failed to send OTP";
-      
-      if (error.code === "auth/invalid-phone-number") {
-        errorMessage = "Invalid phone number format";
-      } else if (error.code === "auth/too-many-requests") {
-        errorMessage = "Too many requests. Please try again later.";
-      } else if (error.code === "auth/quota-exceeded") {
-        errorMessage = "SMS quota exceeded. Please try again later.";
-      }
-      
-      toast({ title: t("auth.error"), description: errorMessage, variant: "destructive" });
+      toast({ title: t("auth.error"), description: error.message || "Failed to send OTP", variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -96,19 +93,29 @@ const Login = () => {
 
     setLoading(true);
     try {
-      const user = await FirebaseAuth.verifyOTP(otpCode);
+      const result = await TwilioAuth.verifyOTP(
+        formattedPhone, 
+        otpCode, 
+        formData.name || undefined, 
+        selectedRole?.toUpperCase() || "FARMER"
+      );
       
-      if (user) {
+      if (result.success && result.user) {
+        // Store user data and token
         const userData = {
-          uid: user.uid,
-          phone: user.phoneNumber,
-          role: selectedRole,
-          displayName: formData.name || user.phoneNumber,
+          id: result.user.id,
+          phone: result.user.phone,
+          role: result.user.role.toLowerCase(),
+          displayName: result.user.name,
           aadhaar: formData.aadhaar,
           location: formData.location,
+          isNewUser: result.isNewUser,
         };
         
         localStorage.setItem("farmer_user", JSON.stringify(userData));
+        if (result.token) {
+          localStorage.setItem("auth_token", result.token);
+        }
         
         const routes: Record<string, string> = {
           farmer: "/farmer/dashboard",
@@ -117,20 +124,18 @@ const Login = () => {
           admin: "/admin/dashboard",
         };
         
-        toast({ title: t("auth.login_success"), description: t("auth.welcome_back") });
-        navigate(routes[selectedRole || "farmer"] || "/farmer/dashboard");
+        const userRole = result.user.role.toLowerCase();
+        toast({ 
+          title: result.isNewUser ? "Account Created!" : t("auth.login_success"), 
+          description: result.isNewUser ? "Welcome to Smart Crop Advisory!" : t("auth.welcome_back") 
+        });
+        navigate(routes[userRole] || "/farmer/dashboard");
+      } else {
+        toast({ title: t("auth.error"), description: result.error || "Verification failed", variant: "destructive" });
       }
     } catch (error: any) {
       console.error("OTP Verification Error:", error);
-      let errorMessage = "Invalid OTP";
-      
-      if (error.code === "auth/invalid-verification-code") {
-        errorMessage = "Invalid OTP code. Please try again.";
-      } else if (error.code === "auth/code-expired") {
-        errorMessage = "OTP has expired. Please request a new one.";
-      }
-      
-      toast({ title: t("auth.error"), description: errorMessage, variant: "destructive" });
+      toast({ title: t("auth.error"), description: error.message || "Verification failed", variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -295,9 +300,23 @@ const Login = () => {
                   {resendTimer > 0 ? (
                     <p className="text-sm text-muted-foreground">Resend OTP in {resendTimer}s</p>
                   ) : (
-                    <button onClick={sendOTP} className="text-sm text-primary hover:underline">
-                      Resend OTP
-                    </button>
+                    <div className="flex justify-center gap-4">
+                      <button 
+                        onClick={() => sendOTP("sms")} 
+                        className="text-sm text-primary hover:underline"
+                        disabled={loading}
+                      >
+                        Resend via SMS
+                      </button>
+                      <span className="text-muted-foreground">|</span>
+                      <button 
+                        onClick={() => sendOTP("whatsapp")} 
+                        className="text-sm text-green-600 hover:underline"
+                        disabled={loading}
+                      >
+                        Resend via WhatsApp
+                      </button>
+                    </div>
                   )}
                 </div>
               </CardContent>
@@ -475,14 +494,26 @@ const Login = () => {
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <Button variant="outline" type="button" className="h-14 py-0" onClick={() => { setLoginMethod("sms"); sendOTP(); }}>
+                <Button 
+                  variant="outline" 
+                  type="button" 
+                  className="h-14 py-0" 
+                  onClick={() => sendOTP("sms")}
+                  disabled={loading || !formData.phone || formData.phone.length < 10}
+                >
                   <svg className="h-7 w-7 text-blue-500" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
                     <path d="M7 9h10v2H7zm0-3h10v2H7zm0 6h7v2H7z"/>
                   </svg>
                   <span className="ml-2">SMS OTP</span>
                 </Button>
-                <Button variant="outline" type="button" className="h-14 py-0" onClick={() => { setLoginMethod("whatsapp"); sendOTP(); }}>
+                <Button 
+                  variant="outline" 
+                  type="button" 
+                  className="h-14 py-0 border-green-200 hover:bg-green-50 hover:border-green-300" 
+                  onClick={() => sendOTP("whatsapp")}
+                  disabled={loading || !formData.phone || formData.phone.length < 10}
+                >
                   <svg className="h-7 w-7" viewBox="0 0 24 24" fill="#25D366">
                     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
                   </svg>
@@ -512,8 +543,7 @@ const Login = () => {
           <div className="tricolor-bar h-1 mt-4 rounded-full" />
         </div>
       </div>
-      <div id="recaptcha-container"></div>
-    </div>
+      </div>
   );
 };
 

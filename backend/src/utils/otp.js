@@ -20,6 +20,99 @@ const twilioClient = process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_T
   ? twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
   : null;
 
+// Twilio Verify Service SID for managed OTP
+const TWILIO_VERIFY_SERVICE_SID = process.env.TWILIO_VERIFY_SERVICE_SID;
+
+// ===========================================
+// TWILIO VERIFY API - Phone OTP (SMS/WhatsApp)
+// ===========================================
+
+/**
+ * Send OTP via Twilio Verify API
+ * @param {string} phoneNumber - Phone number in E.164 format (e.g., +919876543210)
+ * @param {string} channel - 'sms' or 'whatsapp'
+ * @returns {Promise<{success: boolean, error?: string}>}
+ */
+export const sendPhoneOTP = async (phoneNumber, channel = 'sms') => {
+  try {
+    if (!twilioClient || !TWILIO_VERIFY_SERVICE_SID) {
+      logger.error('Twilio Verify not configured');
+      throw new Error('OTP service not configured');
+    }
+
+    // Validate channel
+    const validChannels = ['sms', 'whatsapp'];
+    if (!validChannels.includes(channel)) {
+      throw new Error('Invalid channel. Use "sms" or "whatsapp"');
+    }
+
+    // Send verification via Twilio Verify API
+    const verification = await twilioClient.verify.v2
+      .services(TWILIO_VERIFY_SERVICE_SID)
+      .verifications.create({
+        to: phoneNumber,
+        channel: channel
+      });
+
+    logger.info(`Phone OTP sent via ${channel} to ${phoneNumber}, status: ${verification.status}`);
+    
+    return { 
+      success: true, 
+      status: verification.status,
+      channel: channel
+    };
+  } catch (error) {
+    logger.error(`Send phone OTP error (${channel}):`, error);
+    throw new Error(error.message || 'Failed to send OTP');
+  }
+};
+
+/**
+ * Verify OTP via Twilio Verify API
+ * @param {string} phoneNumber - Phone number in E.164 format
+ * @param {string} code - 6-digit OTP code
+ * @returns {Promise<{success: boolean, error?: string}>}
+ */
+export const verifyPhoneOTP = async (phoneNumber, code) => {
+  try {
+    if (!twilioClient || !TWILIO_VERIFY_SERVICE_SID) {
+      logger.error('Twilio Verify not configured');
+      throw new Error('OTP service not configured');
+    }
+
+    const verificationCheck = await twilioClient.verify.v2
+      .services(TWILIO_VERIFY_SERVICE_SID)
+      .verificationChecks.create({
+        to: phoneNumber,
+        code: code
+      });
+
+    logger.info(`Phone OTP verification for ${phoneNumber}, status: ${verificationCheck.status}`);
+
+    if (verificationCheck.status === 'approved') {
+      return { success: true, status: 'approved' };
+    } else {
+      return { success: false, status: verificationCheck.status, error: 'Invalid or expired OTP' };
+    }
+  } catch (error) {
+    logger.error('Verify phone OTP error:', error);
+    
+    // Handle specific Twilio errors
+    if (error.code === 20404) {
+      return { success: false, error: 'OTP expired or not found. Please request a new one.' };
+    }
+    if (error.code === 60202) {
+      return { success: false, error: 'Maximum verification attempts exceeded. Please request a new OTP.' };
+    }
+    
+    return { success: false, error: error.message || 'Verification failed' };
+  }
+};
+
+// ===========================================
+// LEGACY OTP SYSTEM (Email & DB-stored OTPs)
+// ===========================================
+
 export const sendOTP = async (userId, contact, type, purpose) => {
   try {
     // Generate OTP
