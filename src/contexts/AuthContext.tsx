@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { hasSupabaseEnv, supabase } from "@/integrations/supabase/client";
-import type { User, Session } from "@supabase/supabase-js";
+import { FirebaseAuth } from "@/integrations/firebase/client";
+import type { User as SupabaseUser, Session as SupabaseSession } from "@supabase/supabase-js";
+import type { User as FirebaseUser } from "firebase/auth";
 
 interface UserProfile {
   id: string;
@@ -13,23 +15,27 @@ interface UserProfile {
 }
 
 interface AuthContextType {
-  user: User | null;
-  session: Session | null;
+  user: SupabaseUser | FirebaseUser | null;
+  session: SupabaseSession | null;
   profile: UserProfile | null;
   loading: boolean;
   signUp: (email: string, password: string, metadata: { display_name: string; role: string; phone?: string; location?: string }) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
+  signInWithPhone: (phone: string) => Promise<{ confirmationResult: any; error: Error | null }>;
+  verifyOTP: (otp: string, confirmationResult: any) => Promise<{ user: FirebaseUser; error: Error | null }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
+  isFirebaseUser: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<SupabaseUser | FirebaseUser | null>(null);
+  const [session, setSession] = useState<SupabaseSession | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isFirebaseUser, setIsFirebaseUser] = useState(false);
 
   const fetchProfile = async (userId: string) => {
     try {
@@ -70,10 +76,47 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const refreshProfile = async () => {
-    if (user) await fetchProfile(user.id);
+    if (user) {
+      if (isFirebaseUser) {
+        const firebaseUser = user as FirebaseUser;
+        setProfile({
+          id: firebaseUser.uid,
+          display_name: firebaseUser.phoneNumber || "User",
+          email: "",
+          phone: firebaseUser.phoneNumber || "",
+          location: "",
+          avatar_url: "",
+          role: "farmer",
+        });
+      } else {
+        await fetchProfile((user as SupabaseUser).id);
+      }
+    }
   };
 
   useEffect(() => {
+    const unsubscribe = FirebaseAuth.onAuthStateChanged((firebaseUser) => {
+      if (firebaseUser) {
+        setUser(firebaseUser);
+        setIsFirebaseUser(true);
+        setProfile({
+          id: firebaseUser.uid,
+          display_name: firebaseUser.phoneNumber || "User",
+          email: "",
+          phone: firebaseUser.phoneNumber || "",
+          location: "",
+          avatar_url: "",
+          role: "farmer",
+        });
+        setLoading(false);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (isFirebaseUser) return;
     if (!hasSupabaseEnv) {
       setLoading(false);
       setSession(null);
@@ -86,6 +129,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       async (_event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
+        setIsFirebaseUser(false);
         if (session?.user) {
           setLoading(true);
           setTimeout(async () => {
@@ -102,6 +146,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+      setIsFirebaseUser(false);
       if (session?.user) {
         await fetchProfile(session.user.id);
       } else {
@@ -111,7 +156,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [isFirebaseUser]);
 
   const signUp = async (
     email: string,
@@ -120,7 +165,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   ) => {
     if (!hasSupabaseEnv) {
       return {
-        error: new Error("Supabase environment variables are missing. Configure VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY in Vercel preview settings."),
+        error: new Error("Supabase environment variables are missing. Configure VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY."),
       };
     }
 
@@ -138,7 +183,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signIn = async (email: string, password: string) => {
     if (!hasSupabaseEnv) {
       return {
-        error: new Error("Supabase environment variables are missing. Configure VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY in Vercel preview settings."),
+        error: new Error("Supabase environment variables are missing. Configure VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY."),
       };
     }
 
@@ -146,20 +191,52 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return { error: error as Error | null };
   };
 
-  const signOut = async () => {
-    if (!hasSupabaseEnv) {
-      setProfile(null);
-      return;
+  const signInWithPhone = async (phone: string) => {
+    try {
+      const result = await FirebaseAuth.sendOTP(phone);
+      return { confirmationResult: result, error: null };
+    } catch (error: any) {
+      return { confirmationResult: null, error: error as Error | null };
     }
+  };
 
-    await supabase.auth.signOut();
-    setSession(null);
-    setUser(null);
-    setProfile(null);
+  const verifyOTP = async (otp: string, confirmationResult: any) => {
+    try {
+      const user = await FirebaseAuth.verifyOTP(otp);
+      return { user, error: null };
+    } catch (error: any) {
+      return { user: null as any, error: error as Error | null };
+    }
+  };
+
+  const signOut = async () => {
+    if (isFirebaseUser) {
+      await FirebaseAuth.signOut();
+      setUser(null);
+      setProfile(null);
+      setIsFirebaseUser(false);
+    } else if (hasSupabaseEnv) {
+      await supabase.auth.signOut();
+      setSession(null);
+      setUser(null);
+      setProfile(null);
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, profile, loading, signUp, signIn, signOut, refreshProfile }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      session, 
+      profile, 
+      loading, 
+      signUp, 
+      signIn, 
+      signInWithPhone,
+      verifyOTP,
+      signOut, 
+      refreshProfile,
+      isFirebaseUser 
+    }}>
       {children}
     </AuthContext.Provider>
   );

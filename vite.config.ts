@@ -19,7 +19,7 @@ const vendorChunkGroups: Array<[string, string[]]> = [
 export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
-    port: 8080,
+    port: 4000,
   },
   test: {
     globals: true,

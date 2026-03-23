@@ -1,18 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Mail, Lock, User, Phone, MapPin, ArrowLeft, Eye, EyeOff, Smartphone, Sun, Moon } from "lucide-react";
+import { ArrowLeft, Sun, Moon } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSelector } from "@/components/ui/language-selector";
 import { AshokaChakra } from "@/components/ui/ashoka-chakra";
 import { useToast } from "@/hooks/use-toast";
-import { Separator } from "@/components/ui/separator";
-import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
-import { LocationSelector } from "@/components/ui/location-selector";
+import { FirebaseAuth } from "@/integrations/firebase/client";
 import heroImage from "@/assets/hero-farming.jpg";
 import farmerImg from "@/assets/roles/farmer-role.jpg";
 import merchantImg from "@/assets/roles/merchant-role.jpg";
@@ -23,150 +20,175 @@ const Login = () => {
   const { t } = useLanguage();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { signUp, signIn, user, profile, loading: authLoading } = useAuth();
-
-  // Redirect if already logged in
-  useEffect(() => {
-    if (!authLoading && user && profile) {
-      const routes: Record<string, string> = {
-        farmer: "/farmer/dashboard",
-        merchant: "/merchant/dashboard",
-        expert: "/expert/dashboard",
-        admin: "/admin/dashboard",
-      };
-      navigate(routes[profile.role] || "/farmer/dashboard", { replace: true });
-    }
-  }, [authLoading, user, profile, navigate]);
   const [isLogin, setIsLogin] = useState(true);
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
-  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [forgotMode, setForgotMode] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [resendTimer, setResendTimer] = useState(0);
+  const [loginMethod, setLoginMethod] = useState<"sms" | "whatsapp">("sms");
   const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    name: "",
     phone: "",
+    name: "",
     location: "",
+    aadhaar: "",
   });
+  const [confirmationResult, setConfirmationResult] = useState<any>(null);
+  const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  useEffect(() => {
+    if (resendTimer > 0) {
+      const timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendTimer]);
 
   const handleRoleSelect = (role: string) => {
     setSelectedRole(role);
     setIsLogin(true);
-    setForgotMode(false);
-    setFormData({ email: "", password: "", name: "", phone: "", location: "" });
+    setOtpSent(false);
+    setFormData({ phone: "", name: "", location: "", aadhaar: "" });
+    setOtp(["", "", "", "", "", ""]);
+    setConfirmationResult(null);
   };
 
-  const handleForgotPassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(formData.email, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
-    setLoading(false);
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: t("auth.forgot_password"), description: "Password reset link sent to your email." });
-      setForgotMode(false);
+  const sendOTP = async () => {
+    if (!formData.phone || formData.phone.length < 10) {
+      toast({ title: t("auth.invalid_phone"), description: "Please enter a valid 10-digit phone number", variant: "destructive" });
+      return;
     }
-  };
 
-  const handleGoogleSignIn = async () => {
+    const phoneNumber = `+91${formData.phone}`;
     setLoading(true);
+
     try {
-      const { lovable } = await import("@/integrations/lovable");
-      const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin,
+      await FirebaseAuth.sendOTP(phoneNumber, "recaptcha-container");
+      setOtpSent(true);
+      setResendTimer(30);
+      toast({ 
+        title: t("auth.otp_sent"), 
+        description: loginMethod === "whatsapp" ? "OTP sent via WhatsApp" : "OTP sent via SMS" 
       });
-      if (result.error) {
-        toast({ title: "Google Sign-In Failed", description: String(result.error), variant: "destructive" });
+    } catch (error: any) {
+      console.error("OTP Error:", error);
+      let errorMessage = "Failed to send OTP";
+      
+      if (error.code === "auth/invalid-phone-number") {
+        errorMessage = "Invalid phone number format";
+      } else if (error.code === "auth/too-many-requests") {
+        errorMessage = "Too many requests. Please try again later.";
+      } else if (error.code === "auth/quota-exceeded") {
+        errorMessage = "SMS quota exceeded. Please try again later.";
       }
-    } catch (err) {
-      toast({ title: "Error", description: "Google sign-in failed. Please try again.", variant: "destructive" });
+      
+      toast({ title: t("auth.error"), description: errorMessage, variant: "destructive" });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+  const verifyOTP = async () => {
+    const otpCode = otp.join("");
+    if (otpCode.length !== 6) {
+      toast({ title: t("auth.enter_otp"), description: "Please enter all 6 digits", variant: "destructive" });
+      return;
+    }
 
-    if (isLogin) {
-      const { error } = await signIn(formData.email, formData.password);
-      if (error) {
-        toast({ title: t("auth.login_failed"), description: error.message, variant: "destructive" });
-        setLoading(false);
-        return;
-      }
-      // Fetch role and redirect
-      const { data: { user } } = await supabase.auth.getUser();
+    setLoading(true);
+    try {
+      const user = await FirebaseAuth.verifyOTP(otpCode);
+      
       if (user) {
-        const { data: roleData } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", user.id)
-          .single();
-        const userRole = roleData?.role || "farmer";
+        const userData = {
+          uid: user.uid,
+          phone: user.phoneNumber,
+          role: selectedRole,
+          displayName: formData.name || user.phoneNumber,
+          aadhaar: formData.aadhaar,
+          location: formData.location,
+        };
+        
+        localStorage.setItem("farmer_user", JSON.stringify(userData));
+        
         const routes: Record<string, string> = {
           farmer: "/farmer/dashboard",
           merchant: "/merchant/dashboard",
           expert: "/expert/dashboard",
           admin: "/admin/dashboard",
         };
-
-        // If user selected a different role than their actual role, reject login
-        if (selectedRole && selectedRole !== userRole) {
-          await supabase.auth.signOut();
-          toast({ 
-            title: "Wrong Role", 
-            description: `This account is registered as ${userRole.charAt(0).toUpperCase() + userRole.slice(1)}. Please select the correct role to sign in.`,
-            variant: "destructive",
-          });
-          setLoading(false);
-          return;
-        }
-        toast({ title: t("auth.login_success"), description: `Welcome back!` });
-        navigate(routes[userRole] || "/farmer/dashboard");
+        
+        toast({ title: t("auth.login_success"), description: t("auth.welcome_back") });
+        navigate(routes[selectedRole || "farmer"] || "/farmer/dashboard");
       }
-    } else {
-      // Block admin self-registration
-      if (selectedRole === "admin") {
-        toast({ title: "Not Allowed", description: "Admin accounts cannot be created via self-registration. Contact your system administrator.", variant: "destructive" });
-        setLoading(false);
-        return;
+    } catch (error: any) {
+      console.error("OTP Verification Error:", error);
+      let errorMessage = "Invalid OTP";
+      
+      if (error.code === "auth/invalid-verification-code") {
+        errorMessage = "Invalid OTP code. Please try again.";
+      } else if (error.code === "auth/code-expired") {
+        errorMessage = "OTP has expired. Please request a new one.";
       }
-      if (formData.password.length < 6) {
-        toast({ title: t("auth.weak_password"), description: t("auth.password_min"), variant: "destructive" });
-        setLoading(false);
-        return;
-      }
-      const { error } = await signUp(formData.email, formData.password, {
-        display_name: formData.name || formData.email.split("@")[0],
-        role: selectedRole || "farmer",
-        phone: formData.phone,
-        location: formData.location,
-      });
-      if (error) {
-        const msg = error.message?.toLowerCase() || "";
-        if (msg.includes("already") || msg.includes("exists") || msg.includes("registered") || msg.includes("duplicate")) {
-          toast({ 
-            title: "Account Already Exists", 
-            description: "This email is already registered. Please use a different email or sign in instead.", 
-            variant: "destructive" 
-          });
-        } else {
-          toast({ title: t("auth.user_exists"), description: error.message, variant: "destructive" });
-        }
-        setLoading(false);
-        return;
-      }
-      toast({ title: t("auth.signup_success"), description: "Check your email to confirm your account." });
-      setIsLogin(true);
+      
+      toast({ title: t("auth.error"), description: errorMessage, variant: "destructive" });
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
+
+  const handleOTPChange = (index: number, value: string) => {
+    if (value.length > 1) {
+      const digits = value.replace(/\D/g, "").slice(0, 6 - index).split("");
+      const newOtp = [...otp];
+      digits.forEach((digit, i) => {
+        if (index + i < 6) {
+          newOtp[index + i] = digit;
+        }
+      });
+      setOtp(newOtp);
+      const nextIndex = Math.min(index + digits.length, 5);
+      otpRefs.current[nextIndex]?.focus();
+    } else {
+      const newOtp = [...otp];
+      newOtp[index] = value.replace(/\D/g, "");
+      setOtp(newOtp);
+      if (value && index < 5) {
+        otpRefs.current[index + 1]?.focus();
+      }
+    }
+  };
+
+  const handleOTPKeyDown = (index: number, e: React.KeyboardEvent) => {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      otpRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.phone || formData.phone.length < 10) {
+      toast({ title: t("auth.invalid_phone"), description: "Please enter a valid phone number", variant: "destructive" });
+      return;
+    }
+
+    if (!isLogin && (!formData.name || !formData.location)) {
+      toast({ title: "Error", description: "Please fill all required fields", variant: "destructive" });
+      return;
+    }
+
+    await sendOTP();
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Enter" && otp.join("").length === 6 && otpSent) {
+        verifyOTP();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [otp, otpSent]);
 
   const roleCards = [
     { role: "farmer", title: t("auth.signin_farmer"), image: farmerImg, description: t("auth.farmer_desc") },
@@ -175,7 +197,6 @@ const Login = () => {
     { role: "admin", title: t("auth.signin_admin"), image: adminImg, description: t("auth.admin_desc") },
   ];
 
-  // ROLE SELECTION SCREEN
   if (!selectedRole) {
     return (
       <div className="min-h-screen bg-background">
@@ -226,49 +247,71 @@ const Login = () => {
 
   const currentRole = roleCards.find((r) => r.role === selectedRole);
 
-  // FORGOT PASSWORD FORM
-  if (forgotMode) {
+  if (otpSent) {
     return (
       <div className="min-h-screen grid lg:grid-cols-2">
         <div className="flex items-center justify-center p-6 bg-background">
           <div className="w-full max-w-md space-y-5">
             <div className="flex items-center justify-between mb-2">
-              <Button variant="ghost" onClick={() => setForgotMode(false)} className="gap-2">
+              <Button variant="ghost" onClick={() => { setOtpSent(false); setOtp(["", "", "", "", "", ""]); }} className="gap-2">
                 <ArrowLeft className="h-4 w-4" /> {t("common.back")}
               </Button>
               <LanguageSelector />
             </div>
-            <Card className="tricolor-card">
+            <Card className="tricolor-card overflow-hidden">
               <CardHeader className="text-center pb-4">
-                <CardTitle className="text-xl">{t("auth.forgot_password")}</CardTitle>
-                <CardDescription>Enter your email to receive a password reset link</CardDescription>
+                <CardTitle className="text-xl">Verify OTP</CardTitle>
+                <CardDescription>Enter the 6-digit code sent to +91 {formData.phone}</CardDescription>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleForgotPassword} className="space-y-4">
-                  <div className="space-y-1.5">
-                    <Label htmlFor="email">{t("auth.email")}</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input id="email" type="email" placeholder={t("auth.enter_email")} className="pl-10" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} required />
-                    </div>
-                  </div>
-                  <Button type="submit" className="w-full bg-primary text-primary-foreground" disabled={loading}>
-                    {loading ? <span className="flex items-center gap-2"><span className="h-4 w-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />{t("common.loading")}</span> : "Send Reset Link"}
-                  </Button>
-                </form>
+                <div className="flex justify-center gap-2 mb-6">
+                  {otp.map((digit, index) => (
+                    <Input
+                      key={index}
+                      ref={(el) => { otpRefs.current[index] = el; }}
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={1}
+                      className="w-12 h-14 text-center text-xl font-bold"
+                      value={digit}
+                      onChange={(e) => handleOTPChange(index, e.target.value)}
+                      onKeyDown={(e) => handleOTPKeyDown(index, e)}
+                    />
+                  ))}
+                </div>
+                <Button
+                  onClick={verifyOTP}
+                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                  disabled={loading || otp.join("").length !== 6}
+                >
+                  {loading ? (
+                    <span className="flex items-center gap-2">
+                      <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      {t("common.loading")}
+                    </span>
+                  ) : "Verify & Login"}
+                </Button>
+                <div className="mt-4 text-center">
+                  {resendTimer > 0 ? (
+                    <p className="text-sm text-muted-foreground">Resend OTP in {resendTimer}s</p>
+                  ) : (
+                    <button onClick={sendOTP} className="text-sm text-primary hover:underline">
+                      Resend OTP
+                    </button>
+                  )}
+                </div>
               </CardContent>
             </Card>
           </div>
         </div>
         <div className="hidden lg:block relative">
-          <img src={heroImage} alt="Smart farming" className="absolute inset-0 w-full h-full object-cover" />
+          <img src={currentRole?.image} alt={currentRole?.title} className="absolute inset-0 w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 to-transparent" />
         </div>
       </div>
     );
   }
 
-  // LOGIN/SIGNUP FORM
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
       <div className="flex items-center justify-center p-6 bg-background">
@@ -312,51 +355,102 @@ const Login = () => {
                 {!isLogin && (
                   <>
                     <div className="space-y-1.5">
-                      <Label htmlFor="name">{t("auth.fullname")}</Label>
+                      <Label htmlFor="name" className="flex items-center gap-2">
+                        <svg className="h-4 w-4 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                        </svg>
+                        {t("auth.fullname")}
+                      </Label>
                       <div className="relative">
-                        <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                          <svg className="h-4 w-4 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                          </svg>
+                        </div>
                         <Input id="name" placeholder={t("auth.enter_name")} className="pl-10" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required />
                       </div>
                     </div>
                     <div className="space-y-1.5">
-                      <Label htmlFor="phone">{t("auth.phone")}</Label>
-                      <div className="relative">
-                        <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input id="phone" type="tel" placeholder={t("auth.enter_phone")} className="pl-10" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
-                      </div>
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="location">{t("auth.location")}</Label>
-                      <LocationSelector
-                        value={formData.location}
-                        onChange={(val) => setFormData({ ...formData, location: val })}
-                        placeholder="Search your city..."
+                      <Label htmlFor="location" className="flex items-center gap-2">
+                        <svg className="h-4 w-4 text-red-500" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                        </svg>
+                        {t("auth.location")}
+                      </Label>
+                      <Input 
+                        id="location" 
+                        placeholder="Search your village/city..." 
+                        value={formData.location} 
+                        onChange={(e) => setFormData({ ...formData, location: e.target.value })} 
+                        required 
                       />
                     </div>
                   </>
                 )}
                 <div className="space-y-1.5">
-                  <Label htmlFor="email">{t("auth.email")}</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input id="email" type="email" placeholder={t("auth.enter_email")} className="pl-10" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} required />
+                  <Label htmlFor="phone" className="flex items-center gap-2">
+                    <svg className="h-4 w-4 text-green-600" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/>
+                      <path d="M12.5 8.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z"/>
+                      <path d="M8.5 7h-1c-.28 0-.5.22-.5.5v7c0 .28.22.5.5.5h1c.28 0 .5-.22.5-.5v-7c0-.28-.22-.5-.5-.5zm7 0h-1c-.28 0-.5.22-.5.5v7c0 .28.22.5.5.5h1c.28 0 .5-.22.5-.5v-7c0-.28-.22-.5-.5-.5z"/>
+                    </svg>
+                    {t("auth.phone")}
+                  </Label>
+                  <div className="flex">
+                    <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-sm">+91</span>
+                    <div className="relative flex-1">
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                        <svg className="h-4 w-4 text-green-600" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/>
+                          <path d="M12.5 8.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z"/>
+                          <path d="M8.5 7h-1c-.28 0-.5.22-.5.5v7c0 .28.22.5.5.5h1c.28 0 .5-.22.5-.5v-7c0-.28-.22-.5-.5-.5zm7 0h-1c-.28 0-.5.22-.5.5v7c0 .28.22.5.5.5h1c.28 0 .5-.22.5-.5v-7c0-.28-.22-.5-.5-.5z"/>
+                        </svg>
+                      </div>
+                      <Input 
+                        id="phone" 
+                        type="tel" 
+                        placeholder="9876543210" 
+                        className="pl-10 rounded-l-none" 
+                        maxLength={10}
+                        value={formData.phone} 
+                        onChange={(e) => setFormData({ ...formData, phone: e.target.value.replace(/\D/g, "").slice(0, 10) })} 
+                        required 
+                      />
+                    </div>
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="password">{t("auth.password")}</Label>
-                    {isLogin && (
-                      <button type="button" onClick={() => setForgotMode(true)} className="text-xs text-primary hover:underline">
-                        {t("auth.forgot_password")}
-                      </button>
-                    )}
-                  </div>
+                  <Label htmlFor="aadhaar" className="flex items-center gap-2">
+                    <svg className="h-4 w-4 text-orange-500" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12z"/>
+                      <circle cx="7.5" cy="9.5" r="1.5"/>
+                      <path d="M7.5 13h2v4h-2zm4-6h7v2h-7zm0 4h7v2h-7zm4-2h3v2h-3z"/>
+                      <rect x="5" y="15" width="14" height="2"/>
+                    </svg>
+                    Aadhaar Number
+                  </Label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input id="password" type={showPassword ? "text" : "password"} placeholder={t("auth.enter_password")} className="pl-10 pr-10" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} required />
-                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-3 text-muted-foreground hover:text-foreground">
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                      <svg className="h-4 w-4 text-orange-500" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12z"/>
+                        <circle cx="7.5" cy="9.5" r="1.5"/>
+                        <path d="M7.5 13h2v4h-2zm4-6h7v2h-7zm0 4h7v2h-7zm4-2h3v2h-3z"/>
+                        <rect x="5" y="15" width="14" height="2"/>
+                      </svg>
+                    </div>
+                    <Input 
+                      id="aadhaar" 
+                      type="text" 
+                      placeholder="XXXX XXXX XXXX" 
+                      className="pl-10"
+                      maxLength={14}
+                      value={formData.aadhaar}
+                      onChange={(e) => {
+                        const digits = e.target.value.replace(/\D/g, "").slice(0, 12);
+                        const formatted = digits.replace(/(\d{4})(?=\d)/g, "$1 ");
+                        setFormData({ ...formData, aadhaar: formatted });
+                      }}
+                    />
                   </div>
                 </div>
                 <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={loading}>
@@ -370,25 +464,29 @@ const Login = () => {
               </form>
 
               <div className="relative my-5">
-                <Separator />
-                <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-3 text-xs text-muted-foreground">
-                  {t("auth.or_continue_with")}
-                </span>
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-card px-2 text-muted-foreground">
+                    {t("auth.or_continue_with")}
+                  </span>
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <Button variant="outline" type="button" className="gap-2" onClick={handleGoogleSignIn}>
-                  <svg className="h-4 w-4" viewBox="0 0 24 24">
-                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
-                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                <Button variant="outline" type="button" className="h-14 py-0" onClick={() => { setLoginMethod("sms"); sendOTP(); }}>
+                  <svg className="h-7 w-7 text-blue-500" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
+                    <path d="M7 9h10v2H7zm0-3h10v2H7zm0 6h7v2H7z"/>
                   </svg>
-                  Google
+                  <span className="ml-2">SMS OTP</span>
                 </Button>
-                <Button variant="outline" type="button" className="gap-2" onClick={() => toast({ title: "Phone OTP", description: "Phone OTP login coming soon!" })}>
-                  <Smartphone className="h-4 w-4" />
-                  {t("auth.phone")}
+                <Button variant="outline" type="button" className="h-14 py-0" onClick={() => { setLoginMethod("whatsapp"); sendOTP(); }}>
+                  <svg className="h-7 w-7" viewBox="0 0 24 24" fill="#25D366">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                  </svg>
+                  <span className="ml-2">WhatsApp</span>
                 </Button>
               </div>
 
@@ -414,6 +512,7 @@ const Login = () => {
           <div className="tricolor-bar h-1 mt-4 rounded-full" />
         </div>
       </div>
+      <div id="recaptcha-container"></div>
     </div>
   );
 };
