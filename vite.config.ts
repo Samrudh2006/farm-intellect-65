@@ -18,7 +18,7 @@ const vendorChunkGroups: Array<[string, string[]]> = [
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
-    host: "::",
+    host: "0.0.0.0",
     port: 4000,
   },
   test: {
