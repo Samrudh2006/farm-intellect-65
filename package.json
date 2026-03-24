@@ -45,6 +45,7 @@
     "@radix-ui/react-toggle-group": "^1.1.10",
     "@radix-ui/react-tooltip": "^1.2.7",
     "@supabase/supabase-js": "^2.98.0",
+    "bcrypt": "^5.1.1",
     "@tanstack/react-query": "^5.83.0",
     "@vercel/node": "^5.6.18",
     "aria-hidden": "^1.2.4",

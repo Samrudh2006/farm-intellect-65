@@ -28,6 +28,7 @@ const MerchantDashboardPage = lazy(() => import("./pages/MerchantDashboardPage")
 const ExpertDashboardPage = lazy(() => import("./pages/ExpertDashboardPage"));
 const AdminDashboardPage = lazy(() => import("./pages/AdminDashboardPage"));
 const Login = lazy(() => import("./pages/Login"));
+const PinLogin = lazy(() => import("./pages/PinLogin"));
 const Crops = lazy(() => import("./pages/Crops"));
 const Advisory = lazy(() => import("./pages/Advisory"));
 const Weather = lazy(() => import("./pages/Weather"));
@@ -128,6 +129,7 @@ const AnimatedRoutes = () => {
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={renderPage(Index)} />
         <Route path="/login" element={renderPage(Login)} />
+        <Route path="/pin-login" element={renderPage(PinLogin)} />
         <Route path="/reset-password" element={renderPage(ResetPassword)} />
         
         {/* Farmer Routes */}
