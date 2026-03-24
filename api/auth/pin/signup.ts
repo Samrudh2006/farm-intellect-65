@@ -9,6 +9,16 @@ const jwtSecret = process.env.JWT_SECRET || 'your-secret-key-change-in-productio
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+const ensureTableExists = async () => {
+  try {
+    // Check if table exists by trying to query it
+    await supabase.from('pin_auth_users').select('id').limit(1);
+  } catch (error) {
+    // Table doesn't exist, create it
+    await supabase.rpc('create_pin_auth_tables', {});
+  }
+};
+
 export default async (req: VercelRequest, res: VercelResponse) => {
   // Enable CORS
   res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -40,6 +50,9 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     if (aadhaar.length !== 12 || !/^\d+$/.test(aadhaar)) {
       return res.status(400).json({ error: 'Aadhaar must be exactly 12 digits' });
     }
+
+    // Ensure table exists
+    await ensureTableExists();
 
     // Hash the PIN
     const pinHash = await bcrypt.hash(pin, 10);

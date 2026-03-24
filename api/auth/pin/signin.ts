@@ -9,6 +9,16 @@ const jwtSecret = process.env.JWT_SECRET || 'your-secret-key-change-in-productio
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+const ensureTableExists = async () => {
+  try {
+    // Check if table exists by trying to query it
+    await supabase.from('pin_auth_users').select('id').limit(1);
+  } catch (error) {
+    // Table doesn't exist, create it
+    await supabase.rpc('create_pin_auth_tables', {});
+  }
+};
+
 export default async (req: VercelRequest, res: VercelResponse) => {
   // Enable CORS
   res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -41,7 +51,10 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       return res.status(400).json({ error: 'Aadhaar must be exactly 12 digits' });
     }
 
-    // Get user by phone
+    // Ensure table exists
+    await ensureTableExists();
+
+    // Get user by phone and aadhaar
     const { data: user, error: queryError } = await supabase
       .from('pin_auth_users')
       .select('*')
@@ -64,17 +77,6 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       .from('pin_auth_users')
       .update({ last_login: new Date().toISOString() })
       .eq('id', user.id);
-
-    // Log login history
-    await supabase
-      .from('pin_auth_login_history')
-      .insert([
-        {
-          user_id: user.id,
-          ip_address: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
-          device_info: req.headers['user-agent'] || 'Unknown'
-        }
-      ]);
 
     // Generate JWT token
     const token = jwt.sign(

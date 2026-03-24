@@ -4,15 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Sprout, ShoppingBag, Award, Settings } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
 import { PinAuth } from "@/services/pinAuth";
-import heroImage from "@/assets/hero-farming.jpg";
-import farmerImg from "@/assets/roles/farmer-role.jpg";
-import merchantImg from "@/assets/roles/merchant-role.jpg";
-import expertImg from "@/assets/roles/expert-role.jpg";
-import adminImg from "@/assets/roles/admin-role.jpg";
 
 const PinLogin = () => {
   const { t } = useLanguage();
@@ -31,10 +26,10 @@ const PinLogin = () => {
   });
 
   const roles = [
-    { id: "farmer", label: "Farmer", icon: farmerImg, desc: "Agricultural Advisor" },
-    { id: "merchant", label: "Merchant", icon: merchantImg, desc: "Agriculture Trader" },
-    { id: "expert", label: "Expert", icon: expertImg, desc: "Agricultural Expert" },
-    { id: "admin", label: "Admin", icon: adminImg, desc: "Administrator" },
+    { id: "farmer", label: "Farmer", icon: Sprout, desc: "Agricultural Advisor" },
+    { id: "merchant", label: "Merchant", icon: ShoppingBag, desc: "Agriculture Trader" },
+    { id: "expert", label: "Expert", icon: Award, desc: "Agricultural Expert" },
+    { id: "admin", label: "Admin", icon: Settings, desc: "Administrator" },
   ];
 
   const handleInputChange = (field: string, value: string) => {
@@ -159,21 +154,26 @@ const PinLogin = () => {
           <h1 className="text-4xl font-bold text-center mb-4 text-green-800">Smart Crop Advisory</h1>
           <p className="text-center text-gray-600 mb-12">Choose your role to get started</p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {roles.map(role => (
-              <button
-                key={role.id}
-                onClick={() => setSelectedRole(role.id)}
-                className="group cursor-pointer"
-              >
-                <Card className="hover:shadow-lg transition-shadow h-full">
-                  <CardContent className="p-6">
-                    <img src={role.icon} alt={role.label} className="w-full h-32 object-cover rounded-lg mb-4" />
-                    <h3 className="font-bold text-lg mb-2">{role.label}</h3>
-                    <p className="text-sm text-gray-600">{role.desc}</p>
-                  </CardContent>
-                </Card>
-              </button>
-            ))}
+            {roles.map(role => {
+              const Icon = role.icon;
+              return (
+                <button
+                  key={role.id}
+                  onClick={() => setSelectedRole(role.id)}
+                  className="group cursor-pointer"
+                >
+                  <Card className="hover:shadow-lg transition-shadow h-full">
+                    <CardContent className="p-6">
+                      <div className="w-full h-32 flex items-center justify-center bg-green-100 rounded-lg mb-4">
+                        <Icon className="w-16 h-16 text-green-600" />
+                      </div>
+                      <h3 className="font-bold text-lg mb-2">{role.label}</h3>
+                      <p className="text-sm text-gray-600">{role.desc}</p>
+                    </CardContent>
+                  </Card>
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -198,7 +198,12 @@ const PinLogin = () => {
           <CardHeader>
             <div className="flex items-center gap-3 mb-4">
               {currentRole && (
-                <img src={currentRole.icon} alt={currentRole.label} className="w-12 h-12 rounded" />
+                <div className="w-12 h-12 flex items-center justify-center bg-green-100 rounded">
+                  {(() => {
+                    const Icon = currentRole.icon;
+                    return <Icon className="w-6 h-6 text-green-600" />;
+                  })()}
+                </div>
               )}
               <div>
                 <CardTitle>{isSignup ? "Create Account" : "Login"}</CardTitle>
