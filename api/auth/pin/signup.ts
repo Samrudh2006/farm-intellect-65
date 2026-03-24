@@ -9,16 +9,6 @@ const jwtSecret = process.env.JWT_SECRET || 'your-secret-key-change-in-productio
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-const ensureTableExists = async () => {
-  try {
-    // Check if table exists by trying to query it
-    await supabase.from('pin_auth_users').select('id').limit(1);
-  } catch (error) {
-    // Table doesn't exist, create it
-    await supabase.rpc('create_pin_auth_tables', {});
-  }
-};
-
 export default async (req: VercelRequest, res: VercelResponse) => {
   // Enable CORS
   res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -51,18 +41,20 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       return res.status(400).json({ error: 'Aadhaar must be exactly 12 digits' });
     }
 
-    // Ensure table exists
-    await ensureTableExists();
-
     // Hash the PIN
     const pinHash = await bcrypt.hash(pin, 10);
 
     // Check if user already exists
-    const { data: existingUser } = await supabase
+    const { data: existingUser, error: checkError } = await supabase
       .from('pin_auth_users')
       .select('id')
       .eq('phone_number', phone)
-      .single();
+      .maybeSingle();
+
+    if (checkError && checkError.code !== 'PGRST116') {
+      console.error('Check user error:', checkError);
+      return res.status(500).json({ error: 'Database error' });
+    }
 
     if (existingUser) {
       return res.status(400).json({ error: 'Phone number already registered' });
@@ -79,6 +71,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
           name: name || `User-${phone.slice(-4)}`,
           role: role.toUpperCase(),
           is_verified: true,
+          created_at: new Date().toISOString(),
         }
       ])
       .select()
@@ -86,7 +79,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
 
     if (insertError) {
       console.error('Signup error:', insertError);
-      return res.status(500).json({ error: 'Failed to create user' });
+      return res.status(500).json({ error: insertError.message || 'Failed to create user' });
     }
 
     // Generate JWT token
