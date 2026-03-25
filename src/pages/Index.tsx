@@ -36,7 +36,7 @@ const Index = () => {
   const { t } = useLanguage();
   const { user, profile, loading } = useAuth();
   const [demoOpen, setDemoOpen] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   // Auto-redirect authenticated users to their role dashboard
   if (!loading && user && profile) {
@@ -342,24 +342,28 @@ const Index = () => {
       {/* Floating AI Assistant */}
       <FloatingAIAssistant />
 
-      {/* Demo Video Modal */}
+      {/* Demo Audio Modal */}
       <Dialog open={demoOpen} onOpenChange={(open) => {
         setDemoOpen(open);
-        if (!open && videoRef.current) {
-          videoRef.current.pause();
-          videoRef.current.currentTime = 0;
+        if (!open && audioRef.current) {
+          audioRef.current.pause();
+          audioRef.current.currentTime = 0;
         }
       }}>
-        <DialogContent className="max-w-4xl w-[95vw] p-0 overflow-hidden bg-black border-0">
-          <video
-            ref={videoRef}
-            src="/videos/krishi-ai-demo.mp4"
-            controls
-            autoPlay
-            className="w-full h-auto max-h-[80vh] object-contain"
-          >
-            Your browser does not support the video tag.
-          </video>
+        <DialogContent className="max-w-2xl w-[95vw] p-6 bg-card border-border">
+          <div className="flex flex-col items-center gap-6">
+            <div className="text-center space-y-2">
+              <h2 className="text-2xl font-bold text-foreground">Bhoomi Aasha - Demo</h2>
+              <p className="text-muted-foreground">Listen to our audio demonstration</p>
+            </div>
+            <audio
+              ref={audioRef}
+              src="/audio/Bhoomi_Aasha.mp3"
+              controls
+              autoPlay
+              className="w-full"
+            />
+          </div>
         </DialogContent>
       </Dialog>
     </div>
