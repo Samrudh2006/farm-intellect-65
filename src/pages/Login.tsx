@@ -43,6 +43,64 @@ const Login = () => {
     }
   }, [resendTimer]);
 
+  const getOtpSendErrorMessage = (error: unknown) => {
+    const parsedError = error as { code?: string; message?: string };
+    if (parsedError?.code === "auth/invalid-phone-number") {
+      return t("auth.invalid_phone");
+    }
+    if (parsedError?.code === "auth/missing-phone-number") {
+      return t("auth.otp_phone_required");
+    }
+    if (parsedError?.code === "auth/too-many-requests") {
+      return t("auth.otp_too_many_requests");
+    }
+    if (parsedError?.code === "auth/quota-exceeded") {
+      return t("auth.otp_quota_exceeded");
+    }
+    if (parsedError?.code === "auth/captcha-check-failed") {
+      return t("auth.otp_captcha_failed");
+    }
+    if (parsedError?.code === "auth/operation-not-allowed") {
+      return t("auth.otp_signin_disabled");
+    }
+    if (parsedError?.code === "auth/invalid-app-credential" || parsedError?.code === "auth/missing-app-credential") {
+      return t("auth.otp_service_unconfigured");
+    }
+    if (parsedError?.code === "auth/unauthorized-domain") {
+      return t("auth.otp_domain_unauthorized");
+    }
+    if (parsedError?.code === "auth/network-request-failed") {
+      return t("auth.otp_network_error");
+    }
+    if (parsedError?.code === "auth/unavailable") {
+      return t("auth.otp_service_unavailable");
+    }
+    return t("auth.otp_send_failed");
+  };
+
+  const getOtpVerifyErrorMessage = (error: unknown) => {
+    const parsedError = error as { code?: string; message?: string };
+    if (parsedError?.code === "auth/invalid-verification-code") {
+      return t("auth.otp_invalid_code");
+    }
+    if (parsedError?.code === "auth/code-expired" || parsedError?.code === "auth/session-expired") {
+      return t("auth.otp_expired");
+    }
+    if (parsedError?.code === "auth/network-request-failed") {
+      return t("auth.otp_network_error");
+    }
+    if (parsedError?.code === "auth/missing-confirmation") {
+      return t("auth.otp_session_expired");
+    }
+    if (parsedError?.code === "auth/otp-fallback") {
+      return t("auth.otp_verify_failed");
+    }
+    if (parsedError?.code === "auth/unavailable") {
+      return t("auth.otp_service_unavailable");
+    }
+    return t("auth.otp_invalid_code");
+  };
+
   const handleRoleSelect = (role: string) => {
     setSelectedRole(role);
     setIsLogin(true);
@@ -52,7 +110,7 @@ const Login = () => {
     setConfirmationResult(null);
   };
 
-  const sendOTP = async () => {
+  const sendOTP = async (method: "sms" | "whatsapp") => {
     if (!formData.phone || formData.phone.length < 10) {
       toast({ title: t("auth.invalid_phone"), description: "Please enter a valid 10-digit phone number", variant: "destructive" });
       return;
@@ -67,21 +125,11 @@ const Login = () => {
       setResendTimer(30);
       toast({ 
         title: t("auth.otp_sent"), 
-        description: loginMethod === "whatsapp" ? "OTP sent via WhatsApp" : "OTP sent via SMS" 
+        description: method === "whatsapp" ? "OTP sent via WhatsApp" : "OTP sent via SMS" 
       });
     } catch (error: any) {
       console.error("OTP Error:", error);
-      let errorMessage = "Failed to send OTP";
-      
-      if (error.code === "auth/invalid-phone-number") {
-        errorMessage = "Invalid phone number format";
-      } else if (error.code === "auth/too-many-requests") {
-        errorMessage = "Too many requests. Please try again later.";
-      } else if (error.code === "auth/quota-exceeded") {
-        errorMessage = "SMS quota exceeded. Please try again later.";
-      }
-      
-      toast({ title: t("auth.error"), description: errorMessage, variant: "destructive" });
+      toast({ title: t("auth.error"), description: getOtpSendErrorMessage(error), variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -122,15 +170,7 @@ const Login = () => {
       }
     } catch (error: any) {
       console.error("OTP Verification Error:", error);
-      let errorMessage = "Invalid OTP";
-      
-      if (error.code === "auth/invalid-verification-code") {
-        errorMessage = "Invalid OTP code. Please try again.";
-      } else if (error.code === "auth/code-expired") {
-        errorMessage = "OTP has expired. Please request a new one.";
-      }
-      
-      toast({ title: t("auth.error"), description: errorMessage, variant: "destructive" });
+      toast({ title: t("auth.error"), description: getOtpVerifyErrorMessage(error), variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -177,7 +217,7 @@ const Login = () => {
       return;
     }
 
-    await sendOTP();
+    await sendOTP(loginMethod);
   };
 
   useEffect(() => {
@@ -295,7 +335,7 @@ const Login = () => {
                   {resendTimer > 0 ? (
                     <p className="text-sm text-muted-foreground">Resend OTP in {resendTimer}s</p>
                   ) : (
-                    <button onClick={sendOTP} className="text-sm text-primary hover:underline">
+                    <button onClick={() => sendOTP(loginMethod)} className="text-sm text-primary hover:underline">
                       Resend OTP
                     </button>
                   )}
@@ -475,14 +515,14 @@ const Login = () => {
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <Button variant="outline" type="button" className="h-14 py-0" onClick={() => { setLoginMethod("sms"); sendOTP(); }}>
+                <Button variant="outline" type="button" className="h-14 py-0" onClick={() => { setLoginMethod("sms"); sendOTP("sms"); }}>
                   <svg className="h-7 w-7 text-blue-500" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
                     <path d="M7 9h10v2H7zm0-3h10v2H7zm0 6h7v2H7z"/>
                   </svg>
                   <span className="ml-2">SMS OTP</span>
                 </Button>
-                <Button variant="outline" type="button" className="h-14 py-0" onClick={() => { setLoginMethod("whatsapp"); sendOTP(); }}>
+                <Button variant="outline" type="button" className="h-14 py-0" onClick={() => { setLoginMethod("whatsapp"); sendOTP("whatsapp"); }}>
                   <svg className="h-7 w-7" viewBox="0 0 24 24" fill="#25D366">
                     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
                   </svg>
