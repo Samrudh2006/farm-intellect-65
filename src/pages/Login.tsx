@@ -46,62 +46,59 @@ const Login = () => {
   const getOtpSendErrorMessage = (error: unknown) => {
     const parsedError = error as { code?: string; message?: string };
     if (parsedError?.code === "auth/invalid-phone-number") {
-      return "Invalid phone number format";
+      return t("auth.invalid_phone");
     }
     if (parsedError?.code === "auth/missing-phone-number") {
-      return "Phone number is required";
+      return t("auth.otp_phone_required");
     }
     if (parsedError?.code === "auth/too-many-requests") {
-      return "Too many requests. Please try again later.";
+      return t("auth.otp_too_many_requests");
     }
     if (parsedError?.code === "auth/quota-exceeded") {
-      return "SMS quota exceeded. Please try again later.";
+      return t("auth.otp_quota_exceeded");
     }
     if (parsedError?.code === "auth/captcha-check-failed") {
-      return "Verification failed. Please try again.";
+      return t("auth.otp_captcha_failed");
     }
     if (parsedError?.code === "auth/operation-not-allowed") {
-      return "Phone sign-in is not enabled. Please contact support.";
+      return t("auth.otp_signin_disabled");
     }
     if (parsedError?.code === "auth/invalid-app-credential" || parsedError?.code === "auth/missing-app-credential") {
-      return "OTP service is not configured. Please try again later.";
+      return t("auth.otp_service_unconfigured");
     }
     if (parsedError?.code === "auth/unauthorized-domain") {
-      return "This domain is not authorized for OTP login.";
+      return t("auth.otp_domain_unauthorized");
     }
     if (parsedError?.code === "auth/network-request-failed") {
-      return "Network error. Please check your connection.";
+      return t("auth.otp_network_error");
     }
     if (parsedError?.code === "auth/unavailable") {
-      return "OTP service is not available. Please refresh the page.";
+      return t("auth.otp_service_unavailable");
     }
-    if (error instanceof Error && error.message) {
-      return error.message;
-    }
-    return "Failed to send OTP";
+    return t("auth.otp_send_failed");
   };
 
   const getOtpVerifyErrorMessage = (error: unknown) => {
     const parsedError = error as { code?: string; message?: string };
     if (parsedError?.code === "auth/invalid-verification-code") {
-      return "Invalid OTP code. Please try again.";
+      return t("auth.otp_invalid_code");
     }
     if (parsedError?.code === "auth/code-expired" || parsedError?.code === "auth/session-expired") {
-      return "OTP has expired. Please request a new one.";
+      return t("auth.otp_expired");
     }
     if (parsedError?.code === "auth/network-request-failed") {
-      return "Network error. Please try again.";
+      return t("auth.otp_network_error");
     }
     if (parsedError?.code === "auth/missing-confirmation") {
-      return "OTP session expired. Please request a new OTP.";
+      return t("auth.otp_session_expired");
     }
     if (parsedError?.code === "auth/otp-fallback") {
       return t("auth.otp_verify_failed");
     }
     if (parsedError?.code === "auth/unavailable") {
-      return "OTP service is not available. Please refresh the page.";
+      return t("auth.otp_service_unavailable");
     }
-    return "Invalid OTP";
+    return t("auth.otp_invalid_code");
   };
 
   const handleRoleSelect = (role: string) => {

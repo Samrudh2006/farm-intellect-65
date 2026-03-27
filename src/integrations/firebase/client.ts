@@ -141,9 +141,7 @@ export const FirebaseAuth = {
             const fallbackMessage = fallbackError instanceof Error
               ? fallbackError.message
               : "OTP fallback verification failed. Please request a new OTP.";
-            const errorWithContext: OTPError = new Error(fallbackMessage);
-            errorWithContext.code = fallbackCode ?? "auth/otp-fallback";
-            throw errorWithContext;
+            throw createOTPError(fallbackMessage, fallbackCode ?? "auth/otp-fallback");
           }
         }
       }
