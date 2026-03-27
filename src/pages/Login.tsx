@@ -11,26 +11,14 @@ import { AshokaChakra } from "@/components/ui/ashoka-chakra";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { PASSKEY_ATTEMPTS_KEY, PASSKEY_USERS_KEY } from "@/lib/passkeyStorage";
+import { MAX_PASSKEY_ATTEMPTS, MS_PER_SECOND, PASSKEY_LOCK_MS, PBKDF2_ITERATIONS } from "@/lib/passkeyConfig";
+import type { PasskeyUserRecord } from "@/types/passkey";
 import farmerImg from "@/assets/roles/farmer-role.jpg";
 import merchantImg from "@/assets/roles/merchant-role.jpg";
 import expertImg from "@/assets/roles/expert-role.jpg";
 import adminImg from "@/assets/roles/admin-role.jpg";
 
-const MAX_PASSKEY_ATTEMPTS = 5;
-const PASSKEY_LOCK_MS = 60_000;
-
-type PasskeyUserRecord = {
-  userId: string;
-  passkeyHash: string;
-  passkeySalt: string;
-  role: string;
-  profile: {
-    display_name: string;
-    phone?: string;
-    location?: string;
-    avatar_url?: string;
-  };
-};
+ 
 
 const Login = () => {
   const { t } = useLanguage();
@@ -106,8 +94,8 @@ const Login = () => {
 
   const hexToBytes = (hex: string) => {
     const bytes = new Uint8Array(hex.length / 2);
-    for (let i = 0; i < bytes.length; i += 1) {
-      bytes[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
+    for (let i = 0; i < hex.length; i += 2) {
+      bytes[i / 2] = parseInt(hex.slice(i, i + 2), 16);
     }
     return bytes;
   };
@@ -124,7 +112,7 @@ const Login = () => {
       {
         name: "PBKDF2",
         salt: saltBytes,
-        iterations: 300000,
+        iterations: PBKDF2_ITERATIONS,
         hash: "SHA-256",
       },
       key,
@@ -192,7 +180,7 @@ const Login = () => {
         const attempts = loadPasskeyAttempts();
         const lockUntil = attempts[roleKey]?.lockedUntil;
         if (lockUntil && lockUntil > Date.now()) {
-          const secondsRemaining = Math.ceil((lockUntil - Date.now()) / 1000);
+          const secondsRemaining = Math.ceil((lockUntil - Date.now()) / MS_PER_SECOND);
           toast({
             title: "Too many attempts",
             description: `Try again in ${secondsRemaining} seconds.`,

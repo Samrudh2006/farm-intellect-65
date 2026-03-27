@@ -1,20 +1,9 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { PASSKEY_USERS_KEY } from "@/lib/passkeyStorage";
+import type { PasskeyUserRecord } from "@/types/passkey";
 
 export type CurrentUserRole = "farmer" | "merchant" | "expert" | "admin";
-
-type PasskeyUserRecord = {
-  userId: string;
-  passkeyHash: string;
-  role: string;
-  profile: {
-    display_name: string;
-    phone?: string;
-    location?: string;
-    avatar_url?: string;
-  };
-};
 
 export interface CurrentUser {
   name: string;
