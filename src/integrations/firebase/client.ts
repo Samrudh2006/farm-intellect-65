@@ -21,8 +21,8 @@ let confirmationResultGlobal: ConfirmationResult | null = null;
 let recaptchaVerifierGlobal: RecaptchaVerifier | null = null;
 let recaptchaContainerId: string | null = null;
 type OTPError = Error & { code?: string };
-const createOTPError = (message: string, code: string): OTPError => {
-  const error: OTPError = new Error(message);
+const createOTPError = (messageKey: string, code: string): OTPError => {
+  const error: OTPError = new Error(messageKey);
   error.code = code;
   return error;
 };
@@ -81,7 +81,7 @@ export const FirebaseAuth = {
   // Send OTP to phone number
   sendOTP: async (phoneNumber: string, containerId: string): Promise<ConfirmationResult> => {
     if (!auth) {
-      throw createOTPError("Firebase is not available. Please refresh the page.", "auth/unavailable");
+      throw createOTPError("auth.otp_service_unavailable", "auth/unavailable");
     }
 
     try {
@@ -115,7 +115,7 @@ export const FirebaseAuth = {
   // Verify OTP code
   verifyOTP: async (otpCode: string): Promise<User | null> => {
     if (!auth) {
-      throw createOTPError("Firebase is not available. Please refresh the page.", "auth/unavailable");
+      throw createOTPError("auth.otp_service_unavailable", "auth/unavailable");
     }
 
     try {
@@ -140,14 +140,14 @@ export const FirebaseAuth = {
             const fallbackCode = (fallbackError as { code?: string })?.code;
             const fallbackMessage = fallbackError instanceof Error
               ? fallbackError.message
-              : "OTP fallback verification failed. Please request a new OTP.";
+              : "auth.otp_verify_failed";
             throw createOTPError(fallbackMessage, fallbackCode ?? "auth/otp-fallback");
           }
         }
       }
 
       if (!verificationId) {
-        throw createOTPError("No confirmation result found. Please request a new OTP.", "auth/missing-confirmation");
+        throw createOTPError("auth.otp_session_expired", "auth/missing-confirmation");
       }
 
       const credential = PhoneAuthProvider.credential(verificationId, otpCode);
