@@ -21,7 +21,7 @@ let confirmationResultGlobal: ConfirmationResult | null = null;
 let recaptchaVerifierGlobal: RecaptchaVerifier | null = null;
 let recaptchaContainerId: string | null = null;
 type OTPError = Error & { code?: string; context?: string };
-const createOtpError = (message: string, code: string): OTPError => {
+const createOTPError = (message: string, code: string): OTPError => {
   const error: OTPError = new Error(message);
   error.code = code;
   return error;
@@ -81,7 +81,7 @@ export const FirebaseAuth = {
   // Send OTP to phone number
   sendOTP: async (phoneNumber: string, containerId: string): Promise<ConfirmationResult> => {
     if (!auth) {
-      throw createOtpError("Firebase is not available. Please refresh the page.", "auth/unavailable");
+      throw createOTPError("Firebase is not available. Please refresh the page.", "auth/unavailable");
     }
 
     try {
@@ -115,7 +115,7 @@ export const FirebaseAuth = {
   // Verify OTP code
   verifyOTP: async (otpCode: string): Promise<User | null> => {
     if (!auth) {
-      throw createOtpError("Firebase is not available. Please refresh the page.", "auth/unavailable");
+      throw createOTPError("Firebase is not available. Please refresh the page.", "auth/unavailable");
     }
 
     try {
@@ -142,7 +142,7 @@ export const FirebaseAuth = {
               ? fallbackError.message
               : "OTP fallback verification failed. Please request a new OTP.";
             const errorWithContext: OTPError = new Error(fallbackMessage);
-            errorWithContext.context = "otp-fallback";
+            errorWithContext.context = "OTP-fallback";
             if (fallbackCode) {
               errorWithContext.code = fallbackCode;
             }
@@ -152,7 +152,7 @@ export const FirebaseAuth = {
       }
 
       if (!verificationId) {
-        throw createOtpError("No confirmation result found. Please request a new OTP.", "auth/missing-confirmation");
+        throw createOTPError("No confirmation result found. Please request a new OTP.", "auth/missing-confirmation");
       }
 
       const credential = PhoneAuthProvider.credential(verificationId, otpCode);
