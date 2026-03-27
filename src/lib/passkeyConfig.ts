@@ -1,4 +1,5 @@
 export const MAX_PASSKEY_ATTEMPTS = 5;
-export const PASSKEY_LOCK_MS = 60_000;
+export const PASSKEY_LOCK_MINUTES = 1;
+export const PASSKEY_LOCK_MS = PASSKEY_LOCK_MINUTES * 60_000;
 export const PBKDF2_ITERATIONS = 600_000;
 export const MS_PER_SECOND = 1000;

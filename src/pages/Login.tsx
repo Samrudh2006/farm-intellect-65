@@ -18,7 +18,6 @@ import merchantImg from "@/assets/roles/merchant-role.jpg";
 import expertImg from "@/assets/roles/expert-role.jpg";
 import adminImg from "@/assets/roles/admin-role.jpg";
 
- 
 
 const Login = () => {
   const { t } = useLanguage();
@@ -103,7 +102,7 @@ const Login = () => {
   const derivePasskeyHash = async (value: string, salt?: string) => {
     if (!window.crypto?.subtle || !window.crypto?.getRandomValues) {
       throw new Error(
-        "Passkey hashing requires a modern browser with Web Crypto API support. Please update your browser or use Chrome, Firefox, Safari, or Edge.",
+        "Passkey hashing requires a modern browser with Web Crypto API support. Please update your browser or ensure you're accessing this page over HTTPS.",
       );
     }
 
@@ -146,7 +145,7 @@ const Login = () => {
   const generateUserId = () => {
     if (!window.crypto?.getRandomValues) {
       throw new Error(
-        "Secure random ID generation requires a modern browser. Please update your browser or use Chrome, Firefox, Safari, or Edge.",
+        "Secure random ID generation requires a modern browser with Web Crypto API support. Please update your browser or ensure you're accessing this page over HTTPS.",
       );
     }
     return bytesToHex(window.crypto.getRandomValues(new Uint8Array(16)));
