@@ -9,7 +9,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSelector } from "@/components/ui/language-selector";
 import { AshokaChakra } from "@/components/ui/ashoka-chakra";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/contexts/AuthContext";
 import { FirebaseAuth } from "@/integrations/firebase/client";
 import heroImage from "@/assets/hero-farming.jpg";
 import farmerImg from "@/assets/roles/farmer-role.jpg";
@@ -21,19 +20,14 @@ const Login = () => {
   const { t } = useLanguage();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { signIn, signUp } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [authMethod, setAuthMethod] = useState<"email" | "phone">("email");
   const [otpSent, setOtpSent] = useState(false);
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [resendTimer, setResendTimer] = useState(0);
-  const [phoneMethod, setPhoneMethod] = useState<"sms" | "whatsapp">("sms");
+  const [loginMethod, setLoginMethod] = useState<"sms" | "whatsapp">("sms");
   const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    confirmPassword: "",
     phone: "",
     name: "",
     location: "",
@@ -52,165 +46,15 @@ const Login = () => {
   const handleRoleSelect = (role: string) => {
     setSelectedRole(role);
     setIsLogin(true);
-    setAuthMethod("email");
     setOtpSent(false);
-    setFormData({
-      email: "",
-      password: "",
-      confirmPassword: "",
-      phone: "",
-      name: "",
-      location: "",
-      aadhaar: "",
-    });
+    setFormData({ phone: "", name: "", location: "", aadhaar: "" });
     setOtp(["", "", "", "", "", ""]);
     setConfirmationResult(null);
   };
 
-  // Email Authentication
-  const handleEmailLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!formData.email || !formData.password) {
-      toast({
-        title: "Error",
-        description: "Please enter email and password",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const { error } = await signIn(formData.email, formData.password);
-      if (error) throw error;
-      
-      const userData = {
-        email: formData.email,
-        role: selectedRole,
-        displayName: formData.email,
-      };
-      
-      localStorage.setItem("farmer_user", JSON.stringify(userData));
-      
-      const routes: Record<string, string> = {
-        farmer: "/farmer/dashboard",
-        merchant: "/merchant/dashboard",
-        expert: "/expert/dashboard",
-        admin: "/admin/dashboard",
-      };
-      
-      toast({
-        title: "Success",
-        description: "Logged in successfully",
-      });
-      navigate(routes[selectedRole || "farmer"] || "/farmer/dashboard");
-    } catch (error: any) {
-      console.error("[v0] Email Login Error:", error);
-      let errorMessage = "Login failed";
-      
-      if (error.message?.includes("Invalid login credentials")) {
-        errorMessage = "Invalid email or password";
-      } else if (error.message?.includes("Email not confirmed")) {
-        errorMessage = "Please confirm your email first";
-      } else {
-        errorMessage = error.message || "Login failed. Please try again.";
-      }
-      
-      toast({
-        title: "Login Error",
-        description: errorMessage,
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleEmailSignup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!formData.email || !formData.password || !formData.confirmPassword) {
-      toast({
-        title: "Error",
-        description: "Please fill all fields",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      toast({
-        title: "Error",
-        description: "Passwords do not match",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      toast({
-        title: "Error",
-        description: "Password must be at least 6 characters",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const { error } = await signUp(formData.email, formData.password, {
-        display_name: formData.name || formData.email,
-        role: selectedRole || "farmer",
-        phone: formData.phone,
-        location: formData.location,
-      });
-      
-      if (error) throw error;
-      
-      toast({
-        title: "Success",
-        description: "Account created! Please sign in with your credentials.",
-      });
-      setIsLogin(true);
-      setFormData({
-        ...formData,
-        password: "",
-        confirmPassword: "",
-        name: "",
-        location: "",
-        phone: "",
-      });
-    } catch (error: any) {
-      console.error("[v0] Email Signup Error:", error);
-      let errorMessage = "Signup failed";
-      
-      if (error.message?.includes("already registered")) {
-        errorMessage = "This email is already registered. Please sign in.";
-      } else if (error.message?.includes("invalid email")) {
-        errorMessage = "Please enter a valid email address";
-      } else {
-        errorMessage = error.message || "Signup failed. Please try again.";
-      }
-      
-      toast({
-        title: "Signup Error",
-        description: errorMessage,
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Phone OTP Authentication
   const sendOTP = async () => {
     if (!formData.phone || formData.phone.length < 10) {
-      toast({
-        title: t("auth.invalid_phone"),
-        description: "Please enter a valid 10-digit phone number",
-        variant: "destructive",
-      });
+      toast({ title: t("auth.invalid_phone"), description: "Please enter a valid 10-digit phone number", variant: "destructive" });
       return;
     }
 
@@ -221,14 +65,14 @@ const Login = () => {
       await FirebaseAuth.sendOTP(phoneNumber, "recaptcha-container");
       setOtpSent(true);
       setResendTimer(30);
-      toast({
-        title: t("auth.otp_sent"),
-        description: phoneMethod === "whatsapp" ? "OTP sent via WhatsApp" : "OTP sent via SMS",
+      toast({ 
+        title: t("auth.otp_sent"), 
+        description: loginMethod === "whatsapp" ? "OTP sent via WhatsApp" : "OTP sent via SMS" 
       });
     } catch (error: any) {
-      console.error("[v0] OTP Error:", error);
+      console.error("OTP Error:", error);
       let errorMessage = "Failed to send OTP";
-
+      
       if (error.code === "auth/invalid-phone-number") {
         errorMessage = "Invalid phone number format";
       } else if (error.code === "auth/too-many-requests") {
@@ -236,12 +80,8 @@ const Login = () => {
       } else if (error.code === "auth/quota-exceeded") {
         errorMessage = "SMS quota exceeded. Please try again later.";
       }
-
-      toast({
-        title: t("auth.error"),
-        description: errorMessage,
-        variant: "destructive",
-      });
+      
+      toast({ title: t("auth.error"), description: errorMessage, variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -250,18 +90,14 @@ const Login = () => {
   const verifyOTP = async () => {
     const otpCode = otp.join("");
     if (otpCode.length !== 6) {
-      toast({
-        title: t("auth.enter_otp"),
-        description: "Please enter all 6 digits",
-        variant: "destructive",
-      });
+      toast({ title: t("auth.enter_otp"), description: "Please enter all 6 digits", variant: "destructive" });
       return;
     }
 
     setLoading(true);
     try {
       const user = await FirebaseAuth.verifyOTP(otpCode);
-
+      
       if (user) {
         const userData = {
           uid: user.uid,
@@ -271,64 +107,33 @@ const Login = () => {
           aadhaar: formData.aadhaar,
           location: formData.location,
         };
-
+        
         localStorage.setItem("farmer_user", JSON.stringify(userData));
-
+        
         const routes: Record<string, string> = {
           farmer: "/farmer/dashboard",
           merchant: "/merchant/dashboard",
           expert: "/expert/dashboard",
           admin: "/admin/dashboard",
         };
-
-        toast({
-          title: t("auth.login_success"),
-          description: t("auth.welcome_back"),
-        });
+        
+        toast({ title: t("auth.login_success"), description: t("auth.welcome_back") });
         navigate(routes[selectedRole || "farmer"] || "/farmer/dashboard");
       }
     } catch (error: any) {
-      console.error("[v0] OTP Verification Error:", error);
+      console.error("OTP Verification Error:", error);
       let errorMessage = "Invalid OTP";
-
+      
       if (error.code === "auth/invalid-verification-code") {
         errorMessage = "Invalid OTP code. Please try again.";
       } else if (error.code === "auth/code-expired") {
         errorMessage = "OTP has expired. Please request a new one.";
       }
-
-      toast({
-        title: t("auth.error"),
-        description: errorMessage,
-        variant: "destructive",
-      });
+      
+      toast({ title: t("auth.error"), description: errorMessage, variant: "destructive" });
     } finally {
       setLoading(false);
     }
-  };
-
-  const handlePhoneSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!formData.phone || formData.phone.length < 10) {
-      toast({
-        title: t("auth.invalid_phone"),
-        description: "Please enter a valid phone number",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!isLogin && (!formData.name || !formData.location)) {
-      toast({
-        title: "Error",
-        description: "Please fill all required fields",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    await sendOTP();
   };
 
   const handleOTPChange = (index: number, value: string) => {
@@ -357,6 +162,22 @@ const Login = () => {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
       otpRefs.current[index - 1]?.focus();
     }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.phone || formData.phone.length < 10) {
+      toast({ title: t("auth.invalid_phone"), description: "Please enter a valid phone number", variant: "destructive" });
+      return;
+    }
+
+    if (!isLogin && (!formData.name || !formData.location)) {
+      toast({ title: "Error", description: "Please fill all required fields", variant: "destructive" });
+      return;
+    }
+
+    await sendOTP();
   };
 
   useEffect(() => {
@@ -528,186 +349,119 @@ const Login = () => {
             <CardHeader className="text-center pb-4 pt-4">
               <CardTitle className="text-xl">{isLogin ? t("auth.signin") : t("auth.signup")}</CardTitle>
               <CardDescription>{isLogin ? t("auth.signin_desc") : t("auth.signup_desc")}</CardDescription>
-              {/* Auth Method Tabs */}
-              <div className="flex gap-2 mt-4 bg-muted p-1 rounded-lg">
-                <Button
-                  type="button"
-                  variant={authMethod === "email" ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => { setAuthMethod("email"); setOtpSent(false); }}
-                  className="flex-1"
-                >
-                  📧 Email
-                </Button>
-                <Button
-                  type="button"
-                  variant={authMethod === "phone" ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => { setAuthMethod("phone"); setOtpSent(false); }}
-                  className="flex-1"
-                >
-                  📱 Phone
-                </Button>
-              </div>
             </CardHeader>
             <CardContent>
-              {authMethod === "email" ? (
-                // Email Authentication Form
-                <form onSubmit={isLogin ? handleEmailLogin : handleEmailSignup} className="space-y-4">
-                  <div className="space-y-1.5">
-                    <Label htmlFor="email" className="flex items-center gap-2">
-                      <svg className="h-4 w-4 text-purple-600" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
-                      </svg>
-                      Email
-                    </Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="farmer@example.com"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      required
-                    />
-                  </div>
-
-                  {!isLogin && (
-                    <>
-                      <div className="space-y-1.5">
-                        <Label htmlFor="name" className="flex items-center gap-2">
-                          <svg className="h-4 w-4 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                          </svg>
-                          Full Name
-                        </Label>
-                        <Input
-                          id="name"
-                          placeholder="Your Name"
-                          value={formData.name}
-                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        />
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <Label htmlFor="location" className="flex items-center gap-2">
-                          <svg className="h-4 w-4 text-red-500" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                          </svg>
-                          Location
-                        </Label>
-                        <Input
-                          id="location"
-                          placeholder="Your village/city"
-                          value={formData.location}
-                          onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                        />
-                      </div>
-                    </>
-                  )}
-
-                  <div className="space-y-1.5">
-                    <Label htmlFor="password" className="flex items-center gap-2">
-                      <svg className="h-4 w-4 text-amber-600" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 1C6.48 1 2 5.48 2 11v8c0 1.1.9 2 2 2h4v-8H3v-3c0-4.42 3.58-8 8-8s8 3.58 8 8v3h-7v8h11c1.1 0 2-.9 2-2v-8c0-5.52-4.48-10-10-10zm0 3c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
-                      </svg>
-                      Password
-                    </Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      placeholder="Minimum 6 characters"
-                      value={formData.password}
-                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                      required
-                    />
-                  </div>
-
-                  {!isLogin && (
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {!isLogin && (
+                  <>
                     <div className="space-y-1.5">
-                      <Label htmlFor="confirmPassword" className="flex items-center gap-2">
-                        <svg className="h-4 w-4 text-amber-600" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M12 1C6.48 1 2 5.48 2 11v8c0 1.1.9 2 2 2h4v-8H3v-3c0-4.42 3.58-8 8-8s8 3.58 8 8v3h-7v8h11c1.1 0 2-.9 2-2v-8c0-5.52-4.48-10-10-10zm0 3c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                      <Label htmlFor="name" className="flex items-center gap-2">
+                        <svg className="h-4 w-4 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                         </svg>
-                        Confirm Password
+                        {t("auth.fullname")}
                       </Label>
-                      <Input
-                        id="confirmPassword"
-                        type="password"
-                        placeholder="Re-enter password"
-                        value={formData.confirmPassword}
-                        onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                        required
-                      />
-                    </div>
-                  )}
-
-                  <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={loading}>
-                    {loading ? (
-                      <span className="flex items-center gap-2">
-                        <span className="h-4 w-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                        {t("common.loading")}
-                      </span>
-                    ) : isLogin ? "Sign In" : "Create Account"}
-                  </Button>
-                </form>
-              ) : (
-                // Phone OTP Form
-                <form onSubmit={handlePhoneSubmit} className="space-y-4">
-                  {!isLogin && (
-                    <>
-                      <div className="space-y-1.5">
-                        <Label htmlFor="name-phone" className="flex items-center gap-2">
+                      <div className="relative">
+                        <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
                           <svg className="h-4 w-4 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                           </svg>
-                          {t("auth.fullname")}
-                        </Label>
-                        <Input id="name-phone" placeholder={t("auth.enter_name")} value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+                        </div>
+                        <Input id="name" placeholder={t("auth.enter_name")} className="pl-10" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required />
                       </div>
-                      <div className="space-y-1.5">
-                        <Label htmlFor="location-phone" className="flex items-center gap-2">
-                          <svg className="h-4 w-4 text-red-500" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                          </svg>
-                          {t("auth.location")}
-                        </Label>
-                        <Input id="location-phone" placeholder="Your village/city" value={formData.location} onChange={(e) => setFormData({ ...formData, location: e.target.value })} />
-                      </div>
-                    </>
-                  )}
-                  <div className="space-y-1.5">
-                    <Label htmlFor="phone-phone" className="flex items-center gap-2">
-                      <svg className="h-4 w-4 text-green-600" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/>
-                        <path d="M12.5 8.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z"/>
-                        <path d="M8.5 7h-1c-.28 0-.5.22-.5.5v7c0 .28.22.5.5.5h1c.28 0 .5-.22.5-.5v-7c0-.28-.22-.5-.5-.5zm7 0h-1c-.28 0-.5.22-.5.5v7c0 .28.22.5.5.5h1c.28 0 .5-.22.5-.5v-7c0-.28-.22-.5-.5-.5z"/>
-                      </svg>
-                      {t("auth.phone")}
-                    </Label>
-                    <div className="flex">
-                      <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-sm">+91</span>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="location" className="flex items-center gap-2">
+                        <svg className="h-4 w-4 text-red-500" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                        </svg>
+                        {t("auth.location")}
+                      </Label>
                       <Input 
-                        id="phone-phone"
-                        type="tel"
-                        placeholder="9876543210"
-                        className="rounded-l-none"
+                        id="location" 
+                        placeholder="Search your village/city..." 
+                        value={formData.location} 
+                        onChange={(e) => setFormData({ ...formData, location: e.target.value })} 
+                        required 
+                      />
+                    </div>
+                  </>
+                )}
+                <div className="space-y-1.5">
+                  <Label htmlFor="phone" className="flex items-center gap-2">
+                    <svg className="h-4 w-4 text-green-600" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/>
+                      <path d="M12.5 8.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z"/>
+                      <path d="M8.5 7h-1c-.28 0-.5.22-.5.5v7c0 .28.22.5.5.5h1c.28 0 .5-.22.5-.5v-7c0-.28-.22-.5-.5-.5zm7 0h-1c-.28 0-.5.22-.5.5v7c0 .28.22.5.5.5h1c.28 0 .5-.22.5-.5v-7c0-.28-.22-.5-.5-.5z"/>
+                    </svg>
+                    {t("auth.phone")}
+                  </Label>
+                  <div className="flex">
+                    <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-sm">+91</span>
+                    <div className="relative flex-1">
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                        <svg className="h-4 w-4 text-green-600" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/>
+                          <path d="M12.5 8.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z"/>
+                          <path d="M8.5 7h-1c-.28 0-.5.22-.5.5v7c0 .28.22.5.5.5h1c.28 0 .5-.22.5-.5v-7c0-.28-.22-.5-.5-.5zm7 0h-1c-.28 0-.5.22-.5.5v7c0 .28.22.5.5.5h1c.28 0 .5-.22.5-.5v-7c0-.28-.22-.5-.5-.5z"/>
+                        </svg>
+                      </div>
+                      <Input 
+                        id="phone" 
+                        type="tel" 
+                        placeholder="9876543210" 
+                        className="pl-10 rounded-l-none" 
                         maxLength={10}
-                        value={formData.phone}
-                        onChange={(e) => setFormData({ ...formData, phone: e.target.value.replace(/\D/g, "").slice(0, 10) })}
-                        required
+                        value={formData.phone} 
+                        onChange={(e) => setFormData({ ...formData, phone: e.target.value.replace(/\D/g, "").slice(0, 10) })} 
+                        required 
                       />
                     </div>
                   </div>
-                  <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={loading}>
-                    {loading ? (
-                      <span className="flex items-center gap-2">
-                        <span className="h-4 w-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                        {t("common.loading")}
-                      </span>
-                    ) : "Send OTP"}
-                  </Button>
-                </form>
-              )}
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="aadhaar" className="flex items-center gap-2">
+                    <svg className="h-4 w-4 text-orange-500" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12z"/>
+                      <circle cx="7.5" cy="9.5" r="1.5"/>
+                      <path d="M7.5 13h2v4h-2zm4-6h7v2h-7zm0 4h7v2h-7zm4-2h3v2h-3z"/>
+                      <rect x="5" y="15" width="14" height="2"/>
+                    </svg>
+                    Aadhaar Number
+                  </Label>
+                  <div className="relative">
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                      <svg className="h-4 w-4 text-orange-500" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12z"/>
+                        <circle cx="7.5" cy="9.5" r="1.5"/>
+                        <path d="M7.5 13h2v4h-2zm4-6h7v2h-7zm0 4h7v2h-7zm4-2h3v2h-3z"/>
+                        <rect x="5" y="15" width="14" height="2"/>
+                      </svg>
+                    </div>
+                    <Input 
+                      id="aadhaar" 
+                      type="text" 
+                      placeholder="XXXX XXXX XXXX" 
+                      className="pl-10"
+                      maxLength={14}
+                      value={formData.aadhaar}
+                      onChange={(e) => {
+                        const digits = e.target.value.replace(/\D/g, "").slice(0, 12);
+                        const formatted = digits.replace(/(\d{4})(?=\d)/g, "$1 ");
+                        setFormData({ ...formData, aadhaar: formatted });
+                      }}
+                    />
+                  </div>
+                </div>
+                <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={loading}>
+                  {loading ? (
+                    <span className="flex items-center gap-2">
+                      <span className="h-4 w-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                      {t("common.loading")}
+                    </span>
+                  ) : isLogin ? t("auth.signin") : t("auth.signup")}
+                </Button>
+              </form>
 
               <div className="relative my-5">
                 <div className="absolute inset-0 flex items-center">
@@ -721,14 +475,14 @@ const Login = () => {
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <Button variant="outline" type="button" className="h-14 py-0" onClick={() => { setPhoneMethod("sms"); sendOTP(); }}>
+                <Button variant="outline" type="button" className="h-14 py-0" onClick={() => { setLoginMethod("sms"); sendOTP(); }}>
                   <svg className="h-7 w-7 text-blue-500" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
                     <path d="M7 9h10v2H7zm0-3h10v2H7zm0 6h7v2H7z"/>
                   </svg>
                   <span className="ml-2">SMS OTP</span>
                 </Button>
-                <Button variant="outline" type="button" className="h-14 py-0" onClick={() => { setPhoneMethod("whatsapp"); sendOTP(); }}>
+                <Button variant="outline" type="button" className="h-14 py-0" onClick={() => { setLoginMethod("whatsapp"); sendOTP(); }}>
                   <svg className="h-7 w-7" viewBox="0 0 24 24" fill="#25D366">
                     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
                   </svg>
@@ -741,7 +495,6 @@ const Login = () => {
                   {isLogin ? t("auth.no_account") : t("auth.have_account")}
                 </button>
               </div>
-            </CardContent>
             </CardContent>
           </Card>
         </div>
