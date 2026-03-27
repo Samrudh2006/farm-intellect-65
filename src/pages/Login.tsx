@@ -10,13 +10,12 @@ import { LanguageSelector } from "@/components/ui/language-selector";
 import { AshokaChakra } from "@/components/ui/ashoka-chakra";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { PASSKEY_ATTEMPTS_KEY, PASSKEY_USERS_KEY } from "@/lib/passkeyStorage";
 import farmerImg from "@/assets/roles/farmer-role.jpg";
 import merchantImg from "@/assets/roles/merchant-role.jpg";
 import expertImg from "@/assets/roles/expert-role.jpg";
 import adminImg from "@/assets/roles/admin-role.jpg";
 
-const PASSKEY_USERS_KEY = "passkey_users";
-const PASSKEY_ATTEMPTS_KEY = "passkey_attempts";
 const MAX_PASSKEY_ATTEMPTS = 5;
 const PASSKEY_LOCK_MS = 60_000;
 
@@ -155,11 +154,13 @@ const Login = () => {
   });
 
   const generateUserId = () => {
+    if (window.crypto?.randomUUID) {
+      return window.crypto.randomUUID();
+    }
     if (!window.crypto?.getRandomValues) {
       throw new Error("Secure random ID generation is unavailable.");
     }
-    const bytes = window.crypto.getRandomValues(new Uint8Array(16));
-    return bytesToHex(bytes);
+    return bytesToHex(window.crypto.getRandomValues(new Uint8Array(16)));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -220,7 +221,7 @@ const Login = () => {
         }
 
         const { hash, salt } = await derivePasskeyHash(passkey);
-        const userId = window.crypto?.randomUUID ? window.crypto.randomUUID() : generateUserId();
+        const userId = generateUserId();
         const record: PasskeyUserRecord = {
           userId,
           passkeyHash: hash,
@@ -348,20 +349,20 @@ const Login = () => {
             <CardHeader className="text-center pb-4 pt-4">
               <CardTitle className="text-xl">{isLogin ? t("auth.signin") : t("auth.signup")}</CardTitle>
               <CardDescription>
-                {isLogin ? "Enter your 6-digit passkey to continue." : "Create a 6-digit passkey for this role."}
+                {isLogin ? t("auth.passkey_signin_desc") : t("auth.passkey_signup_desc")}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-1.5">
                   <Label htmlFor="passkey" className="flex items-center gap-2">
-                    6-digit Passkey
+                    {t("auth.passkey_label")}
                   </Label>
                   <Input
                     id="passkey"
                     type="password"
                     inputMode="numeric"
-                    placeholder="Enter 6-digit passkey"
+                    placeholder={t("auth.passkey_placeholder")}
                     maxLength={6}
                     value={passkey}
                     onChange={(e) => setPasskey(normalizePasskey(e.target.value))}
@@ -371,13 +372,13 @@ const Login = () => {
                 {!isLogin && (
                   <div className="space-y-1.5">
                     <Label htmlFor="confirm-passkey" className="flex items-center gap-2">
-                      Confirm Passkey
+                      {t("auth.passkey_confirm_label")}
                     </Label>
                     <Input
                       id="confirm-passkey"
                       type="password"
                       inputMode="numeric"
-                      placeholder="Re-enter passkey"
+                      placeholder={t("auth.passkey_confirm_placeholder")}
                       maxLength={6}
                       value={confirmPasskey}
                       onChange={(e) => setConfirmPasskey(normalizePasskey(e.target.value))}
@@ -385,6 +386,7 @@ const Login = () => {
                     />
                   </div>
                 )}
+                <p className="text-xs text-muted-foreground">{t("auth.passkey_local_notice")}</p>
                 <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={loading}>
                   {loading ? (
                     <span className="flex items-center gap-2">

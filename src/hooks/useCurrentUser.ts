@@ -1,9 +1,8 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { PASSKEY_USERS_KEY } from "@/lib/passkeyStorage";
 
 export type CurrentUserRole = "farmer" | "merchant" | "expert" | "admin";
-
-const PASSKEY_USERS_KEY = "passkey_users";
 
 type PasskeyUserRecord = {
   userId: string;

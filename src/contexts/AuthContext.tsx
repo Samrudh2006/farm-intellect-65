@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { hasSupabaseEnv, supabase } from "@/integrations/supabase/client";
+import { PASSKEY_SESSION_KEY } from "@/lib/passkeyStorage";
 import type { User as SupabaseUser, Session as SupabaseSession } from "@supabase/supabase-js";
 
 interface UserProfile {
@@ -41,7 +42,6 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-const PASSKEY_SESSION_KEY = "passkey_session";
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<SupabaseUser | PasskeyUser | null>(null);
