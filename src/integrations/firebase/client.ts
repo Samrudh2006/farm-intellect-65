@@ -20,9 +20,15 @@ let auth: any = null;
 let confirmationResultGlobal: ConfirmationResult | null = null;
 let recaptchaVerifierGlobal: RecaptchaVerifier | null = null;
 let recaptchaContainerId: string | null = null;
+type OtpError = Error & { code?: string; context?: string };
 const clearVerificationState = () => {
   confirmationResultGlobal = null;
   sessionStorage.removeItem("firebase_verification_id");
+  if (recaptchaVerifierGlobal) {
+    recaptchaVerifierGlobal.clear();
+    recaptchaVerifierGlobal = null;
+  }
+  recaptchaContainerId = null;
 };
 
 try {
@@ -70,8 +76,8 @@ export const FirebaseAuth = {
   // Send OTP to phone number
   sendOTP: async (phoneNumber: string, containerId: string): Promise<ConfirmationResult> => {
     if (!auth) {
-      const error = new Error("Firebase is not available. Please refresh the page.");
-      (error as any).code = "auth/unavailable";
+      const error: OtpError = new Error("Firebase is not available. Please refresh the page.");
+      error.code = "auth/unavailable";
       throw error;
     }
 
@@ -106,8 +112,8 @@ export const FirebaseAuth = {
   // Verify OTP code
   verifyOTP: async (otpCode: string): Promise<User | null> => {
     if (!auth) {
-      const error = new Error("Firebase is not available. Please refresh the page.");
-      (error as any).code = "auth/unavailable";
+      const error: OtpError = new Error("Firebase is not available. Please refresh the page.");
+      error.code = "auth/unavailable";
       throw error;
     }
 
@@ -130,15 +136,16 @@ export const FirebaseAuth = {
             clearVerificationState();
             return result.user;
           } catch (fallbackError) {
-            (fallbackError as any).context = "otp-fallback";
-            throw fallbackError;
+            const errorWithContext: OtpError = fallbackError instanceof Error ? fallbackError : new Error("OTP fallback verification failed.");
+            errorWithContext.context = "otp-fallback";
+            throw errorWithContext;
           }
         }
       }
 
       if (!verificationId) {
-        const error = new Error("No confirmation result found. Please request a new OTP.");
-        (error as any).code = "auth/missing-confirmation";
+        const error: OtpError = new Error("No confirmation result found. Please request a new OTP.");
+        error.code = "auth/missing-confirmation";
         throw error;
       }
 
@@ -167,11 +174,6 @@ export const FirebaseAuth = {
       await firebaseSignOut(auth);
     }
     clearVerificationState();
-    if (recaptchaVerifierGlobal) {
-      recaptchaVerifierGlobal.clear();
-      recaptchaVerifierGlobal = null;
-    }
-    recaptchaContainerId = null;
     localStorage.removeItem("firebase_confirmation");
     localStorage.removeItem("farmer_user");
   },
