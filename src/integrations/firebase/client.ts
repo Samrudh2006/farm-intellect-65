@@ -21,6 +21,11 @@ let confirmationResultGlobal: ConfirmationResult | null = null;
 let recaptchaVerifierGlobal: RecaptchaVerifier | null = null;
 let recaptchaContainerId: string | null = null;
 type OtpError = Error & { code?: string; context?: string };
+const createOtpError = (message: string, code: string): OtpError => {
+  const error: OtpError = new Error(message);
+  error.code = code;
+  return error;
+};
 const clearVerificationState = () => {
   confirmationResultGlobal = null;
   sessionStorage.removeItem("firebase_verification_id");
@@ -76,9 +81,7 @@ export const FirebaseAuth = {
   // Send OTP to phone number
   sendOTP: async (phoneNumber: string, containerId: string): Promise<ConfirmationResult> => {
     if (!auth) {
-      const error: OtpError = new Error("Firebase is not available. Please refresh the page.");
-      error.code = "auth/unavailable";
-      throw error;
+      throw createOtpError("Firebase is not available. Please refresh the page.", "auth/unavailable");
     }
 
     try {
@@ -112,9 +115,7 @@ export const FirebaseAuth = {
   // Verify OTP code
   verifyOTP: async (otpCode: string): Promise<User | null> => {
     if (!auth) {
-      const error: OtpError = new Error("Firebase is not available. Please refresh the page.");
-      error.code = "auth/unavailable";
-      throw error;
+      throw createOtpError("Firebase is not available. Please refresh the page.", "auth/unavailable");
     }
 
     try {
@@ -136,7 +137,9 @@ export const FirebaseAuth = {
             clearVerificationState();
             return result.user;
           } catch (fallbackError) {
-            const errorWithContext: OtpError = fallbackError instanceof Error ? fallbackError : new Error("OTP fallback verification failed.");
+            const errorWithContext: OtpError = fallbackError instanceof Error
+              ? fallbackError
+              : new Error("OTP fallback verification failed. Please request a new OTP.");
             errorWithContext.context = "otp-fallback";
             throw errorWithContext;
           }
@@ -144,9 +147,7 @@ export const FirebaseAuth = {
       }
 
       if (!verificationId) {
-        const error: OtpError = new Error("No confirmation result found. Please request a new OTP.");
-        error.code = "auth/missing-confirmation";
-        throw error;
+        throw createOtpError("No confirmation result found. Please request a new OTP.", "auth/missing-confirmation");
       }
 
       const credential = PhoneAuthProvider.credential(verificationId, otpCode);
