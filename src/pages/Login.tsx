@@ -43,6 +43,56 @@ const Login = () => {
     }
   }, [resendTimer]);
 
+  const getOtpSendErrorMessage = (error: any) => {
+    if (error?.code === "auth/invalid-phone-number") {
+      return "Invalid phone number format";
+    }
+    if (error?.code === "auth/missing-phone-number") {
+      return "Phone number is required";
+    }
+    if (error?.code === "auth/too-many-requests") {
+      return "Too many requests. Please try again later.";
+    }
+    if (error?.code === "auth/quota-exceeded") {
+      return "SMS quota exceeded. Please try again later.";
+    }
+    if (error?.code === "auth/captcha-check-failed") {
+      return "Verification failed. Please try again.";
+    }
+    if (error?.code === "auth/operation-not-allowed") {
+      return "Phone sign-in is not enabled. Please contact support.";
+    }
+    if (error?.code === "auth/invalid-app-credential" || error?.code === "auth/missing-app-credential") {
+      return "OTP service is not configured. Please try again later.";
+    }
+    if (error?.code === "auth/unauthorized-domain") {
+      return "This domain is not authorized for OTP login.";
+    }
+    if (error?.code === "auth/network-request-failed") {
+      return "Network error. Please check your connection.";
+    }
+    if (error instanceof Error && error.message) {
+      return error.message;
+    }
+    return "Failed to send OTP";
+  };
+
+  const getOtpVerifyErrorMessage = (error: any) => {
+    if (error?.code === "auth/invalid-verification-code") {
+      return "Invalid OTP code. Please try again.";
+    }
+    if (error?.code === "auth/code-expired" || error?.code === "auth/session-expired") {
+      return "OTP has expired. Please request a new one.";
+    }
+    if (error?.code === "auth/network-request-failed") {
+      return "Network error. Please try again.";
+    }
+    if (error instanceof Error && error.message.includes("No confirmation result")) {
+      return "OTP session expired. Please request a new OTP.";
+    }
+    return "Invalid OTP";
+  };
+
   const handleRoleSelect = (role: string) => {
     setSelectedRole(role);
     setIsLogin(true);
@@ -71,17 +121,7 @@ const Login = () => {
       });
     } catch (error: any) {
       console.error("OTP Error:", error);
-      let errorMessage = "Failed to send OTP";
-      
-      if (error.code === "auth/invalid-phone-number") {
-        errorMessage = "Invalid phone number format";
-      } else if (error.code === "auth/too-many-requests") {
-        errorMessage = "Too many requests. Please try again later.";
-      } else if (error.code === "auth/quota-exceeded") {
-        errorMessage = "SMS quota exceeded. Please try again later.";
-      }
-      
-      toast({ title: t("auth.error"), description: errorMessage, variant: "destructive" });
+      toast({ title: t("auth.error"), description: getOtpSendErrorMessage(error), variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -122,15 +162,7 @@ const Login = () => {
       }
     } catch (error: any) {
       console.error("OTP Verification Error:", error);
-      let errorMessage = "Invalid OTP";
-      
-      if (error.code === "auth/invalid-verification-code") {
-        errorMessage = "Invalid OTP code. Please try again.";
-      } else if (error.code === "auth/code-expired") {
-        errorMessage = "OTP has expired. Please request a new one.";
-      }
-      
-      toast({ title: t("auth.error"), description: errorMessage, variant: "destructive" });
+      toast({ title: t("auth.error"), description: getOtpVerifyErrorMessage(error), variant: "destructive" });
     } finally {
       setLoading(false);
     }
