@@ -102,7 +102,9 @@ const Login = () => {
 
   const derivePasskeyHash = async (value: string, salt?: string) => {
     if (!window.crypto?.subtle || !window.crypto?.getRandomValues) {
-      throw new Error("Passkey hashing is not supported in this browser.");
+      throw new Error(
+        "Passkey hashing requires a modern browser with Web Crypto API support. Please update your browser or use Chrome, Firefox, Safari, or Edge.",
+      );
     }
 
     const passkeyBytes = new TextEncoder().encode(value);
@@ -143,7 +145,9 @@ const Login = () => {
 
   const generateUserId = () => {
     if (!window.crypto?.getRandomValues) {
-      throw new Error("Secure random ID generation is unavailable.");
+      throw new Error(
+        "Secure random ID generation requires a modern browser. Please update your browser or use Chrome, Firefox, Safari, or Edge.",
+      );
     }
     return bytesToHex(window.crypto.getRandomValues(new Uint8Array(16)));
   };
@@ -230,9 +234,13 @@ const Login = () => {
       navigate(routes[selectedRole] || "/farmer/dashboard");
     } catch (error) {
       console.error("Passkey flow error:", error);
+      const description =
+        error instanceof Error && error.message
+          ? error.message
+          : "Passkey login failed. Please try again.";
       toast({
         title: "Passkey login unavailable",
-        description: "Please use a modern browser that supports secure passkey hashing.",
+        description,
         variant: "destructive",
       });
     } finally {
