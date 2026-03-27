@@ -68,14 +68,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const setPasskeySession = (passkeySession: PasskeySession) => {
-    localStorage.setItem(PASSKEY_SESSION_KEY, JSON.stringify(passkeySession));
+    sessionStorage.setItem(PASSKEY_SESSION_KEY, JSON.stringify(passkeySession));
     applyPasskeySession(passkeySession);
     setLoading(false);
   };
 
   const loadPasskeySession = () => {
     try {
-      const rawSession = localStorage.getItem(PASSKEY_SESSION_KEY);
+      const rawSession = sessionStorage.getItem(PASSKEY_SESSION_KEY);
       if (!rawSession) return null;
       return JSON.parse(rawSession) as PasskeySession;
     } catch (error) {
@@ -189,7 +189,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signOut = async () => {
     if (authMode === "passkey") {
-      localStorage.removeItem(PASSKEY_SESSION_KEY);
+      sessionStorage.removeItem(PASSKEY_SESSION_KEY);
       setUser(null);
       setProfile(null);
       setAuthMode("none");

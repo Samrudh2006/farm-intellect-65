@@ -20,6 +20,7 @@ const PASSKEY_USERS_KEY = "passkey_users";
 type PasskeyUserRecord = {
   userId: string;
   passkeyHash: string;
+  passkeySalt: string;
   role: string;
   profile: {
     display_name: string;
@@ -64,15 +65,42 @@ const Login = () => {
     localStorage.setItem(PASSKEY_USERS_KEY, JSON.stringify(users));
   };
 
-  const hashPasskey = async (value: string) => {
-    if (window.crypto?.subtle) {
-      const data = new TextEncoder().encode(value);
-      const hashBuffer = await window.crypto.subtle.digest("SHA-256", data);
-      return Array.from(new Uint8Array(hashBuffer))
-        .map((byte) => byte.toString(16).padStart(2, "0"))
-        .join("");
+  const bytesToHex = (bytes: Uint8Array) =>
+    Array.from(bytes)
+      .map((byte) => byte.toString(16).padStart(2, "0"))
+      .join("");
+
+  const hexToBytes = (hex: string) => {
+    const bytes = new Uint8Array(hex.length / 2);
+    for (let i = 0; i < bytes.length; i += 1) {
+      bytes[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
     }
-    return value;
+    return bytes;
+  };
+
+  const derivePasskeyHash = async (value: string, salt?: string) => {
+    if (!window.crypto?.subtle || !window.crypto?.getRandomValues) {
+      throw new Error("Passkey hashing is not supported in this browser.");
+    }
+
+    const passkeyBytes = new TextEncoder().encode(value);
+    const saltBytes = salt ? hexToBytes(salt) : window.crypto.getRandomValues(new Uint8Array(16));
+    const key = await window.crypto.subtle.importKey("raw", passkeyBytes, "PBKDF2", false, ["deriveBits"]);
+    const derivedBits = await window.crypto.subtle.deriveBits(
+      {
+        name: "PBKDF2",
+        salt: saltBytes,
+        iterations: 100000,
+        hash: "SHA-256",
+      },
+      key,
+      256,
+    );
+
+    return {
+      hash: bytesToHex(new Uint8Array(derivedBits)),
+      salt: bytesToHex(saltBytes),
+    };
   };
 
   const createDefaultProfile = (role: string) => ({
@@ -120,8 +148,8 @@ const Login = () => {
           return;
         }
 
-        const hashedPasskey = await hashPasskey(passkey);
-        if (hashedPasskey !== record.passkeyHash) {
+        const { hash } = await derivePasskeyHash(passkey, record.passkeySalt);
+        if (hash !== record.passkeyHash) {
           toast({ title: "Invalid passkey", description: "The passkey you entered is incorrect.", variant: "destructive" });
           return;
         }
@@ -134,11 +162,14 @@ const Login = () => {
           return;
         }
 
-        const hashedPasskey = await hashPasskey(passkey);
-        const userId = window.crypto?.randomUUID ? window.crypto.randomUUID() : `${roleKey}-${Date.now()}`;
+        const { hash, salt } = await derivePasskeyHash(passkey);
+        const userId = window.crypto?.randomUUID
+          ? window.crypto.randomUUID()
+          : `${roleKey}-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
         const record: PasskeyUserRecord = {
           userId,
-          passkeyHash: hashedPasskey,
+          passkeyHash: hash,
+          passkeySalt: salt,
           role: roleKey,
           profile: createDefaultProfile(roleKey),
         };
@@ -156,6 +187,13 @@ const Login = () => {
         admin: "/admin/dashboard",
       };
       navigate(routes[selectedRole] || "/farmer/dashboard");
+    } catch (error) {
+      console.error("Passkey flow error:", error);
+      toast({
+        title: "Passkey login unavailable",
+        description: "Please use a modern browser that supports secure passkey hashing.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
