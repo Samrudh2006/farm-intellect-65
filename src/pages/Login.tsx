@@ -69,7 +69,7 @@ const Login = () => {
 
   const loadPasskeyAttempts = () => {
     try {
-      const rawAttempts = sessionStorage.getItem(PASSKEY_ATTEMPTS_KEY);
+      const rawAttempts = localStorage.getItem(PASSKEY_ATTEMPTS_KEY);
       if (!rawAttempts) return {};
       return JSON.parse(rawAttempts) as Record<string, { attempts: number; lockedUntil?: number }>;
     } catch (error) {
@@ -79,7 +79,7 @@ const Login = () => {
   };
 
   const savePasskeyAttempts = (attempts: Record<string, { attempts: number; lockedUntil?: number }>) => {
-    sessionStorage.setItem(PASSKEY_ATTEMPTS_KEY, JSON.stringify(attempts));
+    localStorage.setItem(PASSKEY_ATTEMPTS_KEY, JSON.stringify(attempts));
   };
 
   const recordFailedAttempt = (roleKey: string) => {
@@ -124,7 +124,7 @@ const Login = () => {
       {
         name: "PBKDF2",
         salt: saltBytes,
-        iterations: 600000,
+        iterations: 300000,
         hash: "SHA-256",
       },
       key,
@@ -154,9 +154,6 @@ const Login = () => {
   });
 
   const generateUserId = () => {
-    if (window.crypto?.randomUUID) {
-      return window.crypto.randomUUID();
-    }
     if (!window.crypto?.getRandomValues) {
       throw new Error("Secure random ID generation is unavailable.");
     }

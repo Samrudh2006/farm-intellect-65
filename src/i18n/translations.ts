@@ -23,7 +23,7 @@ const en: Record<string, string> = {
   'auth.passkey_confirm_label': 'Confirm Passkey',
   'auth.passkey_placeholder': 'Enter 6-digit passkey',
   'auth.passkey_confirm_placeholder': 'Re-enter passkey',
-  'auth.passkey_local_notice': 'Passkeys are stored locally on this device.',
+  'auth.passkey_local_notice': 'Passkeys are stored locally on this device. Keep them private and do not share.',
   'auth.fullname': 'Full Name',
   'auth.role': 'Role',
   'auth.phone': 'Phone Number',
