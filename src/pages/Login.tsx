@@ -95,6 +95,9 @@ const Login = () => {
     if (parsedError?.code === "auth/missing-confirmation") {
       return "OTP session expired. Please request a new OTP.";
     }
+    if (parsedError?.code === "auth/otp-fallback") {
+      return t("auth.otp_verify_failed");
+    }
     if (parsedError?.code === "auth/unavailable") {
       return "OTP service is not available. Please refresh the page.";
     }

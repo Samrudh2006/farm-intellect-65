@@ -31,6 +31,7 @@ const en: Record<string, string> = {
   'auth.otp_sent': 'OTP sent',
   'auth.error': 'Authentication error',
   'auth.welcome_back': 'Welcome back!',
+  'auth.otp_verify_failed': 'OTP verification failed. Please request a new OTP.',
   'auth.no_account': "Don't have an account? Sign up",
   'auth.have_account': 'Already have an account? Sign in',
   'auth.forgot_password': 'Forgot Password?',
