@@ -3,6 +3,20 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type CurrentUserRole = "farmer" | "merchant" | "expert" | "admin";
 
+const PASSKEY_USERS_KEY = "passkey_users";
+
+type PasskeyUserRecord = {
+  userId: string;
+  passkeyHash: string;
+  role: string;
+  profile: {
+    display_name: string;
+    phone?: string;
+    location?: string;
+    avatar_url?: string;
+  };
+};
+
 export interface CurrentUser {
   name: string;
   role: CurrentUserRole;
@@ -17,7 +31,7 @@ export const useCurrentUser = (): {
   updateUser: (updates: Partial<CurrentUser>) => Promise<void>;
   logout: () => Promise<void>;
 } => {
-  const { profile, user: authUser, signOut, refreshProfile } = useAuth();
+  const { profile, user: authUser, signOut, refreshProfile, authMode, setPasskeySession } = useAuth();
 
   const user: CurrentUser = {
     name: profile?.display_name || "User",
@@ -29,7 +43,42 @@ export const useCurrentUser = (): {
   };
 
   const updateUser = async (updates: Partial<CurrentUser>) => {
-    if (!authUser) {
+    if (!authUser || !profile) {
+      return;
+    }
+
+    if (authMode === "passkey") {
+      const updatedProfile = {
+        id: profile.id,
+        role: profile.role,
+        display_name: updates.name ?? profile.display_name ?? "User",
+        phone: updates.phone ?? profile.phone ?? "",
+        location: updates.location ?? profile.location ?? "",
+        avatar_url: profile.avatar_url ?? "",
+      };
+
+      try {
+        const rawUsers = localStorage.getItem(PASSKEY_USERS_KEY);
+        const users = (rawUsers ? JSON.parse(rawUsers) : {}) as Record<string, PasskeyUserRecord>;
+        const record = users[profile.role];
+        if (record?.userId === profile.id) {
+          users[profile.role] = {
+            ...record,
+            profile: {
+              ...record.profile,
+              display_name: updatedProfile.display_name,
+              phone: updatedProfile.phone,
+              location: updatedProfile.location,
+              avatar_url: updatedProfile.avatar_url,
+            },
+          };
+          localStorage.setItem(PASSKEY_USERS_KEY, JSON.stringify(users));
+        }
+      } catch (error) {
+        console.error("Failed to persist passkey profile updates:", error);
+      }
+
+      setPasskeySession(updatedProfile);
       return;
     }
 

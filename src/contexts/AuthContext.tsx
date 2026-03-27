@@ -1,8 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { hasSupabaseEnv, supabase } from "@/integrations/supabase/client";
-import { FirebaseAuth } from "@/integrations/firebase/client";
 import type { User as SupabaseUser, Session as SupabaseSession } from "@supabase/supabase-js";
-import type { User as FirebaseUser } from "firebase/auth";
 
 interface UserProfile {
   id: string;
@@ -14,28 +12,77 @@ interface UserProfile {
   role: string;
 }
 
+type AuthMode = "passkey" | "supabase" | "none";
+
+interface PasskeyUser {
+  id: string;
+  role: string;
+  email?: string;
+}
+
+interface PasskeySession {
+  id: string;
+  role: string;
+  display_name: string;
+  phone?: string;
+  location?: string;
+  avatar_url?: string;
+}
+
 interface AuthContextType {
-  user: SupabaseUser | FirebaseUser | null;
+  user: SupabaseUser | PasskeyUser | null;
   session: SupabaseSession | null;
   profile: UserProfile | null;
   loading: boolean;
-  signUp: (email: string, password: string, metadata: { display_name: string; role: string; phone?: string; location?: string }) => Promise<{ error: Error | null }>;
-  signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
-  signInWithPhone: (phone: string) => Promise<{ confirmationResult: any; error: Error | null }>;
-  verifyOTP: (otp: string, confirmationResult: any) => Promise<{ user: FirebaseUser; error: Error | null }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
-  isFirebaseUser: boolean;
+  authMode: AuthMode;
+  setPasskeySession: (session: PasskeySession) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const PASSKEY_SESSION_KEY = "passkey_session";
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<SupabaseUser | FirebaseUser | null>(null);
+  const [user, setUser] = useState<SupabaseUser | PasskeyUser | null>(null);
   const [session, setSession] = useState<SupabaseSession | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isFirebaseUser, setIsFirebaseUser] = useState(false);
+  const [authMode, setAuthMode] = useState<AuthMode>("none");
+
+  const applyPasskeySession = (passkeySession: PasskeySession) => {
+    const nextProfile: UserProfile = {
+      id: passkeySession.id,
+      display_name: passkeySession.display_name,
+      email: "",
+      phone: passkeySession.phone || "",
+      location: passkeySession.location || "",
+      avatar_url: passkeySession.avatar_url || "",
+      role: passkeySession.role,
+    };
+
+    setUser({ id: passkeySession.id, role: passkeySession.role, email: "" });
+    setProfile(nextProfile);
+    setSession(null);
+    setAuthMode("passkey");
+  };
+
+  const setPasskeySession = (passkeySession: PasskeySession) => {
+    localStorage.setItem(PASSKEY_SESSION_KEY, JSON.stringify(passkeySession));
+    applyPasskeySession(passkeySession);
+    setLoading(false);
+  };
+
+  const loadPasskeySession = () => {
+    try {
+      const rawSession = localStorage.getItem(PASSKEY_SESSION_KEY);
+      if (!rawSession) return null;
+      return JSON.parse(rawSession) as PasskeySession;
+    } catch (error) {
+      console.error("Failed to parse passkey session:", error);
+      return null;
+    }
+  };
 
   const fetchProfile = async (userId: string) => {
     try {
@@ -77,51 +124,33 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const refreshProfile = async () => {
     if (user) {
-      if (isFirebaseUser) {
-        const firebaseUser = user as FirebaseUser;
-        setProfile({
-          id: firebaseUser.uid,
-          display_name: firebaseUser.phoneNumber || "User",
-          email: "",
-          phone: firebaseUser.phoneNumber || "",
-          location: "",
-          avatar_url: "",
-          role: "farmer",
-        });
-      } else {
-        await fetchProfile((user as SupabaseUser).id);
+      if (authMode === "passkey") {
+        const passkeySession = loadPasskeySession();
+        if (passkeySession) {
+          applyPasskeySession(passkeySession);
+        }
+        return;
       }
+      await fetchProfile((user as SupabaseUser).id);
     }
   };
 
   useEffect(() => {
-    const unsubscribe = FirebaseAuth.onAuthStateChanged((firebaseUser) => {
-      if (firebaseUser) {
-        setUser(firebaseUser);
-        setIsFirebaseUser(true);
-        setProfile({
-          id: firebaseUser.uid,
-          display_name: firebaseUser.phoneNumber || "User",
-          email: "",
-          phone: firebaseUser.phoneNumber || "",
-          location: "",
-          avatar_url: "",
-          role: "farmer",
-        });
-        setLoading(false);
-      }
-    });
-
-    return () => unsubscribe();
+    const passkeySession = loadPasskeySession();
+    if (passkeySession) {
+      applyPasskeySession(passkeySession);
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
-    if (isFirebaseUser) return;
+    if (authMode === "passkey") return;
     if (!hasSupabaseEnv) {
       setLoading(false);
       setSession(null);
       setUser(null);
       setProfile(null);
+      setAuthMode("none");
       return;
     }
 
@@ -129,7 +158,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       async (_event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
-        setIsFirebaseUser(false);
+        setAuthMode(session?.user ? "supabase" : "none");
         if (session?.user) {
           setLoading(true);
           setTimeout(async () => {
@@ -146,7 +175,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      setIsFirebaseUser(false);
+      setAuthMode(session?.user ? "supabase" : "none");
       if (session?.user) {
         await fetchProfile(session.user.id);
       } else {
@@ -156,66 +185,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     return () => subscription.unsubscribe();
-  }, [isFirebaseUser]);
-
-  const signUp = async (
-    email: string,
-    password: string,
-    metadata: { display_name: string; role: string; phone?: string; location?: string }
-  ) => {
-    if (!hasSupabaseEnv) {
-      return {
-        error: new Error("Supabase environment variables are missing. Configure VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY."),
-      };
-    }
-
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: metadata,
-        emailRedirectTo: window.location.origin,
-      },
-    });
-    return { error: error as Error | null };
-  };
-
-  const signIn = async (email: string, password: string) => {
-    if (!hasSupabaseEnv) {
-      return {
-        error: new Error("Supabase environment variables are missing. Configure VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY."),
-      };
-    }
-
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    return { error: error as Error | null };
-  };
-
-  const signInWithPhone = async (phone: string) => {
-    try {
-      const result = await FirebaseAuth.sendOTP(phone, "recaptcha-container");
-      return { confirmationResult: result, error: null };
-    } catch (error: any) {
-      return { confirmationResult: null, error: error as Error | null };
-    }
-  };
-
-  const verifyOTP = async (otp: string, confirmationResult: any) => {
-    try {
-      const user = await FirebaseAuth.verifyOTP(otp);
-      return { user, error: null };
-    } catch (error: any) {
-      return { user: null as any, error: error as Error | null };
-    }
-  };
+  }, [authMode]);
 
   const signOut = async () => {
-    if (isFirebaseUser) {
-      await FirebaseAuth.signOut();
+    if (authMode === "passkey") {
+      localStorage.removeItem(PASSKEY_SESSION_KEY);
       setUser(null);
       setProfile(null);
-      setIsFirebaseUser(false);
-    } else if (hasSupabaseEnv) {
+      setAuthMode("none");
+      return;
+    }
+    if (hasSupabaseEnv) {
       await supabase.auth.signOut();
       setSession(null);
       setUser(null);
@@ -229,13 +209,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       session, 
       profile, 
       loading, 
-      signUp, 
-      signIn, 
-      signInWithPhone,
-      verifyOTP,
       signOut, 
       refreshProfile,
-      isFirebaseUser 
+      authMode,
+      setPasskeySession
     }}>
       {children}
     </AuthContext.Provider>
