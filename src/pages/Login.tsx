@@ -71,6 +71,9 @@ const Login = () => {
     if (error?.code === "auth/network-request-failed") {
       return "Network error. Please check your connection.";
     }
+    if (error?.code === "auth/unavailable") {
+      return "OTP service is not available. Please refresh the page.";
+    }
     if (error instanceof Error && error.message) {
       return error.message;
     }
@@ -87,8 +90,11 @@ const Login = () => {
     if (error?.code === "auth/network-request-failed") {
       return "Network error. Please try again.";
     }
-    if (error instanceof Error && error.message.includes("No confirmation result")) {
+    if (error?.code === "auth/missing-confirmation") {
       return "OTP session expired. Please request a new OTP.";
+    }
+    if (error?.code === "auth/unavailable") {
+      return "OTP service is not available. Please refresh the page.";
     }
     return "Invalid OTP";
   };
@@ -102,7 +108,7 @@ const Login = () => {
     setConfirmationResult(null);
   };
 
-  const sendOTP = async (method: "sms" | "whatsapp" = loginMethod) => {
+  const sendOTP = async (method: "sms" | "whatsapp") => {
     if (!formData.phone || formData.phone.length < 10) {
       toast({ title: t("auth.invalid_phone"), description: "Please enter a valid 10-digit phone number", variant: "destructive" });
       return;
@@ -209,7 +215,7 @@ const Login = () => {
       return;
     }
 
-    await sendOTP();
+    await sendOTP(loginMethod);
   };
 
   useEffect(() => {
@@ -327,7 +333,7 @@ const Login = () => {
                   {resendTimer > 0 ? (
                     <p className="text-sm text-muted-foreground">Resend OTP in {resendTimer}s</p>
                   ) : (
-                    <button onClick={sendOTP} className="text-sm text-primary hover:underline">
+                    <button onClick={() => sendOTP(loginMethod)} className="text-sm text-primary hover:underline">
                       Resend OTP
                     </button>
                   )}

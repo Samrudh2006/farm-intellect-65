@@ -20,6 +20,10 @@ let auth: any = null;
 let confirmationResultGlobal: ConfirmationResult | null = null;
 let recaptchaVerifierGlobal: RecaptchaVerifier | null = null;
 let recaptchaContainerId: string | null = null;
+const clearVerificationState = () => {
+  confirmationResultGlobal = null;
+  sessionStorage.removeItem("firebase_verification_id");
+};
 
 try {
   app = initializeApp(firebaseConfig);
@@ -66,7 +70,9 @@ export const FirebaseAuth = {
   // Send OTP to phone number
   sendOTP: async (phoneNumber: string, containerId: string): Promise<ConfirmationResult> => {
     if (!auth) {
-      throw new Error("Firebase is not available. Please refresh the page.");
+      const error = new Error("Firebase is not available. Please refresh the page.");
+      (error as any).code = "auth/unavailable";
+      throw error;
     }
 
     try {
@@ -86,7 +92,6 @@ export const FirebaseAuth = {
       const result = await signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifier);
       confirmationResultGlobal = result;
       sessionStorage.setItem("firebase_verification_id", result.verificationId);
-      sessionStorage.setItem("firebase_phone_number", phoneNumber);
       return result;
     } catch (error: any) {
       console.error("Error sending OTP:", error);
@@ -101,33 +106,49 @@ export const FirebaseAuth = {
   // Verify OTP code
   verifyOTP: async (otpCode: string): Promise<User | null> => {
     if (!auth) {
-      throw new Error("Firebase is not available. Please refresh the page.");
+      const error = new Error("Firebase is not available. Please refresh the page.");
+      (error as any).code = "auth/unavailable";
+      throw error;
     }
 
     try {
+      const verificationId = sessionStorage.getItem("firebase_verification_id");
+
       if (confirmationResultGlobal) {
-        const result = await confirmationResultGlobal.confirm(otpCode);
-        confirmationResultGlobal = null;
-        sessionStorage.removeItem("firebase_verification_id");
-        sessionStorage.removeItem("firebase_phone_number");
-        return result.user;
+        try {
+          const result = await confirmationResultGlobal.confirm(otpCode);
+          clearVerificationState();
+          return result.user;
+        } catch (error) {
+          if (!verificationId) {
+            throw error;
+          }
+
+          try {
+            const credential = PhoneAuthProvider.credential(verificationId, otpCode);
+            const result = await signInWithCredential(auth, credential);
+            clearVerificationState();
+            return result.user;
+          } catch (fallbackError) {
+            (fallbackError as any).context = "otp-fallback";
+            throw fallbackError;
+          }
+        }
       }
 
-      const verificationId = sessionStorage.getItem("firebase_verification_id");
       if (!verificationId) {
-        throw new Error("No confirmation result found. Please request a new OTP.");
+        const error = new Error("No confirmation result found. Please request a new OTP.");
+        (error as any).code = "auth/missing-confirmation";
+        throw error;
       }
 
       const credential = PhoneAuthProvider.credential(verificationId, otpCode);
       const result = await signInWithCredential(auth, credential);
-      sessionStorage.removeItem("firebase_verification_id");
-      sessionStorage.removeItem("firebase_phone_number");
+      clearVerificationState();
       return result.user;
     } catch (error: any) {
       if (error?.code === "auth/code-expired" || error?.code === "auth/session-expired") {
-        confirmationResultGlobal = null;
-        sessionStorage.removeItem("firebase_verification_id");
-        sessionStorage.removeItem("firebase_phone_number");
+        clearVerificationState();
       }
       console.error("Error verifying OTP:", error);
       throw error;
@@ -145,7 +166,7 @@ export const FirebaseAuth = {
       const { signOut: firebaseSignOut } = await import("firebase/auth");
       await firebaseSignOut(auth);
     }
-    confirmationResultGlobal = null;
+    clearVerificationState();
     if (recaptchaVerifierGlobal) {
       recaptchaVerifierGlobal.clear();
       recaptchaVerifierGlobal = null;
@@ -153,8 +174,6 @@ export const FirebaseAuth = {
     recaptchaContainerId = null;
     localStorage.removeItem("firebase_confirmation");
     localStorage.removeItem("farmer_user");
-    sessionStorage.removeItem("firebase_verification_id");
-    sessionStorage.removeItem("firebase_phone_number");
   },
 
   // Listen to auth state changes
