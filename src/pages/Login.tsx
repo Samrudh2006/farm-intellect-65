@@ -16,6 +16,9 @@ import expertImg from "@/assets/roles/expert-role.jpg";
 import adminImg from "@/assets/roles/admin-role.jpg";
 
 const PASSKEY_USERS_KEY = "passkey_users";
+const PASSKEY_ATTEMPTS_KEY = "passkey_attempts";
+const MAX_PASSKEY_ATTEMPTS = 5;
+const PASSKEY_LOCK_MS = 60_000;
 
 type PasskeyUserRecord = {
   userId: string;
@@ -65,6 +68,38 @@ const Login = () => {
     localStorage.setItem(PASSKEY_USERS_KEY, JSON.stringify(users));
   };
 
+  const loadPasskeyAttempts = () => {
+    try {
+      const rawAttempts = sessionStorage.getItem(PASSKEY_ATTEMPTS_KEY);
+      if (!rawAttempts) return {};
+      return JSON.parse(rawAttempts) as Record<string, { attempts: number; lockedUntil?: number }>;
+    } catch (error) {
+      console.error("Failed to parse passkey attempts:", error);
+      return {};
+    }
+  };
+
+  const savePasskeyAttempts = (attempts: Record<string, { attempts: number; lockedUntil?: number }>) => {
+    sessionStorage.setItem(PASSKEY_ATTEMPTS_KEY, JSON.stringify(attempts));
+  };
+
+  const recordFailedAttempt = (roleKey: string) => {
+    const attempts = loadPasskeyAttempts();
+    const current = attempts[roleKey] ?? { attempts: 0 };
+    const nextAttempts = current.attempts + 1;
+    const lockedUntil = nextAttempts >= MAX_PASSKEY_ATTEMPTS ? Date.now() + PASSKEY_LOCK_MS : current.lockedUntil;
+    attempts[roleKey] = { attempts: nextAttempts, lockedUntil };
+    savePasskeyAttempts(attempts);
+  };
+
+  const clearAttempts = (roleKey: string) => {
+    const attempts = loadPasskeyAttempts();
+    if (attempts[roleKey]) {
+      delete attempts[roleKey];
+      savePasskeyAttempts(attempts);
+    }
+  };
+
   const bytesToHex = (bytes: Uint8Array) =>
     Array.from(bytes)
       .map((byte) => byte.toString(16).padStart(2, "0"))
@@ -90,7 +125,7 @@ const Login = () => {
       {
         name: "PBKDF2",
         salt: saltBytes,
-        iterations: 100000,
+        iterations: 600000,
         hash: "SHA-256",
       },
       key,
@@ -118,6 +153,14 @@ const Login = () => {
     location: record.profile.location || "",
     avatar_url: record.profile.avatar_url || "",
   });
+
+  const generateUserId = () => {
+    if (!window.crypto?.getRandomValues) {
+      throw new Error("Secure random ID generation is unavailable.");
+    }
+    const bytes = window.crypto.getRandomValues(new Uint8Array(16));
+    return bytesToHex(bytes);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -148,13 +191,27 @@ const Login = () => {
           return;
         }
 
+        const attempts = loadPasskeyAttempts();
+        const lockUntil = attempts[roleKey]?.lockedUntil;
+        if (lockUntil && lockUntil > Date.now()) {
+          const secondsRemaining = Math.ceil((lockUntil - Date.now()) / 1000);
+          toast({
+            title: "Too many attempts",
+            description: `Try again in ${secondsRemaining} seconds.`,
+            variant: "destructive",
+          });
+          return;
+        }
+
         const { hash } = await derivePasskeyHash(passkey, record.passkeySalt);
         if (hash !== record.passkeyHash) {
+          recordFailedAttempt(roleKey);
           toast({ title: "Invalid passkey", description: "The passkey you entered is incorrect.", variant: "destructive" });
           return;
         }
 
         setPasskeySession(buildSessionFromRecord(record));
+        clearAttempts(roleKey);
         toast({ title: t("auth.login_success"), description: t("auth.welcome_back") });
       } else {
         if (users[roleKey]) {
@@ -163,9 +220,7 @@ const Login = () => {
         }
 
         const { hash, salt } = await derivePasskeyHash(passkey);
-        const userId = window.crypto?.randomUUID
-          ? window.crypto.randomUUID()
-          : `${roleKey}-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
+        const userId = window.crypto?.randomUUID ? window.crypto.randomUUID() : generateUserId();
         const record: PasskeyUserRecord = {
           userId,
           passkeyHash: hash,

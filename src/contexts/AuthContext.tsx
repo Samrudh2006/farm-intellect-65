@@ -61,7 +61,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       role: passkeySession.role,
     };
 
-    setUser({ id: passkeySession.id, role: passkeySession.role, email: "" });
+    setUser({ id: passkeySession.id, role: passkeySession.role });
     setProfile(nextProfile);
     setSession(null);
     setAuthMode("passkey");
