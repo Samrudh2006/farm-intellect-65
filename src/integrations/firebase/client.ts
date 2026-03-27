@@ -20,7 +20,7 @@ let auth: any = null;
 let confirmationResultGlobal: ConfirmationResult | null = null;
 let recaptchaVerifierGlobal: RecaptchaVerifier | null = null;
 let recaptchaContainerId: string | null = null;
-type OTPError = Error & { code?: string; context?: string };
+type OTPError = Error & { code?: string };
 const createOTPError = (message: string, code: string): OTPError => {
   const error: OTPError = new Error(message);
   error.code = code;
@@ -142,7 +142,6 @@ export const FirebaseAuth = {
               ? fallbackError.message
               : "OTP fallback verification failed. Please request a new OTP.";
             const errorWithContext: OTPError = new Error(fallbackMessage);
-            errorWithContext.context = "auth/otp-fallback";
             errorWithContext.code = fallbackCode ?? "auth/otp-fallback";
             throw errorWithContext;
           }
