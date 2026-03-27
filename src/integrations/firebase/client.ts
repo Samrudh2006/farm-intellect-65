@@ -20,9 +20,9 @@ let auth: any = null;
 let confirmationResultGlobal: ConfirmationResult | null = null;
 let recaptchaVerifierGlobal: RecaptchaVerifier | null = null;
 let recaptchaContainerId: string | null = null;
-type OtpError = Error & { code?: string; context?: string };
-const createOtpError = (message: string, code: string): OtpError => {
-  const error: OtpError = new Error(message);
+type OTPError = Error & { code?: string; context?: string };
+const createOtpError = (message: string, code: string): OTPError => {
+  const error: OTPError = new Error(message);
   error.code = code;
   return error;
 };
@@ -137,10 +137,15 @@ export const FirebaseAuth = {
             clearVerificationState();
             return result.user;
           } catch (fallbackError) {
-            const errorWithContext: OtpError = fallbackError instanceof Error
-              ? fallbackError
-              : new Error("OTP fallback verification failed. Please request a new OTP.");
+            const fallbackCode = (fallbackError as { code?: string })?.code;
+            const fallbackMessage = fallbackError instanceof Error
+              ? fallbackError.message
+              : "OTP fallback verification failed. Please request a new OTP.";
+            const errorWithContext: OTPError = new Error(fallbackMessage);
             errorWithContext.context = "otp-fallback";
+            if (fallbackCode) {
+              errorWithContext.code = fallbackCode;
+            }
             throw errorWithContext;
           }
         }
@@ -154,8 +159,9 @@ export const FirebaseAuth = {
       const result = await signInWithCredential(auth, credential);
       clearVerificationState();
       return result.user;
-    } catch (error: any) {
-      if (error?.code === "auth/code-expired" || error?.code === "auth/session-expired") {
+    } catch (error: unknown) {
+      const parsedError = error as { code?: string };
+      if (parsedError?.code === "auth/code-expired" || parsedError?.code === "auth/session-expired") {
         clearVerificationState();
       }
       console.error("Error verifying OTP:", error);
