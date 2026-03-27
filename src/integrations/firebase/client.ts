@@ -85,8 +85,8 @@ export const FirebaseAuth = {
       
       const result = await signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifier);
       confirmationResultGlobal = result;
-      localStorage.setItem("firebase_verification_id", result.verificationId);
-      localStorage.setItem("firebase_phone_number", phoneNumber);
+      sessionStorage.setItem("firebase_verification_id", result.verificationId);
+      sessionStorage.setItem("firebase_phone_number", phoneNumber);
       return result;
     } catch (error: any) {
       console.error("Error sending OTP:", error);
@@ -108,22 +108,27 @@ export const FirebaseAuth = {
       if (confirmationResultGlobal) {
         const result = await confirmationResultGlobal.confirm(otpCode);
         confirmationResultGlobal = null;
-        localStorage.removeItem("firebase_verification_id");
-        localStorage.removeItem("firebase_phone_number");
+        sessionStorage.removeItem("firebase_verification_id");
+        sessionStorage.removeItem("firebase_phone_number");
         return result.user;
       }
 
-      const verificationId = localStorage.getItem("firebase_verification_id");
+      const verificationId = sessionStorage.getItem("firebase_verification_id");
       if (!verificationId) {
         throw new Error("No confirmation result found. Please request a new OTP.");
       }
 
       const credential = PhoneAuthProvider.credential(verificationId, otpCode);
       const result = await signInWithCredential(auth, credential);
-      localStorage.removeItem("firebase_verification_id");
-      localStorage.removeItem("firebase_phone_number");
+      sessionStorage.removeItem("firebase_verification_id");
+      sessionStorage.removeItem("firebase_phone_number");
       return result.user;
-    } catch (error) {
+    } catch (error: any) {
+      if (error?.code === "auth/code-expired" || error?.code === "auth/session-expired") {
+        confirmationResultGlobal = null;
+        sessionStorage.removeItem("firebase_verification_id");
+        sessionStorage.removeItem("firebase_phone_number");
+      }
       console.error("Error verifying OTP:", error);
       throw error;
     }
@@ -148,8 +153,8 @@ export const FirebaseAuth = {
     recaptchaContainerId = null;
     localStorage.removeItem("firebase_confirmation");
     localStorage.removeItem("farmer_user");
-    localStorage.removeItem("firebase_verification_id");
-    localStorage.removeItem("firebase_phone_number");
+    sessionStorage.removeItem("firebase_verification_id");
+    sessionStorage.removeItem("firebase_phone_number");
   },
 
   // Listen to auth state changes
