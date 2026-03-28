@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useEffect, useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,22 +14,17 @@ import {
   Copy,
   ThumbsUp,
   ThumbsDown,
-  StopCircle
+  StopCircle,
+  AlertCircle,
+  Clock
 } from "lucide-react";
 import krishiAvatar from "@/assets/krishi-ai-avatar.png";
-import { streamChat, type AiMessage } from "@/lib/aiStream";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
 import { VoiceInput } from "@/components/ui/voice-input";
 import { useLanguage } from "@/contexts/LanguageContext";
-
-interface Message {
-  id: string;
-  content: string;
-  type: "user" | "assistant";
-  timestamp: Date;
-  isTyping?: boolean;
-}
+import { useAIChatbot } from "@/hooks/useAIChatbot";
+import { useRateLimit } from "@/hooks/useRateLimit";
 
 // Text-to-Speech language mapping
 const ttsLanguageMap: Record<string, string> = {
@@ -60,164 +55,80 @@ const ttsLanguageMap: Record<string, string> = {
 
 export const EnhancedAIChatbot = () => {
   const { t, language } = useLanguage();
-  const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [isListening, setIsListening] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const speechSynthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const [initialLoad, setInitialLoad] = useState(true);
 
+  // Use new consolidated hook
+  const {
+    messages,
+    isLoading,
+    isSpeaking,
+    voiceEnabled,
+    messagesEndRef,
+    sendMessage,
+    addFeedback,
+    copyMessage,
+    clearChat,
+    speakText,
+    stopSpeaking,
+    setVoiceEnabled,
+  } = useAIChatbot({
+    maxHistory: 25,
+    autoSpeak: true,
+    language: ttsLanguageMap[language] || "en-IN",
+    onError: (err) => toast.error(err),
+  });
+
+  // Rate limiting with 10 requests per minute
+  const { isRateLimited, remainingRequests, resetTime, recordRequest } = useRateLimit({
+    maxRequests: 10,
+    windowMs: 60000,
+  });
+
+  // Initialize with welcome message
   useEffect(() => {
-    setMessages([{
-      id: "welcome",
-      content: t('ai.greeting'),
-      type: "assistant",
-      timestamp: new Date(),
-    }]);
-  }, [language]);
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  // Text-to-Speech function
-  const speakText = useCallback((text: string) => {
-    if (!voiceEnabled || !window.speechSynthesis) return;
-    
-    // Cancel any ongoing speech
-    window.speechSynthesis.cancel();
-    
-    // Clean text - remove markdown
-    const cleanText = text
-      .replace(/\*\*/g, '')
-      .replace(/\*/g, '')
-      .replace(/#{1,6}\s/g, '')
-      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-      .replace(/`/g, '');
-    
-    const utterance = new SpeechSynthesisUtterance(cleanText);
-    utterance.lang = ttsLanguageMap[language] || "en-IN";
-    utterance.rate = 0.9;
-    utterance.pitch = 1;
-    
-    // Find best matching voice
-    const voices = window.speechSynthesis.getVoices();
-    const langCode = ttsLanguageMap[language] || "en-IN";
-    const matchingVoice = voices.find(v => v.lang === langCode) || 
-                          voices.find(v => v.lang.startsWith(langCode.split('-')[0])) ||
-                          voices.find(v => v.lang.startsWith('en'));
-    
-    if (matchingVoice) {
-      utterance.voice = matchingVoice;
+    if (initialLoad && messages.length === 0) {
+      const welcomeMsg = {
+        id: "welcome",
+        content: t('ai.greeting'),
+        type: "assistant" as const,
+        timestamp: new Date(),
+      };
+      // Note: Direct setMessages here requires a state ref - instead rely on default empty state
+      setInitialLoad(false);
     }
-    
-    utterance.onstart = () => setIsSpeaking(true);
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
-    
-    speechSynthesisRef.current = utterance;
-    window.speechSynthesis.speak(utterance);
-  }, [voiceEnabled, language]);
-
-  const stopSpeaking = useCallback(() => {
-    window.speechSynthesis?.cancel();
-    setIsSpeaking(false);
-  }, []);
+  }, [initialLoad, messages.length, t]);
 
   const handleVoiceTranscript = (text: string) => {
-    setInputMessage(prev => prev + (prev ? " " : "") + text);
+    setInputMessage((prev) => prev + (prev ? " " : "") + text);
   };
 
-  const sendMessage = async (forcedText?: string) => {
-    const messageText = (forcedText ?? inputMessage).trim();
-    if (!messageText || isLoading) return;
+  const handleSendMessage = useCallback(
+    async (forcedText?: string) => {
+      const messageText = (forcedText ?? inputMessage).trim();
+      if (!messageText || isLoading || isRateLimited) return;
 
-    const userMsg: Message = {
-      id: Date.now().toString(),
-      content: messageText,
-      type: "user",
-      timestamp: new Date(),
-    };
+      if (!recordRequest()) {
+        toast.error(`Too many requests. Please wait ${Math.ceil((resetTime?.getTime() || 0 - Date.now()) / 1000)}s`);
+        return;
+      }
 
-    setMessages((prev) => [...prev, userMsg]);
-    setInputMessage("");
-    setIsLoading(true);
-
-    // Build AI message history (skip welcome, typing)
-    const history: AiMessage[] = messages
-      .filter((m) => m.id !== "welcome" && !m.isTyping)
-      .map((m) => ({ role: m.type === "user" ? "user" as const : "assistant" as const, content: m.content }));
-    history.push({ role: "user", content: userMsg.content });
-
-    let assistantSoFar = "";
-
-    const upsertAssistant = (chunk: string) => {
-      assistantSoFar += chunk;
-      setMessages((prev) => {
-        const last = prev[prev.length - 1];
-        if (last?.type === "assistant" && last.id === "streaming") {
-          return prev.map((m, i) => (i === prev.length - 1 ? { ...m, content: assistantSoFar } : m));
-        }
-        return [...prev, { id: "streaming", content: assistantSoFar, type: "assistant", timestamp: new Date() }];
-      });
-    };
-
-    await streamChat({
-      messages: history,
-      mode: "chat",
-      onDelta: upsertAssistant,
-      onDone: () => {
-        setMessages((prev) =>
-          prev.map((m) => (m.id === "streaming" ? { ...m, id: Date.now().toString() } : m))
-        );
-        setIsLoading(false);
-
-        if (voiceEnabled && assistantSoFar) {
-          setTimeout(() => speakText(assistantSoFar), 300);
-        }
-      },
-      onError: (err) => {
-        toast.error(err || t('ai.error_chat_failed'));
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: `err-${Date.now()}`,
-            content: t('ai.error_chat_failed'),
-            type: "assistant",
-            timestamp: new Date(),
-          },
-        ]);
-        setIsLoading(false);
-      },
-    });
-  };
+      setInputMessage("");
+      await sendMessage(messageText);
+    },
+    [inputMessage, isLoading, isRateLimited, recordRequest, resetTime, sendMessage]
+  );
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      sendMessage();
+      handleSendMessage();
     }
   };
 
-  const clearChat = () => {
-    stopSpeaking();
-    setMessages([{
-      id: "welcome",
-      content: t('ai.greeting'),
-      type: "assistant",
-      timestamp: new Date(),
-    }]);
-  };
-  
-  const copyMessage = (content: string) => {
-    navigator.clipboard.writeText(content);
-    toast.success(t('ai.copied'));
-  };
-
-  const speakMessage = (content: string) => {
-    speakText(content);
+  const handleFeedback = (messageId: string, feedback: "up" | "down") => {
+    addFeedback(messageId, feedback);
   };
 
   const quickQuestions = [
@@ -245,6 +156,17 @@ export const EnhancedAIChatbot = () => {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            {isRateLimited && (
+              <Badge variant="destructive" className="flex items-center gap-1 text-xs">
+                <Clock className="h-3 w-3" />
+                {Math.ceil((resetTime?.getTime() || 0 - Date.now()) / 1000)}s
+              </Badge>
+            )}
+            {remainingRequests <= 3 && !isRateLimited && (
+              <Badge variant="secondary" className="text-xs">
+                {remainingRequests}/{10} requests
+              </Badge>
+            )}
             {isSpeaking && (
               <Button 
                 variant="destructive" 
@@ -252,7 +174,7 @@ export const EnhancedAIChatbot = () => {
                 onClick={stopSpeaking}
                 className="h-8 px-3 animate-pulse"
               >
-               <StopCircle className="h-4 w-4 mr-1" />
+                <StopCircle className="h-4 w-4 mr-1" />
                 {t('ai.stop')}
               </Button>
             )}
@@ -277,6 +199,14 @@ export const EnhancedAIChatbot = () => {
 
       <CardContent className="flex-1 flex flex-col p-0">
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {messages.length === 0 && (
+            <div className="flex items-center justify-center h-full text-center text-muted-foreground">
+              <div>
+                <p className="text-sm mb-2">{t('ai.greeting')}</p>
+                <p className="text-xs">Ask me anything about farming!</p>
+              </div>
+            </div>
+          )}
           {messages.map((message, index) => (
             <div 
               key={message.id} 
@@ -306,22 +236,49 @@ export const EnhancedAIChatbot = () => {
                 {!message.isTyping && message.id !== "streaming" && (
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <span>{message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+                    {message.confidence && (
+                      <Badge variant="outline" className="text-xs">
+                        {message.confidence}% confidence
+                      </Badge>
+                    )}
                     {message.type === "assistant" && (
                       <>
                         <Button 
                           variant="ghost" 
                           size="sm" 
-                          onClick={() => speakMessage(message.content)} 
+                          onClick={() => speakText(message.content)} 
                           className="h-6 w-6 p-0 hover:bg-primary/10"
                           title={t('ai.listen_message')}
                         >
                           <Volume2 className="h-3 w-3" />
                         </Button>
-                        <Button variant="ghost" size="sm" onClick={() => copyMessage(message.content)} className="h-6 w-6 p-0 hover:bg-primary/10">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => copyMessage(message.content)} 
+                          className="h-6 w-6 p-0 hover:bg-primary/10"
+                          title="Copy message"
+                        >
                           <Copy className="h-3 w-3" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-primary/10"><ThumbsUp className="h-3 w-3" /></Button>
-                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-destructive/10"><ThumbsDown className="h-3 w-3" /></Button>
+                        <Button 
+                          variant={message.feedback === 'up' ? 'default' : 'ghost'} 
+                          size="sm" 
+                          onClick={() => handleFeedback(message.id, 'up')} 
+                          className="h-6 w-6 p-0 hover:bg-primary/10"
+                          title="This was helpful"
+                        >
+                          <ThumbsUp className="h-3 w-3" />
+                        </Button>
+                        <Button 
+                          variant={message.feedback === 'down' ? 'destructive' : 'ghost'} 
+                          size="sm" 
+                          onClick={() => handleFeedback(message.id, 'down')} 
+                          className="h-6 w-6 p-0 hover:bg-destructive/10"
+                          title="This wasn&apos;t helpful"
+                        >
+                          <ThumbsDown className="h-3 w-3" />
+                        </Button>
                       </>
                     )}
                   </div>
@@ -337,7 +294,7 @@ export const EnhancedAIChatbot = () => {
           <div ref={messagesEndRef} />
         </div>
 
-        {messages.length === 1 && (
+        {messages.length === 0 && (
           <div className="p-4 border-t bg-muted/30">
             <h4 className="text-sm font-medium mb-2">{t('ai.quick_questions')}:</h4>
             <div className="flex flex-wrap gap-2">
@@ -346,13 +303,21 @@ export const EnhancedAIChatbot = () => {
                   key={i} 
                   variant="outline" 
                   size="sm" 
-                  onClick={() => sendMessage(q)} 
+                  onClick={() => handleSendMessage(q)} 
+                  disabled={isLoading || isRateLimited}
                   className="text-xs hover:bg-primary/10 hover:border-primary transition-all"
                 >
                   {q}
                 </Button>
               ))}
             </div>
+          </div>
+        )}
+
+        {isRateLimited && (
+          <div className="p-3 border-t bg-destructive/5 flex items-center gap-2 text-sm text-destructive">
+            <AlertCircle className="h-4 w-4" />
+            <span>Too many requests. Please wait before sending another message.</span>
           </div>
         )}
 
@@ -364,22 +329,22 @@ export const EnhancedAIChatbot = () => {
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder={t('ai.placeholder')}
-                disabled={isLoading}
+                disabled={isLoading || isRateLimited}
                 className="pr-12 transition-all focus:ring-2 focus:ring-primary"
               />
               <div className="absolute right-1 top-1/2 -translate-y-1/2">
                 <VoiceInput 
                   onTranscript={handleVoiceTranscript}
                   onListeningChange={setIsListening}
-                  disabled={isLoading}
+                  disabled={isLoading || isRateLimited}
                   size="sm"
                   className={isListening ? "animate-saffron-pulse" : ""}
                 />
               </div>
             </div>
             <Button 
-              onClick={() => sendMessage()} 
-              disabled={!inputMessage.trim() || isLoading} 
+              onClick={() => handleSendMessage()} 
+              disabled={!inputMessage.trim() || isLoading || isRateLimited} 
               size="sm"
               className="bg-primary hover:bg-primary/90 transition-all"
             >
