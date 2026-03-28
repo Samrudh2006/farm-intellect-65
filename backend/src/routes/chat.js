@@ -9,6 +9,11 @@ import {
   synthesizeSarvamSpeech,
   transcribeSarvamAudio,
 } from '../services/sarvam.js';
+import {
+  createNvidiaChatCompletion,
+  streamNvidiaChatCompletion,
+  checkNvidiaHealth,
+} from '../services/nvidia.js';
 
 const router = express.Router();
 const upload = multer({
@@ -17,6 +22,59 @@ const upload = multer({
 });
 
 const CHAT_HISTORY_LIMIT = 12;
+
+// Helper function to get chat completion with fallback: NVIDIA -> Sarvam
+const getChatCompletion = async (messages, options = {}) => {
+  const { mode = 'chat', context, languageCode, user } = options;
+  
+  try {
+    console.log(`[v0] Attempting NVIDIA chat completion (mode: ${mode})`);
+    const result = await createNvidiaChatCompletion({
+      messages,
+      temperature: 0.3,
+      maxTokens: 1024,
+    });
+    console.log(`[v0] ✓ NVIDIA provided response`);
+    return { content: result.content, provider: 'nvidia' };
+  } catch (nvidiaError) {
+    console.warn(`[v0] NVIDIA failed, falling back to Sarvam:`, nvidiaError.message);
+    try {
+      const result = await createSarvamChatCompletion({
+        messages,
+        temperature: 0.3,
+        maxTokens: 700,
+      });
+      console.log(`[v0] ✓ Sarvam provided fallback response`);
+      return { content: result.content, provider: 'sarvam' };
+    } catch (sarvamError) {
+      console.error(`[v0] Both NVIDIA and Sarvam failed:`, sarvamError.message);
+      throw new Error(`Failed to get AI response from both providers: ${sarvamError.message}`);
+    }
+  }
+};
+
+// Health check endpoint
+router.get('/health', async (req, res) => {
+  try {
+    const nvidiaHealth = await checkNvidiaHealth();
+    console.log(`[v0] Health check - NVIDIA:`, nvidiaHealth);
+    
+    res.json({
+      status: 'healthy',
+      providers: {
+        nvidia: nvidiaHealth.healthy ? 'active' : 'inactive',
+        sarvam: 'active',
+      },
+      details: nvidiaHealth,
+    });
+  } catch (error) {
+    logger.error('Health check error:', error);
+    res.status(500).json({ 
+      status: 'unhealthy', 
+      error: error.message 
+    });
+  }
+});
 
 const MODE_PROMPTS = {
   chat: 'You are Krishi AI, a practical agricultural assistant for Indian farmers. Give accurate, concise, farmer-friendly advice. Prefer actionable bullet points when useful and stay grounded in agronomy, weather risk, pests, soil health, irrigation, crop calendars, mandi realities, and government schemes.',
@@ -117,17 +175,23 @@ router.post('/complete', authenticate, logActivity, async (req, res) => {
       return res.status(400).json({ error: 'At least one message is required' });
     }
 
-    const completion = await createSarvamChatCompletion({
-      messages: buildAssistantMessages({
-        user: req.user,
-        mode,
-        messages,
-        context,
-        languageCode,
-      }),
+    const assistantMessages = buildAssistantMessages({
+      user: req.user,
+      mode,
+      messages,
+      context,
+      languageCode,
     });
 
-    res.json({ content: completion.content });
+    const { content, provider } = await getChatCompletion(assistantMessages, {
+      mode,
+      context,
+      languageCode,
+      user: req.user,
+    });
+
+    console.log(`[v0] Completion via ${provider}`);
+    res.json({ content, provider });
   } catch (error) {
     logger.error('Assistant completion error:', error);
     res.status(500).json({ error: error instanceof Error ? error.message : 'Failed to complete assistant request' });
@@ -160,34 +224,42 @@ router.post('/message', authenticate, logActivity, async (req, res) => {
       { role: 'user', content: trimmedMessage },
     ];
 
-    const completion = await createSarvamChatCompletion({
-      messages: buildAssistantMessages({
-        user: req.user,
-        mode,
-        messages: conversationMessages,
-        context,
-        languageCode,
-      }),
+    const assistantMessages = buildAssistantMessages({
+      user: req.user,
+      mode,
+      messages: conversationMessages,
+      context,
+      languageCode,
     });
 
-    // Save AI response
+    const { content, provider } = await getChatCompletion(assistantMessages, {
+      mode,
+      context,
+      languageCode,
+      user: req.user,
+    });
+
+    // Save AI response with provider info
     const aiMessage = await prisma.chatMessage.create({
       data: {
         userId: req.user.id,
-        message: completion.content,
+        message: content,
         type: 'AI_ASSISTANT',
         context: JSON.stringify({
           originalMessage: trimmedMessage,
           mode,
           languageCode,
+          provider,
           ...context
         })
       }
     });
 
+    console.log(`[v0] Message handled via ${provider}`);
     res.json({
       userMessage,
-      aiMessage
+      aiMessage,
+      provider
     });
   } catch (error) {
     logger.error('Chat message error:', error);
