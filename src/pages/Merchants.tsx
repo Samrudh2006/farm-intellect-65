@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -95,37 +96,6 @@ const mockMerchants: Merchant[] = [
   }
 ];
 
-const mockCropDemands: CropDemand[] = [
-  {
-    crop: 'Wheat',
-    avgPrice: 2180,
-    merchants: 8,
-    trend: 'up',
-    recommendation: 'High demand due to festival season. Best time to sell.'
-  },
-  {
-    crop: 'Rice',
-    avgPrice: 3150,
-    merchants: 6,
-    trend: 'stable',
-    recommendation: 'Stable prices. Good time for bulk sales.'
-  },
-  {
-    crop: 'Cotton',
-    avgPrice: 6350,
-    merchants: 4,
-    trend: 'up',
-    recommendation: 'Export demand increasing. Premium prices available.'
-  },
-  {
-    crop: 'Tomato',
-    avgPrice: 28,
-    merchants: 12,
-    trend: 'down',
-    recommendation: 'Oversupply in market. Consider processed sales.'
-  }
-];
-
 const Merchants = () => {
   const { t } = useLanguage();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -135,6 +105,60 @@ const Merchants = () => {
     name: "John Farmer",
     role: "farmer",
   };
+
+  const [marketDemands, setMarketDemands] = useState<CropDemand[]>([
+    {
+      crop: 'Wheat',
+      avgPrice: 2180,
+      merchants: 8,
+      trend: 'up',
+      recommendation: 'High demand due to festival season. Best time to sell.'
+    },
+    {
+      crop: 'Rice',
+      avgPrice: 3150,
+      merchants: 6,
+      trend: 'stable',
+      recommendation: 'Stable prices. Good time for bulk sales.'
+    },
+    {
+      crop: 'Cotton',
+      avgPrice: 6350,
+      merchants: 4,
+      trend: 'up',
+      recommendation: 'Export demand increasing. Premium prices available.'
+    },
+    {
+      crop: 'Tomato',
+      avgPrice: 28,
+      merchants: 12,
+      trend: 'down',
+      recommendation: 'Oversupply in market. Consider processed sales.'
+    }
+  ]);
+
+  useEffect(() => {
+    const fetchPrices = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke("market-prices", {
+          body: { state: "Punjab", district: "Ludhiana" }
+        });
+        if (data && data.prices && data.prices.length > 0) {
+          const formatted = data.prices.slice(0, 4).map((p: any) => ({
+            crop: p.crop,
+            avgPrice: p.modalPrice,
+            merchants: Math.floor(Math.random() * 10) + 2, // Mock merchant count
+            trend: p.modalPrice > p.minPrice ? 'up' : 'down',
+            recommendation: 'Current market rate.'
+          }));
+          setMarketDemands(formatted);
+        }
+      } catch (err) {
+        console.error("Failed to fetch market prices:", err);
+      }
+    };
+    fetchPrices();
+  }, []);
 
   const demandColors = {
     high: "text-green-600 bg-green-50",
@@ -281,7 +305,7 @@ const Merchants = () => {
 
             <TabsContent value="prices" className="space-y-6">
               <div className="grid gap-6 md:grid-cols-2">
-                {mockCropDemands.map((demand, index) => (
+                {marketDemands.map((demand, index) => (
                   <Card key={index}>
                     <CardHeader>
                       <div className="flex items-center justify-between">

@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -92,11 +93,33 @@ const Dashboard = () => {
     { id: 3, task: 'Harvest preparation for Field C', crop: 'Mustard', priority: 'low', due: '3 days' },
   ];
 
-  const marketPrices = [
+  const [marketPrices, setMarketPrices] = useState<any[]>([
     { crop: 'Wheat', price: '₹2,200/quintal', change: '+5.2%', trend: 'up' },
     { crop: 'Cotton', price: '₹6,800/quintal', change: '-2.1%', trend: 'down' },
     { crop: 'Mustard', price: '₹4,500/quintal', change: '+8.5%', trend: 'up' },
-  ];
+  ]);
+
+  useEffect(() => {
+    const fetchPrices = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke("market-prices", {
+          body: { state: "Punjab", district: "Ludhiana" }
+        });
+        if (data && data.prices && data.prices.length > 0) {
+          const formatted = data.prices.slice(0, 3).map((p: any) => ({
+            crop: p.crop,
+            price: `₹${p.modalPrice}/quintal`,
+            change: '+0.0%', // The API doesn't provide historical change for now
+            trend: 'neutral'
+          }));
+          setMarketPrices(formatted);
+        }
+      } catch (err) {
+        console.error("Failed to fetch market prices:", err);
+      }
+    };
+    fetchPrices();
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">

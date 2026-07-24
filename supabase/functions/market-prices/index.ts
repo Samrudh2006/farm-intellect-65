@@ -7,7 +7,6 @@ const corsHeaders = {
 };
 
 const CACHE_TTL_MS = 15 * 60 * 1000;
-const STALE_TTL_MS = 6 * 60 * 60 * 1000;
 const cache = new Map<string, { at: number; prices: any[] }>();
 
 async function fetchWithTimeout(url: string, ms = 5000) {
@@ -46,6 +45,7 @@ serve(async (req) => {
     }
 
     const { state, district } = await req.json();
+    const queryState = (state || "punjab").toLowerCase();
 
     // Validate inputs
     if (state && (typeof state !== "string" || state.length > 100)) {
@@ -53,14 +53,8 @@ serve(async (req) => {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-    if (district && (typeof district !== "string" || district.length > 100)) {
-      return new Response(JSON.stringify({ error: "Invalid district parameter" }), {
-        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
 
-    const API_KEY = Deno.env.get("DATA_GOV_API_KEY");
-    const cacheKey = `${state || "Punjab"}|${district || ""}`;
+    const cacheKey = `${queryState}`;
     const cached = cache.get(cacheKey);
     const now = Date.now();
 
@@ -71,107 +65,51 @@ serve(async (req) => {
     }
 
     let prices: any[] = [];
-    let source: "live" | "cache-stale" | "ai-fallback" | "unavailable" = "unavailable";
+    let source: "live" | "unavailable" = "unavailable";
 
-    if (API_KEY) {
-      try {
-        const url = `https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070?api-key=${API_KEY}&format=json&limit=20&filters[state]=${encodeURIComponent(state || "Punjab")}`;
-        const res = await fetchWithTimeout(url, 5000);
-        if (res.ok) {
-          const data = await res.json();
-          prices = (data.records || []).map((r: any) => ({
-            crop: r.commodity,
-            market: `${r.market}, ${r.district}`,
-            minPrice: parseInt(r.min_price) || 0,
-            maxPrice: parseInt(r.max_price) || 0,
-            modalPrice: parseInt(r.modal_price) || 0,
-            unit: "per quintal",
-            date: r.arrival_date,
-          }));
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const url = `https://vegetablemarketprice.com/api/dataapi/market/${encodeURIComponent(queryState)}/daywisedata?date=${today}`;
+      const res = await fetchWithTimeout(url, 8000);
+      
+      if (res.ok) {
+        const data = await res.json();
+        if (data.data && Array.isArray(data.data)) {
+          prices = data.data.slice(0, 20).map((r: any) => {
+            const basePrice = parseInt(r.price) || 0;
+            // The API provides per kg price. Convert to quintal (100kg)
+            const pricePerQuintal = basePrice * 100;
+            
+            return {
+              crop: r.vegetablename,
+              market: `${state || "Punjab"}, ${district || "Local Market"}`,
+              minPrice: Math.round(pricePerQuintal * 0.9), // Synthesize min price
+              maxPrice: Math.round(pricePerQuintal * 1.1), // Synthesize max price
+              modalPrice: pricePerQuintal,
+              unit: "per quintal",
+              date: today,
+            };
+          });
+          
           if (prices.length > 0) {
             source = "live";
             cache.set(cacheKey, { at: now, prices });
           }
         }
-      } catch (e) {
-        console.error("data.gov.in fetch error/timeout:", e);
       }
+    } catch (e) {
+      console.error("vegetablemarketprice API fetch error/timeout:", e);
     }
 
-    if (prices.length === 0 && cached && now - cached.at < STALE_TTL_MS) {
-      return new Response(JSON.stringify({ prices: cached.prices, source: "cache-stale", staleAgeMs: now - cached.at }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    // If API key not set or no results, use AI to generate contextual prices
+    // Fallback if API completely fails (so we don't crash the UI)
     if (prices.length === 0) {
-      const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-      if (LOVABLE_API_KEY) {
-        const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${LOVABLE_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model: "google/gemini-2.5-flash-lite",
-            messages: [
-              {
-                role: "system",
-                content: "You are a mandi price data provider. Return ONLY a JSON array of 8 current Indian crop market prices. Each object must have: crop (with Hindi name), market, minPrice, maxPrice, modalPrice (all in INR per quintal), unit ('per quintal'). Use realistic current market prices for Indian crops. No markdown, no explanation."
-              },
-              { role: "user", content: `Current mandi prices for ${state || "Punjab"}, ${district || "Ludhiana"} region for today ${new Date().toLocaleDateString("en-IN")}` }
-            ],
-            tools: [{
-              type: "function",
-              function: {
-                name: "return_prices",
-                description: "Return market prices",
-                parameters: {
-                  type: "object",
-                  properties: {
-                    prices: {
-                      type: "array",
-                      items: {
-                        type: "object",
-                        properties: {
-                          crop: { type: "string" },
-                          market: { type: "string" },
-                          minPrice: { type: "number" },
-                          maxPrice: { type: "number" },
-                          modalPrice: { type: "number" },
-                          unit: { type: "string" }
-                        },
-                        required: ["crop", "market", "minPrice", "maxPrice", "modalPrice", "unit"]
-                      }
-                    }
-                  },
-                  required: ["prices"]
-                }
-              }
-            }],
-            tool_choice: { type: "function", function: { name: "return_prices" } }
-          }),
-        });
-
-        if (aiRes.ok) {
-          const aiData = await aiRes.json();
-          const toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
-          if (toolCall) {
-            try {
-              const parsed = JSON.parse(toolCall.function.arguments);
-              prices = parsed.prices || [];
-            } catch (parseError) {
-              console.warn("Failed to parse streamed JSON chunk", parseError);
-            }
-          }
-        }
-      }
+      prices = [
+        { crop: "Wheat", market: "Local Market", minPrice: 2200, maxPrice: 2400, modalPrice: 2300, unit: "per quintal", date: new Date().toISOString() },
+        { crop: "Rice", market: "Local Market", minPrice: 3200, maxPrice: 3500, modalPrice: 3350, unit: "per quintal", date: new Date().toISOString() },
+        { crop: "Cotton", market: "Local Market", minPrice: 6500, maxPrice: 7000, modalPrice: 6800, unit: "per quintal", date: new Date().toISOString() }
+      ];
+      source = "unavailable";
     }
-
-    if (prices.length > 0 && source === "unavailable") source = "ai-fallback";
-    if (prices.length > 0 && source !== "live") cache.set(cacheKey, { at: now, prices });
 
     return new Response(JSON.stringify({ prices, source }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
